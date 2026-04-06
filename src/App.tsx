@@ -11,6 +11,7 @@ import PomodoroClock from './features/pomodoro/PomodoroClock'
 import SettingsPanel from './features/settings/SettingsPanel'
 import StatsPanel from './features/stats/StatsPanel'
 import PotatoClock from './features/potato/PotatoClock'
+import ActivitiesPage from './features/activities/ActivitiesPage'
 import { ToastContainer } from '@/components/ui/toast'
 
 // 主内容组件，使用路由
@@ -36,6 +37,8 @@ function AppContent() {
       setActiveTab('potato')
     } else if (path.startsWith('/stats')) {
       setActiveTab('stats')
+    } else if (path.startsWith('/activities')) {
+      setActiveTab('activities')
     } else {
       setActiveTab('pomodoro')
     }
@@ -65,7 +68,7 @@ function AppContent() {
     requestNotificationPermission()
 
     const handleNavigateToTasks = () => {
-      navigate('/settings?tab=activities')
+      navigate('/activities')
     }
     window.addEventListener('navigate-to-tasks', handleNavigateToTasks)
 
@@ -82,6 +85,9 @@ function AppContent() {
         break
       case 'potato':
         navigate('/potato')
+        break
+      case 'activities':
+        navigate('/activities')
         break
       case 'stats':
         navigate('/stats')
@@ -135,8 +141,18 @@ function AppContent() {
             </button>
           </nav>
 
-          {/* 底部：统计和设置 */}
+          {/* 底部：活动管理、统计和设置 */}
           <div className="px-3 py-2 space-y-0.5">
+            <button
+              onClick={() => handleNav('activities')}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                activeTab === 'activities'
+                  ? 'bg-black/10 text-gray-900 shadow-sm'
+                  : 'text-gray-900 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-[#2c2c2e]/80'
+              }`}
+            >
+              <span className="text-sm">活动</span>
+            </button>
             <button
               onClick={() => handleNav('stats')}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
@@ -166,6 +182,7 @@ function AppContent() {
             <Routes>
               <Route path="/" element={<PomodoroClock />} />
               <Route path="/potato" element={<PotatoClock />} />
+              <Route path="/activities" element={<ActivitiesPage />} />
               <Route path="/stats" element={<StatsPanel />} />
               <Route path="/settings/*" element={<SettingsPanel />} />
             </Routes>
