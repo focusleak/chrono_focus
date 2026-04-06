@@ -27,8 +27,8 @@ export const ConfirmDialog = ({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
-      <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
         <div className="flex items-center gap-3 mb-4">
           {icon || <AlertTriangle className="w-6 h-6" />}
           <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{title}</h3>

@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
-import { useTimerStore } from '../store/timerStore'
+import { useStore } from '../store/store'
 
 export const usePotatoTimer = () => {
-  const { isPotatoRunning, tickPotato } = useTimerStore()
+  const { isPotatoRunning, tickPotato } = useStore()
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {

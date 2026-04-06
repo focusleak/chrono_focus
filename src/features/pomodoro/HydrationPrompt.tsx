@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Droplets } from 'lucide-react'
-import { useTimerStore } from '../store/timerStore'
+import { useStore } from '../../store/store'
 
 interface HydrationPromptProps {
   open: boolean
@@ -10,8 +10,8 @@ interface HydrationPromptProps {
 }
 
 const HydrationPrompt = ({ open, onYes, onNo }: HydrationPromptProps) => {
-  const { timerType } = useTimerStore()
-  const isPomodoroEnd = timerType === 'shortBreak' || timerType === 'longBreak'
+  const { pomodoroType } = useStore()
+  const isPomodoroEnd = pomodoroType === 'shortBreak' || pomodoroType === 'longBreak'
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { sendNotification, playSound, getTodayString } from '../utils/helpers'
+import { format } from 'date-fns'
+import { sendNotification, playSound } from '../lib/utils'
 
 export type ActivityType = 'task' | 'entertainment'
 
@@ -40,14 +41,14 @@ export interface PotatoActivity {
   createdAt: string
 }
 
-export type TimerType = 'pomodoro' | 'shortBreak' | 'longBreak'
+export type PomodoroType = 'pomodoro' | 'shortBreak' | 'longBreak'
 
-export interface TimerState {
+export interface GlobalState {
   // 定时器状态
   isRunning: boolean
   timeLeft: number // 剩余时间（秒）
   currentTime: number // 当前时间（秒）
-  timerType: TimerType
+  pomodoroType: PomodoroType
 
   // 提示状态
   showTaskSelectWarning: boolean // 是否显示任务选择提示
@@ -107,14 +108,14 @@ export interface TimerState {
   dailyStats: DailyStats[] // 每日统计记录
 
   // 方法
-  startTimer: () => void
-  pauseTimer: () => void
-  resetTimer: () => void
-  stopTimer: () => void // 提前结束番茄钟
-  finishEarly: () => void // 提前结束并询问任务是否完成
-  setTimerType: (type: TimerType) => void
+  startPomodoro: () => void
+  pausePomodoro: () => void
+  resetPomodoro: () => void
+  stopPomodoro: () => void // 提前结束番茄钟
+  finishEarlyPomodoro: () => void // 提前结束并询问任务是否完成
+  setPomodoroType: (type: PomodoroType) => void
   tick: () => void
-  updateSettings: (settings: Partial<TimerState>) => void
+  updateSettings: (settings: Partial<GlobalState>) => void
   incrementWater: () => void
   resetDailyStats: () => void
   setShowTaskSelectWarning: (show: boolean) => void
@@ -252,7 +253,7 @@ const getInitialState = () => {
   }
 }
 
-const saveToStorage = (state: TimerState) => {
+const saveToStorage = (state: GlobalState) => {
   electronStorage.setItem('pomodoro-settings', {
     pomodoroTime: state.pomodoroTime,
     shortBreakTime: state.shortBreakTime,
@@ -273,6 +274,7 @@ const saveToStorage = (state: TimerState) => {
     gazeReminderInterval: state.gazeReminderInterval,
     tasks: state.tasks,
     currentTaskId: state.currentTaskId,
+    currentEntertainmentId: state.currentEntertainmentId,
     dailyStats: state.dailyStats,
     autoStartEnabled: state.autoStartEnabled,
     potatoActivities: state.potatoActivities,
@@ -282,16 +284,16 @@ const saveToStorage = (state: TimerState) => {
   })
 }
 
-export const useTimerStore = create<TimerState>((set, get) => {
+export const useStore = create<GlobalState>((set, get) => {
   const initial = getInitialState()
 
   return {
     ...initial,
     timeLeft: initial.pomodoroTime * 60,
     currentTime: initial.pomodoroTime * 60,
-    timerType: 'pomodoro',
+    pomodoroType: 'pomodoro',
 
-    startTimer: () => {
+    startPomodoro: () => {
       const { isPotatoRunning } = get()
       if (isPotatoRunning) {
         // 土豆钟正在运行，设置冲突标志，由 UI 层处理提示
@@ -301,13 +303,13 @@ export const useTimerStore = create<TimerState>((set, get) => {
       }
     },
 
-    pauseTimer: () => set({ isRunning: false }),
+    pausePomodoro: () => set({ isRunning: false }),
 
-    resetTimer: () => {
-      const { timerType, pomodoroTime, shortBreakTime, longBreakTime } = get()
+    resetPomodoro: () => {
+      const { pomodoroType, pomodoroTime, shortBreakTime, longBreakTime } = get()
       let time = pomodoroTime * 60
-      if (timerType === 'shortBreak') time = shortBreakTime * 60
-      if (timerType === 'longBreak') time = longBreakTime * 60
+      if (pomodoroType === 'shortBreak') time = shortBreakTime * 60
+      if (pomodoroType === 'longBreak') time = longBreakTime * 60
 
       set({
         isRunning: false,
@@ -316,14 +318,14 @@ export const useTimerStore = create<TimerState>((set, get) => {
       })
     },
 
-    stopTimer: () => {
+    stopPomodoro: () => {
       set({ isRunning: false })
     },
 
-    finishEarly: () => {
-      const { timerType, currentTaskId, tasks } = get()
+    finishEarlyPomodoro: () => {
+      const { pomodoroType, currentTaskId, tasks } = get()
 
-      if (timerType === 'pomodoro' && currentTaskId) {
+      if (pomodoroType === 'pomodoro' && currentTaskId) {
         const updatedTasks = tasks.map(task =>
           task.id === currentTaskId
             ? { ...task, completedPomodoros: task.completedPomodoros + 1 }
@@ -340,14 +342,14 @@ export const useTimerStore = create<TimerState>((set, get) => {
       }
     },
 
-    setTimerType: (type: TimerType) => {
+    setPomodoroType: (type: PomodoroType) => {
       const { pomodoroTime, shortBreakTime, longBreakTime } = get()
       let time = pomodoroTime * 60
       if (type === 'shortBreak') time = shortBreakTime * 60
       if (type === 'longBreak') time = longBreakTime * 60
 
       set({
-        timerType: type,
+        pomodoroType: type,
         timeLeft: time,
         currentTime: time,
         isRunning: false
@@ -355,10 +357,10 @@ export const useTimerStore = create<TimerState>((set, get) => {
     },
 
     tick: () => {
-      const { timeLeft, timerType, completedPomodoros, totalFocusTime, currentTaskId, tasks, waterCount, dailyStats } = get()
+      const { timeLeft, pomodoroType, completedPomodoros, totalFocusTime, currentTaskId, tasks, waterCount, dailyStats } = get()
 
       if (timeLeft <= 0) {
-        if (timerType === 'pomodoro') {
+        if (pomodoroType === 'pomodoro') {
           const updatedTasks = tasks.map(task =>
             task.id === currentTaskId
               ? { ...task, completedPomodoros: task.completedPomodoros + 1 }
@@ -366,7 +368,7 @@ export const useTimerStore = create<TimerState>((set, get) => {
           )
 
           const pomodoroTime = get().pomodoroTime
-          const today = getTodayString()
+          const today = format(new Date(), "yyyy-MM-dd")
 
           const todayStats = dailyStats.find(s => s.date === today)
           const newDailyStats: DailyStats[] = todayStats
@@ -396,9 +398,9 @@ export const useTimerStore = create<TimerState>((set, get) => {
             showBreakPrompt: 'shortBreak',
           })
           saveToStorage(get())
-        } else if (timerType === 'shortBreak' || timerType === 'longBreak') {
+        } else if (pomodoroType === 'shortBreak' || pomodoroType === 'longBreak') {
           set({ showHydrationPrompt: true })
-          get().setTimerType('pomodoro')
+          get().setPomodoroType('pomodoro')
         }
 
         set({ isRunning: false })
@@ -408,7 +410,7 @@ export const useTimerStore = create<TimerState>((set, get) => {
       set({ timeLeft: timeLeft - 1 })
     },
 
-    updateSettings: (settings: Partial<TimerState>) => {
+    updateSettings: (settings: Partial<GlobalState>) => {
       set((state) => {
         const newState = { ...state, ...settings }
         saveToStorage(newState)
@@ -419,7 +421,7 @@ export const useTimerStore = create<TimerState>((set, get) => {
     incrementWater: () => {
       const { waterCount, dailyStats } = get()
       const newWaterCount = waterCount + 1
-      const today = getTodayString()
+      const today = format(new Date(), "yyyy-MM-dd")
 
       const todayStats = dailyStats.find(s => s.date === today)
       const newDailyStats = todayStats
@@ -531,7 +533,11 @@ export const useTimerStore = create<TimerState>((set, get) => {
     },
 
     setCurrentEntertainment: (id) => {
-      set({ currentEntertainmentId: id })
+      set((state) => {
+        const newState = { ...state, currentEntertainmentId: id }
+        saveToStorage(newState)
+        return newState
+      })
     },
 
     toggleSubtask: (taskId, subtaskId) => {
@@ -556,7 +562,7 @@ export const useTimerStore = create<TimerState>((set, get) => {
 
     completeTask: (id) => {
       const { dailyStats, tasks } = get()
-      const today = getTodayString()
+      const today = format(new Date(), "yyyy-MM-dd")
       const task = tasks.find(t => t.id === id)
 
       // 循环任务：重置状态并重新激活
@@ -646,7 +652,7 @@ export const useTimerStore = create<TimerState>((set, get) => {
 
     getTodayStats: () => {
       const { dailyStats } = get()
-      const today = getTodayString()
+      const today = format(new Date(), "yyyy-MM-dd")
       return dailyStats.find(s => s.date === today) || null
     },
 
@@ -692,7 +698,7 @@ export const useTimerStore = create<TimerState>((set, get) => {
       if (potatoTimeLeft <= 0) {
         // 倒计时结束后不停止，改为正计时（记录超出时间）
         const overtimeSeconds = Math.abs(potatoTimeLeft)
-        const today = getTodayString()
+        const today = format(new Date(), "yyyy-MM-dd")
         const todayStatsItem = dailyStats.find(s => s.date === today)
         const overtimeMinutes = Math.floor(overtimeSeconds / 60)
 

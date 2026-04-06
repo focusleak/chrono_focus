@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useTimerStore, ActivityType, Task } from '../store/timerStore'
+import { useStore, ActivityType, Task } from '../../store/store'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -10,7 +10,7 @@ import TaskDetailModal from './TaskDetailModal'
 import { toast } from '@/components/ui/toast'
 
 const TaskList = () => {
-  const { tasks = [], completeTask, deleteTask } = useTimerStore()
+  const { tasks = [], completeTask, deleteTask } = useStore()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [viewingTask, setViewingTask] = useState<string | null>(null)
@@ -146,9 +146,6 @@ const TaskList = () => {
                                 <Progress value={progress} className="h-1.5 bg-gray-200 dark:bg-gray-700" />
                               </div>
                             )}
-                            <div className="mt-3 flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-                              <span>{task.completedPomodoros} 个番茄钟</span>
-                            </div>
                           </div>
                           <div className="flex gap-2 ml-4">
                             <Button
@@ -222,9 +219,6 @@ const TaskList = () => {
                               <Gamepad2 className="w-4 h-4 text-purple-500 flex-shrink-0" />
                             )}
                             <h5 className="font-medium line-through text-gray-500 dark:text-gray-400">{task.title}</h5>
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
-                            {task.completedPomodoros} 个番茄钟
                           </div>
                         </div>
                         <Button

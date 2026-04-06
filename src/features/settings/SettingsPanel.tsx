@@ -1,18 +1,20 @@
+import { useState } from 'react'
 import { useNavigate, useLocation, Routes, Route, Navigate } from 'react-router-dom'
-import { useTimerStore } from '../store/timerStore'
-import { useThemeStore, type ThemeMode } from '../hooks/useThemeStore'
+import { useStore } from '../../store/store'
+import { useThemeStore, type ThemeMode } from '../../hooks/useThemeStore'
+import type { Task } from '../../store/store'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
-import { Sun, Moon, Monitor, ListTodo, Settings2, Bell, Droplets, Footprints, Eye, Timer, PersonStanding } from 'lucide-react'
+import { Sun, Moon, Monitor, ListTodo, Settings2, Bell, Droplets, Footprints, Eye, Timer, PersonStanding, Plus } from 'lucide-react'
 import { SettingRow } from './SettingRow'
-import TaskList from './TaskList'
+import TaskCreationModal from './TaskCreationModal'
 
 // 设置侧边栏导航项
 const navItems = [
   { id: '', label: '常规设置', icon: Settings2 },
   { id: 'activities', label: '活动管理', icon: ListTodo },
-  { id: 'reminders', label: '提醒配置', icon: Bell },
+  { id: 'reminders', label: '提醒设置', icon: Bell },
 ]
 
 const SettingsLayout = () => {
@@ -75,7 +77,7 @@ const GeneralSettings = () => {
     autoStartEnabled, setAutoStartEnabled,
     dailyPotatoLimit, setDailyPotatoLimit,
     updateSettings 
-  } = useTimerStore()
+  } = useStore()
 
   const themeOptions: { label: string; value: ThemeMode; icon: any }[] = [
     { label: '亮色', value: 'light', icon: Sun },
@@ -226,9 +228,25 @@ const GeneralSettings = () => {
 
 // 活动管理
 const ActivitiesSettings = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingTask, setEditingTask] = useState<Task | null>(null)
+
   return (
-    <div className="p-6">
-      <TaskList />
+    <div className="p-6 space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">活动列表</h3>
+        <Button onClick={() => { setEditingTask(null); setIsModalOpen(true) }} className="bg-[#0071e3] hover:bg-[#0077ed] rounded-xl h-9 px-4 text-sm font-medium shadow-[0_2px_6px_rgba(0,113,227,0.2)] transition-all duration-200">
+          <Plus className="w-4 h-4 mr-1.5" />
+          新建活动
+        </Button>
+      </div>
+
+      {/* 活动创建/编辑模态框 */}
+      <TaskCreationModal
+        open={isModalOpen}
+        onClose={() => { setIsModalOpen(false); setEditingTask(null) }}
+        initialTask={editingTask}
+      />
     </div>
   )
 }
@@ -243,7 +261,7 @@ const RemindersSettings = () => {
     gazeReminderEnabled, gazeReminderInterval,
     walkReminderEnabled, walkReminderInterval,
     updateSettings
-  } = useTimerStore()
+  } = useStore()
 
   const settings = {
     restReminderEnabled, restReminderInterval,

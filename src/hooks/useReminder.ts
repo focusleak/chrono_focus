@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { sendNotification, playSound } from '../utils/helpers'
+import { sendNotification, playSound } from '../lib/utils'
 
 /**
  * 通用提醒 Hook

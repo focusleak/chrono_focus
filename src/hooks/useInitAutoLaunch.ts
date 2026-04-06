@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
-import { useTimerStore } from '../store/timerStore'
+import { useStore } from '../store/store'
 
 // 应用启动时从 Electron 获取开机自启动状态
 export const useInitAutoLaunch = () => {
-  const { setAutoStartEnabled } = useTimerStore()
+  const { setAutoStartEnabled } = useStore()
 
   useEffect(() => {
     const initAutoLaunch = async () => {

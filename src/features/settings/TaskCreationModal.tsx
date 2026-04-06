@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useTimerStore, SubTask, ActivityType, Task } from '../store/timerStore'
+import { useStore, SubTask, ActivityType, Task } from '../../store/store'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,7 +15,7 @@ interface TaskCreationModalProps {
 }
 
 const TaskCreationModal = ({ open, onClose, initialTask }: TaskCreationModalProps) => {
-  const { addTask, updateTask } = useTimerStore()
+  const { addTask, updateTask } = useStore()
   const isEditMode = !!initialTask
 
   const [currentStep, setCurrentStep] = useState<'basic' | 'subtasks'>('basic')

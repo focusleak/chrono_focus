@@ -30,7 +30,7 @@ export const ItemSelectorDialog = ({
 }: ItemSelectorDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md animate-in zoom-in-95 duration-200">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>

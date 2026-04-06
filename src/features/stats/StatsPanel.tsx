@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useTimerStore } from '../store/timerStore'
+import { useStore } from '../../store/store'
 import { Flame, Clock, CheckSquare, Eye, Footprints, Droplets, Target, TrendingUp, Plus, Minus, PersonStanding, Gamepad2, Timer } from 'lucide-react'
 import DailyStatsGrid from './DailyStatsGrid'
 import { Button } from '@/components/ui/button'
@@ -20,7 +20,7 @@ const StatsPanel = () => {
     potatoActivities = [],
     dailyPotatoLimit = 60,
     tasks = []
-  } = useTimerStore()
+  } = useStore()
 
   const [selectedCategory, setSelectedCategory] = useState<StatsCategory>('overview')
 
@@ -38,12 +38,12 @@ const StatsPanel = () => {
   ]
 
   const incrementWater = () => {
-    const { incrementWater: storeIncrementWater } = useTimerStore.getState()
+    const { incrementWater: storeIncrementWater } = useStore.getState()
     storeIncrementWater()
   }
 
   const decrementWater = () => {
-    const state = useTimerStore.getState()
+    const state = useStore.getState()
     if (state.waterCount > 0) {
       state.updateSettings({ waterCount: state.waterCount - 1 })
     }

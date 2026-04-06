@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useTimerStore } from '../../store/timerStore'
-import { Play, Pause, ChevronRight, Repeat, Zap, Gamepad2 } from 'lucide-react'
+import { useStore } from '../../store/store'
+import { Play, Pause, ChevronRight, Repeat, Gamepad2 } from 'lucide-react'
 import { ItemSelectorDialog } from '@/components/ItemSelectorDialog'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 
@@ -14,7 +14,7 @@ const PotatoClock = () => {
     setCurrentEntertainment,
     showPomodoroPotatoConflict,
     resolvePomodoroPotatoConflict,
-  } = useTimerStore()
+  } = useStore()
 
   const [showOvertimeWarning, setShowOvertimeWarning] = useState(false)
   const [showEntertainmentModal, setShowEntertainmentModal] = useState(false)
@@ -40,13 +40,13 @@ const PotatoClock = () => {
     if (potatoTimeLeft < 0) {
       setShowOvertimeWarning(true)
     } else {
-      const { startPotato } = useTimerStore.getState()
+      const { startPotato } = useStore.getState()
       startPotato()
     }
   }
 
   const confirmOvertimeStart = () => {
-    useTimerStore.getState().startPotato()
+    useStore.getState().startPotato()
     setShowOvertimeWarning(false)
   }
 
@@ -60,12 +60,6 @@ const PotatoClock = () => {
         <span key="recurring" className="text-xs text-green-600 dark:text-green-400 flex items-center gap-0.5">
           <Repeat className="w-3 h-3" />
           循环
-        </span>
-      ),
-      task.isSimple && (
-        <span key="simple" className="text-xs text-yellow-600 dark:text-yellow-400 flex items-center gap-0.5">
-          <Zap className="w-3 h-3" />
-          免分解
         </span>
       ),
     ].filter(Boolean),

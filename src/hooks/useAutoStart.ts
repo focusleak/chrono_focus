@@ -1,17 +1,17 @@
 import { useEffect, useRef } from 'react'
-import { useTimerStore } from '../store/timerStore'
-import { sendNotification, playSound } from '../utils/helpers'
+import { useStore } from '../store/store'
+import { sendNotification, playSound } from '../lib/utils'
 
 // 自动启动休息提醒：应用一打开就计时，按设置的休息间隔提醒
 // 如果用户主动开始番茄钟，则暂停此自动提醒，由番茄钟逻辑接管
 export const useAutoStart = () => {
-  const { isRunning, timerType, restReminderEnabled, restReminderInterval } = useTimerStore()
+  const { isRunning, pomodoroType, restReminderEnabled, restReminderInterval } = useStore()
   
   const reminderRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
     // 只有在没有运行番茄钟（且不是休息模式）时才启动自动提醒
-    const shouldAutoStart = !isRunning && timerType === 'pomodoro' && restReminderEnabled
+    const shouldAutoStart = !isRunning && pomodoroType === 'pomodoro' && restReminderEnabled
 
     if (shouldAutoStart) {
       // 清除旧的定时器
@@ -37,5 +37,5 @@ export const useAutoStart = () => {
         clearInterval(reminderRef.current)
       }
     }
-  }, [isRunning, timerType, restReminderEnabled, restReminderInterval])
+  }, [isRunning, pomodoroType, restReminderEnabled, restReminderInterval])
 }

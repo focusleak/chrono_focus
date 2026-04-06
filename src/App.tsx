@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react'
 import { HashRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
-import { useTimerStore } from './store/timerStore'
-import { useTimer } from './hooks/useTimer'
+import { useStore } from './store/store'
+import { usePomodoroTimer } from './hooks/usePomodoroTimer'
 import { useAutoStart } from './hooks/useAutoStart'
 import { useInitAutoLaunch } from './hooks/useInitAutoLaunch'
 import { usePotatoTimer } from './hooks/usePotatoTimer'
 import { useThemeSync } from './hooks/useThemeSync'
-import { requestNotificationPermission } from './utils/helpers'
+import { requestNotificationPermission } from './lib/utils'
 import PomodoroClock from './features/pomodoro/PomodoroClock'
-import SettingsPanel from './components/SettingsPanel'
-import StatsPanel from './components/StatsPanel'
+import SettingsPanel from './features/settings/SettingsPanel'
+import StatsPanel from './features/stats/StatsPanel'
 import PotatoClock from './features/potato/PotatoClock'
 import { ToastContainer } from '@/components/ui/toast'
 
@@ -18,13 +18,13 @@ function AppContent() {
   const navigate = useNavigate()
   const location = useLocation()
   
-  useTimer()
+  usePomodoroTimer()
   useAutoStart()
   useInitAutoLaunch()
   usePotatoTimer()
   useThemeSync()
 
-  const { timerType } = useTimerStore()
+  const { pomodoroType } = useStore()
   const [activeTab, setActiveTab] = useState('timer')
 
   // 同步路由到 activeTab
@@ -49,7 +49,7 @@ function AppContent() {
     if (activeTab !== 'pomodoro') {
       return 'bg-[#f5f5f7] dark:bg-[#0d0d0d]'
     }
-    switch (timerType) {
+    switch (pomodoroType) {
       case 'pomodoro':
         return 'bg-[#ba4949]'
       case 'shortBreak':

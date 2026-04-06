@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useTimerStore } from '../store/timerStore'
+import { useStore } from '../../store/store'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
 import { Segmented } from '@/components/ui/segmented'
@@ -27,7 +27,7 @@ interface DailyStatsGridProps {
 type ViewMode = 'month' | 'year'
 
 const DailyStatsGrid = ({ title = '每日统计' }: DailyStatsGridProps) => {
-  const { dailyStats } = useTimerStore()
+  const { dailyStats } = useStore()
   const [viewMode, setViewMode] = useState<ViewMode>('month')
   const [currentDate, setCurrentDate] = useState(new Date())
 
