@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { format } from 'date-fns'
 import { sendNotification, playSound } from '../lib/utils'
+import { storage } from '../lib/storage'
 
 export type ActivityType = 'task' | 'entertainment'
 
@@ -123,7 +124,7 @@ export interface GlobalState {
   setShowBreakPrompt: (show: 'shortBreak' | 'longBreak' | null) => void
   resolvePomodoroPotatoConflict: (target: 'pomodoro' | 'potato') => void
   acknowledgeHydration: () => void
-  setAutoStartEnabled: (enabled: boolean) => Promise<void>
+  setAutoStartEnabled: (enabled: boolean) => void
 
   // 任务管理方法
   addTask: (task: Omit<Task, 'id' | 'createdAt' | 'completedPomodoros' | 'isCompleted'>) => void
@@ -159,32 +160,10 @@ export interface GlobalState {
   tickPotato: () => void
 }
 
-// 本地存储工具（兼容浏览器和 Electron 环境）
-const electronStorage = {
-  getItem: (key: string): any => {
-    try {
-      if (typeof window !== 'undefined') {
-        const data = localStorage.getItem(key)
-        return data ? JSON.parse(data) : null
-      }
-      return null
-    } catch {
-      return null
-    }
-  },
-  setItem: (key: string, value: any): void => {
-    try {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(key, JSON.stringify(value))
-      }
-    } catch (error) {
-      console.error('Failed to save to storage:', error)
-    }
-  }
-}
+const SETTINGS_KEY = 'pomodoro-settings'
 
 const getInitialState = () => {
-  const saved = electronStorage.getItem('pomodoro-settings')
+  const saved = storage.get<Partial<GlobalState>>(SETTINGS_KEY)
   if (saved) {
     // 兼容旧数据：为没有 type 字段的任务添加默认值
     const migratedTasks = (saved.tasks || []).map((t: any) => ({
@@ -195,13 +174,15 @@ const getInitialState = () => {
     return {
       ...saved,
       isRunning: false,
-      timeLeft: saved.pomodoroTime * 60,
-      currentTime: saved.pomodoroTime * 60,
+      timeLeft: (saved.pomodoroTime ?? 25) * 60,
+      currentTime: (saved.pomodoroTime ?? 25) * 60,
       dailyStats: saved.dailyStats || [],
       stretchReminderEnabled: saved.stretchReminderEnabled ?? true,
       stretchReminderInterval: saved.stretchReminderInterval ?? 30,
       gazeReminderEnabled: saved.gazeReminderEnabled ?? true,
       gazeReminderInterval: saved.gazeReminderInterval ?? 20,
+      walkReminderEnabled: saved.walkReminderEnabled ?? true,
+      walkReminderInterval: saved.walkReminderInterval ?? 60,
       tasks: migratedTasks,
       waterCount: saved.waterCount ?? 0,
       completedPomodoros: saved.completedPomodoros ?? 0,
@@ -211,6 +192,10 @@ const getInitialState = () => {
       potatoTimeLeft: saved.potatoTimeLeft ?? (saved.dailyPotatoLimit || 60) * 60,
       isPotatoRunning: false,
       dailyPotatoLimit: saved.dailyPotatoLimit || 60,
+      showTaskSelectWarning: saved.showTaskSelectWarning ?? false,
+      showHydrationPrompt: saved.showHydrationPrompt ?? false,
+      showPomodoroPotatoConflict: saved.showPomodoroPotatoConflict ?? null,
+      showBreakPrompt: saved.showBreakPrompt ?? null,
     }
   }
 
@@ -254,7 +239,7 @@ const getInitialState = () => {
 }
 
 const saveToStorage = (state: GlobalState) => {
-  electronStorage.setItem('pomodoro-settings', {
+  storage.set(SETTINGS_KEY, {
     pomodoroTime: state.pomodoroTime,
     shortBreakTime: state.shortBreakTime,
     longBreakTime: state.longBreakTime,
@@ -285,12 +270,12 @@ const saveToStorage = (state: GlobalState) => {
 }
 
 export const useStore = create<GlobalState>((set, get) => {
-  const initial = getInitialState()
+  const initial = getInitialState() as GlobalState
 
   return {
     ...initial,
-    timeLeft: initial.pomodoroTime * 60,
-    currentTime: initial.pomodoroTime * 60,
+    timeLeft: (initial.pomodoroTime ?? 25) * 60,
+    currentTime: (initial.pomodoroTime ?? 25) * 60,
     pomodoroType: 'pomodoro',
 
     startPomodoro: () => {
@@ -471,17 +456,8 @@ export const useStore = create<GlobalState>((set, get) => {
       set({ showHydrationPrompt: false })
     },
 
-    setAutoStartEnabled: async (enabled) => {
+    setAutoStartEnabled: (enabled) => {
       set({ autoStartEnabled: enabled })
-      
-      if (window.electronAPI) {
-        try {
-          await window.electronAPI.setAutoLaunch(enabled)
-        } catch (error) {
-          console.error('Failed to set auto-launch:', error)
-        }
-      }
-      
       saveToStorage(get())
     },
     

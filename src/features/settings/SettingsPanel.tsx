@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useLocation, Routes, Route, Navigate } from 'react-router-dom'
 import { useStore } from '../../store/store'
 import { useThemeStore, type ThemeMode } from '../../hooks/useThemeStore'
+import { useSetAutoLaunch } from '../../hooks/useInitAutoLaunch'
 import type { Task } from '../../store/store'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -72,12 +73,13 @@ const SettingsLayout = () => {
 // 常规设置
 const GeneralSettings = () => {
   const { theme, setTheme } = useThemeStore()
-  const { 
+  const {
     pomodoroTime, shortBreakTime, longBreakTime,
-    autoStartEnabled, setAutoStartEnabled,
+    autoStartEnabled,
     dailyPotatoLimit, setDailyPotatoLimit,
-    updateSettings 
+    updateSettings
   } = useStore()
+  const setAutoStartEnabled = useSetAutoLaunch()
 
   const themeOptions: { label: string; value: ThemeMode; icon: any }[] = [
     { label: '亮色', value: 'light', icon: Sun },

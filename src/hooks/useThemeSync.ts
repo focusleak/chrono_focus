@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useThemeStore } from '@/hooks/useThemeStore'
+import { storage } from '../lib/storage'
 
 export const useThemeSync = () => {
   const { theme, setTheme } = useThemeStore()
@@ -36,7 +37,7 @@ export const useThemeSync = () => {
       return () => mediaQuery.removeEventListener('change', handleChange)
     }
 
-    localStorage.setItem('theme-mode', theme)
+    storage.set('theme-mode', theme)
   }, [theme])
 
   return { theme, setTheme }

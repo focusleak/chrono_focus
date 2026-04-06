@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { storage } from '../lib/storage'
 
 export type ThemeMode = 'light' | 'dark' | 'system'
 
@@ -8,7 +9,7 @@ interface ThemeState {
 }
 
 const getInitialTheme = (): ThemeMode => {
-  const saved = localStorage.getItem('theme-mode')
+  const saved = storage.get<string>('theme-mode')
   if (saved === 'light' || saved === 'dark' || saved === 'system') {
     return saved
   }
