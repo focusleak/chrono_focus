@@ -12,9 +12,7 @@ const RestReminderOverlay = () => {
   const {
     showRestReminderPrompt,
     showQuiz,
-    shortBreakTime,
-    longBreakTime,
-    restBreakCount,
+    restBreakDuration,
     restReminderSkipped,
     restReminderSkipCount,
     setShowRestReminderPrompt,
@@ -30,9 +28,7 @@ const RestReminderOverlay = () => {
     close: closeOverlay,
   } = useOverlay()
 
-  // 判断本次是短休息还是长休息
-  const isLongBreak = restBreakCount >= 3
-  const breakDuration = (isLongBreak ? longBreakTime : shortBreakTime) * 60
+  const breakDuration = restBreakDuration * 60
 
   const [timeLeft, setTimeLeft] = useState(breakDuration)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -100,7 +96,7 @@ const RestReminderOverlay = () => {
 
       showRestReminder(
         {
-          isLongBreak,
+          isLongBreak: false,
           timeLeft,
           progress,
           breakDuration,

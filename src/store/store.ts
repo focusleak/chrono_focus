@@ -34,6 +34,8 @@ export interface GlobalState {
   restReminderEnabled: boolean
   restReminderInterval: number // 休息提醒间隔（分钟）
   restReminderNotification: boolean // 休息提醒时发送通知
+  restBreakDuration: number // 休息时长（分钟）
+  restReminderSkipInterval: number // 跳过后的再次提醒间隔（分钟）
 
   // 休息提醒倒计时
   restReminderTimeLeft: number // 休息提醒倒计时剩余时间（秒）
@@ -183,6 +185,8 @@ const getInitialState = () => {
       restReminderSkipped: false,
       restReminderSkipCount: 0,
       restReminderPaused: false,
+      restBreakDuration: saved.restBreakDuration ?? 5,
+      restReminderSkipInterval: saved.restReminderSkipInterval ?? 1,
       restReminderTimeLeft: (saved.restReminderInterval ?? 30) * 60,
       restReminderTotalTime: (saved.restReminderInterval ?? 30) * 60,
       quizNum1: 0,
@@ -216,6 +220,8 @@ const getInitialState = () => {
     restReminderEnabled: true,
     restReminderInterval: 30,
     restReminderNotification: true,
+    restBreakDuration: 5,
+    restReminderSkipInterval: 1,
     restReminderTimeLeft: 1800,
     restReminderTotalTime: 1800,
     showRestReminderPrompt: false,
@@ -271,6 +277,11 @@ const saveToStorage = (state: GlobalState) => {
     restReminderEnabled: state.restReminderEnabled,
     restReminderInterval: state.restReminderInterval,
     restReminderNotification: state.restReminderNotification,
+    restBreakDuration: state.restBreakDuration,
+    restReminderSkipInterval: state.restReminderSkipInterval,
+    restReminderSkipped: state.restReminderSkipped,
+    restReminderSkipCount: state.restReminderSkipCount,
+    restReminderPaused: state.restReminderPaused,
     restReminderTimeLeft: state.restReminderTimeLeft,
     restReminderTotalTime: state.restReminderTotalTime,
     quizNum1: state.quizNum1,
@@ -288,6 +299,8 @@ const saveToStorage = (state: GlobalState) => {
     stretchReminderInterval: state.stretchReminderInterval,
     gazeReminderEnabled: state.gazeReminderEnabled,
     gazeReminderInterval: state.gazeReminderInterval,
+    walkReminderEnabled: state.walkReminderEnabled,
+    walkReminderInterval: state.walkReminderInterval,
     tasks: state.tasks,
     currentTaskId: state.currentTaskId,
     currentEntertainmentId: state.currentEntertainmentId,
@@ -297,6 +310,8 @@ const saveToStorage = (state: GlobalState) => {
     potatoTimeLeft: state.potatoTimeLeft,
     isPotatoRunning: state.isPotatoRunning,
     dailyPotatoLimit: state.dailyPotatoLimit,
+    breakTimeLeft: state.breakTimeLeft,
+    breakType: state.breakType,
   })
 }
 
@@ -598,12 +613,13 @@ export const useStore = create<GlobalState>((set, get) => {
     },
 
     skipRestReminder: () => {
-      // 点击跳过：1分钟后再次提醒
+      // 点击跳过：使用设置的间隔后再次提醒
+      const { restReminderSkipInterval } = get()
       set({
         restReminderSkipped: true,
         restReminderSkipCount: (get().restReminderSkipCount || 0) + 1,
-        restReminderTimeLeft: 60, // 1分钟后再次提醒
-        restReminderTotalTime: 60,
+        restReminderTimeLeft: restReminderSkipInterval * 60,
+        restReminderTotalTime: restReminderSkipInterval * 60,
       })
     },
 

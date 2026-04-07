@@ -292,7 +292,7 @@ ipcMain.handle('show-rest-reminder-overlay', async (_event, config) => {
       </div>
       <h2>${isLongBreak ? '长休息提醒' : '休息提醒'}</h2>
       <p class="subtitle">${isLongBreak ? '已经连续短休多次，本次为长休息' : '你已经工作了一段时间，记得休息一下哦'}</p>
-      ${isSkipped ? `<p class="skip-hint">已跳过 ${skipCount} 次，1 分钟后再次提醒</p>` : ''}
+      ${isSkipped ? `<p class="skip-hint">已跳过 ${skipCount} 次</p>` : ''}
       <div class="timer" id="timerDisplay">${formatTime(timeLeft)}</div>
       <div class="progress-bar">
         <div class="progress-fill" id="progressFill" style="width: ${progress}%"></div>
@@ -327,6 +327,13 @@ ipcMain.handle('show-rest-reminder-overlay', async (_event, config) => {
           updateDisplay(currentTime);
         } else {
           clearInterval(interval);
+          // 倒计时结束，自动关闭遮罩
+          if (typeof window.overlayAPI?.close === 'function') {
+            window.overlayAPI.close();
+          }
+          if (typeof window.overlayAPI?.notifyClosed === 'function') {
+            window.overlayAPI.notifyClosed();
+          }
         }
       }, 1000);
 

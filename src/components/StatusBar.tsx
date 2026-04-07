@@ -25,6 +25,7 @@ const StatusBar = () => {
     showRestReminderPrompt,
     restReminderPaused,
     toggleRestReminderPause,
+    totalFocusTime,
   } = useStore()
 
   const currentTask = tasks.find(t => t.id === currentTaskId)
@@ -46,6 +47,7 @@ const StatusBar = () => {
       }
     }
     if (restReminderEnabled) return '休息提醒'
+    if (!restReminderEnabled && !isRunning && !isPotatoRunning) return '休息提醒已关闭'
     return ''
   }
 
@@ -136,6 +138,14 @@ const StatusBar = () => {
 
       {/* 右侧信息 */}
       <div className="flex items-center gap-4 shrink-0">
+        {/* 专注分钟 */}
+        <div className="flex items-center gap-1.5">
+          <Clock className="w-3.5 h-3.5 text-white/60" />
+          <span className="text-white/80">
+            专注 {Math.round(totalFocusTime)}分钟
+          </span>
+        </div>
+
         {/* 土豆钟已用 */}
         {!isPotatoRunning && dailyPotatoLimit > 0 && (
           <div className="flex items-center gap-1.5">

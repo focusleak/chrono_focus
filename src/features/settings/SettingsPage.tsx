@@ -77,7 +77,7 @@ const SettingsPage = () => {
     pomodoroTime, shortBreakTime, longBreakTime,
     autoStartEnabled,
     dailyPotatoLimit, setDailyPotatoLimit,
-    restReminderEnabled, restReminderInterval, restReminderNotification,
+    restReminderEnabled, restReminderInterval, restReminderNotification, restBreakDuration, restReminderSkipInterval,
     waterReminderEnabled, waterReminderInterval, dailyWaterGoal,
     standReminderEnabled, standReminderInterval,
     stretchReminderEnabled, stretchReminderInterval,
@@ -241,6 +241,28 @@ const SettingsPage = () => {
                   max={120}
                   showSeconds
                   onSave={(v) => handleChange('restReminderInterval', v)}
+                  className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+                />
+              </SettingRow>
+              <SettingRow label="休息时长" description="每次休息的时长">
+                <NumberInput
+                  value={restBreakDuration}
+                  defaultValue={5}
+                  min={0.1}
+                  max={60}
+                  showSeconds
+                  onSave={(v) => handleChange('restBreakDuration', v)}
+                  className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+                />
+              </SettingRow>
+              <SettingRow label="跳过后再提醒" description="跳过休息后多久再次提醒">
+                <NumberInput
+                  value={restReminderSkipInterval}
+                  defaultValue={1}
+                  min={0.1}
+                  max={60}
+                  showSeconds
+                  onSave={(v) => handleChange('restReminderSkipInterval', v)}
                   className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
                 />
               </SettingRow>

@@ -62,6 +62,7 @@ export const useRestReminder = () => {
     if (restReminderTimeLeft <= 0 && shouldRun && !showRestReminderPrompt && !hasNotifiedRef.current) {
       hasNotifiedRef.current = true
       setShowRestReminderPrompt(true)
+      // 只在设置启用时发送通知和播放提示音
       if (restReminderNotification) {
         sendNotification('休息提醒', '你已经工作一段时间了，记得休息一下哦！')
         playSound('remind')
@@ -72,9 +73,16 @@ export const useRestReminder = () => {
   // 当番茄钟或土豆钟开始时，重置休息提醒倒计时（不运行）
   useEffect(() => {
     if ((isRunning || isPotatoRunning) && restReminderTimeLeft > 0) {
-      // 重置为完整时长，等待后续恢复
       resetRestReminder()
       hasNotifiedRef.current = false
     }
   }, [isRunning, isPotatoRunning, restReminderTimeLeft, resetRestReminder])
+
+  // 当番茄钟或土豆钟停止时，确保休息提醒倒计时被重置
+  useEffect(() => {
+    if (!isRunning && !isPotatoRunning && restReminderTimeLeft <= 0 && restReminderEnabled && !restReminderPaused) {
+      resetRestReminder()
+      hasNotifiedRef.current = false
+    }
+  }, [isRunning, isPotatoRunning, restReminderTimeLeft, restReminderEnabled, restReminderPaused, resetRestReminder])
 }

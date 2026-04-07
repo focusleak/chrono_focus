@@ -48,6 +48,13 @@ export function BrowserOverlay() {
     }
   }, [browserOverlayVisible, browserQuizConfig, timeLeft])
 
+  // 倒计时结束自动关闭
+  useEffect(() => {
+    if (browserOverlayVisible && browserRestConfig && !browserQuizConfig && timeLeft <= 0) {
+      close()
+    }
+  }, [browserOverlayVisible, browserQuizConfig, timeLeft, close])
+
   // 聚焦输入框
   useEffect(() => {
     if (browserQuizConfig) {
@@ -179,7 +186,7 @@ export function BrowserOverlay() {
           </p>
           {browserRestConfig.isSkipped && (
             <p className="text-xs text-amber-500 dark:text-amber-400 mb-4 font-medium">
-              已跳过 {browserRestConfig.skipCount} 次，1 分钟后再次提醒
+              已跳过 {browserRestConfig.skipCount} 次
             </p>
           )}
 
