@@ -15,13 +15,13 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import AutoLaunch from "auto-launch";
 import { createOverlayManager } from "./overlay.mjs";
+import { initTray } from "./tray.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 let mainWindow = null;
 let overlayManager = null;
-let tray = null;
 
 // 配置开机自启动
 const autoLauncher = new AutoLaunch({
@@ -56,157 +56,39 @@ function createWindow() {
 
   mainWindow.on("closed", () => {
     mainWindow = null;
-    overlayManager = null;
+    if (overlayManager) {
+      overlayManager.close();
+      overlayManager = null;
+    }
+  });
+
+  // 点击关闭按钮时隐藏而不是关闭
+  mainWindow.on("close", (event) => {
+    if (!app.isQuiting) {
+      event.preventDefault();
+      mainWindow.hide();
+    }
+    return false;
   });
 
   // 初始化遮罩管理器
   overlayManager = createOverlayManager(mainWindow);
+
+  // 初始化托盘
+  initTray(mainWindow);
 }
 
-function createTray() {
-  const iconPath = path.join(__dirname, "assets", "tray-icon.png");
-  let icon = nativeImage.createFromPath(iconPath);
+app.whenReady().then(() => {
+  createWindow();
 
-  icon = icon.resize({ width: 22, height: 22 });
-  icon.setTemplateImage(true);
-
-  tray = new Tray(icon);
-
-  tray.setTitle("1.空闲");
-
-  tray.setToolTip("Chrono Focus");
-
-  // 初始菜单（空闲状态）
-  updateTrayMenu("idle");
-
-  tray.on("click", () => {
+  app.on("activate", () => {
     if (mainWindow) {
       if (mainWindow.isMinimized()) {
         mainWindow.restore();
       }
       mainWindow.show();
       mainWindow.focus();
-    }
-  });
-}
-
-// 根据状态更新托盘菜单
-function updateTrayMenu(state) {
-  const showWindow = {
-    label: "显示主窗口",
-    click: () => {
-      if (mainWindow) {
-        if (mainWindow.isMinimized()) mainWindow.restore();
-        mainWindow.show();
-        mainWindow.focus();
-      }
-    },
-  };
-
-  const startPomodoro = {
-    label: "启动番茄钟",
-    click: () => mainWindow?.webContents.send("tray-action", "start-pomodoro"),
-  };
-
-  const quit = { label: "退出", role: "quit" };
-
-  let template = [showWindow];
-
-  switch (state) {
-    case "pomodoro":
-      template.push(
-        { type: "separator" },
-        {
-          label: "暂停番茄钟",
-          click: () => mainWindow?.webContents.send("tray-action", "pomodoro-toggle"),
-        },
-        {
-          label: "放弃",
-          click: () => mainWindow?.webContents.send("tray-action", "pomodoro-abort"),
-        }
-      );
-      break;
-
-    case "shortBreak":
-    case "longBreak":
-      template.push(
-        { type: "separator" },
-        {
-          label: "暂停/继续",
-          click: () => mainWindow?.webContents.send("tray-action", "break-toggle"),
-        },
-        {
-          label: "放弃",
-          click: () => mainWindow?.webContents.send("tray-action", "break-abort"),
-        }
-      );
-      break;
-
-    case "potato":
-      template.push(
-        { type: "separator" },
-        {
-          label: "暂停土豆钟",
-          click: () => mainWindow?.webContents.send("tray-action", "potato-toggle"),
-        },
-        {
-          label: "放弃",
-          click: () => mainWindow?.webContents.send("tray-action", "potato-abort"),
-        }
-      );
-      template.push({ type: "separator" }, startPomodoro);
-      break;
-
-    case "restReminder":
-      template.push(
-        { type: "separator" },
-        {
-          label: "暂停",
-          click: () => mainWindow?.webContents.send("tray-action", "rest-toggle"),
-        }
-      );
-      template.push({ type: "separator" }, startPomodoro);
-      break;
-
-    case "restReminderPaused":
-      template.push(
-        { type: "separator" },
-        {
-          label: "继续",
-          click: () => mainWindow?.webContents.send("tray-action", "rest-toggle"),
-        }
-      );
-      template.push({ type: "separator" }, startPomodoro);
-      break;
-
-    case "restReminderPrompt":
-      // 强制休息中，不提供操作菜单
-      break;
-
-    default:
-      // idle 状态
-      template.push({ type: "separator" }, startPomodoro);
-      break;
-  }
-
-  template.push({ type: "separator" }, quit);
-
-  const contextMenu = Menu.buildFromTemplate(template);
-  tray.setContextMenu(contextMenu);
-}
-
-// IPC: 更新托盘菜单状态
-ipcMain.handle("update-tray-menu", async (_event, { state }) => {
-  updateTrayMenu(state);
-  return true;
-});
-
-app.whenReady().then(() => {
-  createWindow();
-  createTray()
-
-  app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
+    } else {
       createWindow();
     }
   });
@@ -216,6 +98,10 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
   }
+});
+
+app.on("before-quit", () => {
+  app.isQuiting = true;
 });
 
 // IPC: 显示系统通知
@@ -725,14 +611,6 @@ ipcMain.handle("close-overlay", async () => {
   const result = overlayManager.close();
   console.log("[main] overlayManager.close() result:", result);
   return result;
-});
-
-// IPC: 更新托盘文字
-ipcMain.handle("update-tray-text", async (_event, { text }) => {
-  if (tray) {
-    tray.setTitle(text);
-  }
-  return true;
 });
 
 // IPC: 接收遮罩窗口动作并转发到主窗口

@@ -199,7 +199,6 @@ const getInitialState = () => {
       autoStartEnabled: saved.autoStartEnabled ?? false,
       potatoActivities: saved.potatoActivities || [],
       potatoTimeLeft: saved.potatoTimeLeft ?? (saved.dailyPotatoLimit || 60) * 60,
-      isPotatoRunning: false,
       dailyPotatoLimit: saved.dailyPotatoLimit || 60,
       showTaskSelectWarning: saved.showTaskSelectWarning ?? false,
       showPomodoroPotatoConflict: saved.showPomodoroPotatoConflict ?? null,
