@@ -1,5 +1,5 @@
 import { Gamepad2 } from 'lucide-react'
-import { ItemSelector } from '../../components/ItemSelector'
+import { ItemSelector } from '../../components/common/ItemSelector'
 import { useStore } from '../../store/store'
 
 /**

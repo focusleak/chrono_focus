@@ -7,7 +7,6 @@ export function cn(...inputs: ClassValue[]) {
 
 export { formatDuration } from '../utils/time'
 
-// 发送系统通知
 export const sendNotification = async (title: string, body: string) => {
   try {
     if (window.electronAPI) {
@@ -27,7 +26,6 @@ export const sendNotification = async (title: string, body: string) => {
   }
 }
 
-// 请求通知权限
 export const requestNotificationPermission = async () => {
   try {
     if (window.electronAPI) {
@@ -46,7 +44,6 @@ export const requestNotificationPermission = async () => {
   }
 }
 
-// 播放提示音
 export const playSound = (type: 'complete' | 'remind' = 'complete') => {
   const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
   const oscillator = audioContext.createOscillator()

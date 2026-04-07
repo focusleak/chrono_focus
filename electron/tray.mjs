@@ -1,4 +1,3 @@
-// Tray manager - 集中管理所有托盘相关的逻辑和文字
 import { Tray, Menu, nativeImage, ipcMain } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -9,7 +8,6 @@ const __dirname = path.dirname(__filename);
 let tray = null;
 let mainWindow = null;
 
-// 托盘文字配置
 const TRAY_TEXTS = {
   idle: "空闲",
   pomodoro: (mins) => `番茄钟-已专注${mins}分钟`,
@@ -22,7 +20,6 @@ const TRAY_TEXTS = {
   restReminderPrompt: "强制休息中",
 };
 
-// 托盘菜单模板
 const createMenuTemplate = (state) => {
   const showWindow = {
     label: "显示主窗口",
@@ -115,20 +112,17 @@ const createMenuTemplate = (state) => {
       break;
 
     case "restReminderPrompt":
-      // 强制休息中，不提供操作菜单
       break;
 
     default:
-      // idle 状态
       template.push({ type: "separator" }, startPomodoro);
       break;
   }
 
-  template.push({ type: "separator" }, showWindow,quit);
+  template.push({ type: "separator" }, showWindow, quit);
   return template;
 };
 
-// 根据状态获取托盘文字
 const getTrayText = (state, data = {}) => {
   switch (state) {
     case "pomodoro":
@@ -152,7 +146,6 @@ const getTrayText = (state, data = {}) => {
   }
 };
 
-// 初始化托盘
 export const initTray = (window) => {
   mainWindow = window;
 
@@ -164,21 +157,16 @@ export const initTray = (window) => {
   tray = new Tray(icon);
   tray.setToolTip("Chrono Focus");
 
-  // 右键点击显示菜单
   tray.on("right-click", () => {
     tray.popUpContextMenu();
   });
 
-  // 注册 IPC 处理
   registerTrayIPC();
-
-  // 设置初始状态
   updateTrayState("idle");
 
   return tray;
 };
 
-// 更新托盘状态（文字 + 菜单）
 export const updateTrayState = (state, data = {}) => {
   if (!tray) return;
 
@@ -190,14 +178,12 @@ export const updateTrayState = (state, data = {}) => {
   tray.setContextMenu(contextMenu);
 };
 
-// 仅更新托盘文字
 export const updateTrayText = (text) => {
   if (tray) {
     tray.setTitle(text);
   }
 };
 
-// 仅更新托盘菜单
 export const updateTrayMenu = (state) => {
   if (!tray) return;
 
@@ -206,15 +192,12 @@ export const updateTrayMenu = (state) => {
   tray.setContextMenu(contextMenu);
 };
 
-// 注册 IPC 处理
 export const registerTrayIPC = () => {
-  // IPC: 更新托盘菜单状态
   ipcMain.handle("update-tray-menu", async (_event, { state }) => {
     updateTrayMenu(state);
     return true;
   });
 
-  // IPC: 更新托盘文字
   ipcMain.handle("update-tray-text", async (_event, { text }) => {
     updateTrayText(text);
     return true;

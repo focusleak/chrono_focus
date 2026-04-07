@@ -1,6 +1,6 @@
 import { useState, ReactNode } from 'react'
 import { ChevronRight, Repeat } from 'lucide-react'
-import { ItemSelectorDialog } from '@/components/ItemSelectorDialog'
+import { ItemSelectorDialog } from './ItemSelectorDialog'
 
 interface SelectorItem {
   id: string

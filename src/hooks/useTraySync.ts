@@ -28,36 +28,36 @@ export const useTraySync = () => {
       if (isRunning) {
         if (pomodoroType === 'pomodoro') {
           const mins = Math.ceil(timeLeft / 60)
-          text = `🍅 ${mins}分钟`
+          text = `番茄钟-已专注 ${mins}分钟`
           menuState = 'pomodoro'
         } else if (pomodoroType === 'shortBreak') {
-          text = '☕ 休息中'
+          text = '番茄钟-短休息中'
           menuState = 'shortBreak'
         } else if (pomodoroType === 'longBreak') {
-          text = '🌴 休息中'
+          text = '番茄钟-长休息中'
           menuState = 'longBreak'
         }
       } else if (isPotatoRunning) {
         if (potatoTimeLeft > 0) {
           const mins = Math.ceil(potatoTimeLeft / 60)
-          text = `🎮 ${mins}分钟`
+          text = `土豆钟-娱乐 ${mins}分钟`
         } else {
-          text = '🎮 娱乐中'
+          text = '土豆钟-娱乐中'
         }
         menuState = 'potato'
       } else if (showRestReminderPrompt) {
-        text = '⚠️ 强制休息中'
+        text = '强制休息中'
         menuState = 'restReminderPrompt'
       } else if (restReminderEnabled) {
         if (restReminderPaused) {
           const elapsed = restReminderTotalTime - restReminderTimeLeft
           const percent = Math.round((elapsed / restReminderTotalTime) * 100)
-          text = `${percent}% 暂停`
+          text = `${percent}% 休息提醒暂停`
           menuState = 'restReminderPaused'
         } else {
           const elapsed = restReminderTotalTime - restReminderTimeLeft
           const percent = Math.round((elapsed / restReminderTotalTime) * 100)
-          text = `${percent}%`
+          text = `休息提醒 ${percent}%`
           menuState = 'restReminder'
         }
       }

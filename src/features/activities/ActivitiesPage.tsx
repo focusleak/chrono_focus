@@ -7,7 +7,8 @@ import TaskCreationModal from './TaskCreationModal'
 import TaskDetailModal from './TaskDetailModal'
 import TaskCard from './TaskCard'
 import FilterButton from './FilterButton'
-import { SortableList, type SortableItemProps } from '../../components/SortableList'
+import { SortableList, type SortableItemProps } from '../../components/common/SortableList'
+import { EmptyState } from '../../components/common/EmptyState'
 import { toast } from '@/components/ui/toast'
 
 const ActivitiesPage = () => {
@@ -118,19 +119,11 @@ const ActivitiesPage = () => {
 
           {/* 空状态 */}
           {tasks.length === 0 && (
-            <div className="p-6">
-              <div className="text-center py-8">
-                <p className="text-gray-500 dark:text-gray-400">暂无活动，点击上方按钮创建第一个活动</p>
-              </div>
-            </div>
+            <EmptyState message="暂无活动，点击上方按钮创建第一个活动" />
           )}
 
           {tasks.length > 0 && activeTasks.length === 0 && completedTasks.length === 0 && (
-            <div className="p-6">
-              <div className="text-center py-8">
-                <p className="text-gray-500 dark:text-gray-400">没有符合筛选条件的活动</p>
-              </div>
-            </div>
+            <EmptyState message="没有符合筛选条件的活动" />
           )}
         </div>
 
