@@ -1,0 +1,76 @@
+import { useEffect, useRef } from 'react'
+import { useStore } from '../store/store'
+import { sendNotification, playSound } from '../lib/utils'
+
+/**
+ * 休息提醒倒计时 Hook
+ * 应用启动后自动开始倒计时，到时间后弹出全屏提醒
+ * 当番茄钟或土豆钟运行时暂停，结束后恢复
+ */
+export const useRestReminder = () => {
+  const {
+    isRunning,
+    isPotatoRunning,
+    restReminderEnabled,
+    restReminderNotification,
+    restReminderTimeLeft,
+    showRestReminderPrompt,
+    tickRestReminder,
+    resetRestReminder,
+    setShowRestReminderPrompt,
+  } = useStore()
+
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const hasNotifiedRef = useRef(false)
+
+  // 是否应该运行休息提醒倒计时
+  const shouldRun = restReminderEnabled && !isRunning && !isPotatoRunning && !showRestReminderPrompt
+
+  useEffect(() => {
+    if (shouldRun) {
+      hasNotifiedRef.current = false
+      // 清除旧定时器
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+
+      // 启动新倒计时
+      intervalRef.current = setInterval(() => {
+        tickRestReminder()
+      }, 1000)
+    } else {
+      // 停止倒计时
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [shouldRun, tickRestReminder])
+
+  // 当倒计时到 0 时显示弹窗 + 发送通知
+  useEffect(() => {
+    if (restReminderTimeLeft <= 0 && shouldRun && !showRestReminderPrompt && !hasNotifiedRef.current) {
+      hasNotifiedRef.current = true
+      setShowRestReminderPrompt(true)
+      if (restReminderNotification) {
+        sendNotification('休息提醒', '你已经工作一段时间了，记得休息一下哦！')
+        playSound('remind')
+      }
+    }
+  }, [restReminderTimeLeft, shouldRun, showRestReminderPrompt, restReminderNotification, setShowRestReminderPrompt])
+
+  // 当番茄钟或土豆钟开始时，重置休息提醒倒计时（不运行）
+  useEffect(() => {
+    if ((isRunning || isPotatoRunning) && restReminderTimeLeft > 0) {
+      // 重置为完整时长，等待后续恢复
+      resetRestReminder()
+      hasNotifiedRef.current = false
+    }
+  }, [isRunning, isPotatoRunning, restReminderTimeLeft, resetRestReminder])
+}

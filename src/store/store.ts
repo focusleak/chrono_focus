@@ -56,7 +56,6 @@ export interface GlobalState {
   showTaskSelectWarning: boolean // 是否显示任务选择提示
   showHydrationPrompt: boolean // 是否显示喝水提示
   showPomodoroPotatoConflict: 'pomodoro' | 'potato' | null // 番茄钟/土豆钟冲突提示
-  showBreakPrompt: 'shortBreak' | 'longBreak' | null // 休息提示
 
   // 开机自启动
   autoStartEnabled: boolean // 是否启用开机自启动
@@ -69,8 +68,20 @@ export interface GlobalState {
   // 休息提醒设置
   restReminderEnabled: boolean
   restReminderInterval: number // 休息提醒间隔（分钟）
-  shortBreakReminderInterval: number // 短休息提醒间隔（分钟）
-  longBreakReminderInterval: number // 长休息提醒间隔（分钟）
+  restReminderNotification: boolean // 休息提醒时发送通知
+
+  // 休息提醒倒计时
+  restReminderTimeLeft: number // 休息提醒倒计时剩余时间（秒）
+  restReminderTotalTime: number // 休息提醒总时长（秒）
+  showRestReminderPrompt: boolean // 是否显示休息提醒全屏遮罩
+
+  // 乘法题目状态
+  quizNum1: number // 题目数字1
+  quizNum2: number // 题目数字2
+  userAnswer: number | null // 用户答案
+  showQuiz: boolean // 是否显示乘法题目
+  quizResult: 'correct' | 'wrong' | null // 答题结果
+  restBreakCount: number // 连续短休息次数
 
   // 喝水提醒设置
   waterReminderEnabled: boolean
@@ -124,10 +135,20 @@ export interface GlobalState {
   resetDailyStats: () => void
   setShowTaskSelectWarning: (show: boolean) => void
   setShowHydrationPrompt: (show: boolean) => void
-  setShowBreakPrompt: (show: 'shortBreak' | 'longBreak' | null) => void
   resolvePomodoroPotatoConflict: (target: 'pomodoro' | 'potato') => void
   acknowledgeHydration: () => void
   setAutoStartEnabled: (enabled: boolean) => void
+
+  // 休息提醒倒计时
+  startRestReminder: () => void
+  pauseRestReminder: () => void
+  resetRestReminder: () => void
+  tickRestReminder: () => void
+  setShowRestReminderPrompt: (show: boolean) => void
+  generateQuiz: () => void
+  checkQuizAnswer: (answer: string) => boolean
+  closeQuizAndRestReminder: () => void
+  nextRestBreak: () => void
 
   // 任务管理方法
   addTask: (task: Omit<Task, 'id' | 'createdAt' | 'completedPomodoros' | 'isCompleted' | 'order'>) => void
@@ -187,8 +208,15 @@ const getInitialState = () => {
       gazeReminderInterval: saved.gazeReminderInterval ?? 20,
       walkReminderEnabled: saved.walkReminderEnabled ?? true,
       walkReminderInterval: saved.walkReminderInterval ?? 60,
-      shortBreakReminderInterval: saved.shortBreakReminderInterval ?? 5,
-      longBreakReminderInterval: saved.longBreakReminderInterval ?? 10,
+      showRestReminderPrompt: false,
+      restReminderTimeLeft: (saved.restReminderInterval ?? 30) * 60,
+      restReminderTotalTime: (saved.restReminderInterval ?? 30) * 60,
+      quizNum1: 0,
+      quizNum2: 0,
+      userAnswer: null,
+      showQuiz: false,
+      quizResult: null,
+      restBreakCount: 0,
       tasks: migratedTasks,
       waterCount: saved.waterCount ?? 0,
       completedPomodoros: saved.completedPomodoros ?? 0,
@@ -201,7 +229,6 @@ const getInitialState = () => {
       showTaskSelectWarning: saved.showTaskSelectWarning ?? false,
       showHydrationPrompt: saved.showHydrationPrompt ?? false,
       showPomodoroPotatoConflict: saved.showPomodoroPotatoConflict ?? null,
-      showBreakPrompt: saved.showBreakPrompt ?? null,
     }
   }
 
@@ -211,8 +238,16 @@ const getInitialState = () => {
     longBreakTime: 15,
     restReminderEnabled: true,
     restReminderInterval: 30,
-    shortBreakReminderInterval: 5,
-    longBreakReminderInterval: 10,
+    restReminderNotification: true,
+    restReminderTimeLeft: 1800,
+    restReminderTotalTime: 1800,
+    showRestReminderPrompt: false,
+    quizNum1: 0,
+    quizNum2: 0,
+    userAnswer: null,
+    showQuiz: false,
+    quizResult: null,
+    restBreakCount: 0,
     waterReminderEnabled: true,
     waterReminderInterval: 60,
     dailyWaterGoal: 8,
@@ -237,7 +272,6 @@ const getInitialState = () => {
     showTaskSelectWarning: false,
     showHydrationPrompt: false,
     showPomodoroPotatoConflict: null,
-    showBreakPrompt: null,
     autoStartEnabled: false,
     potatoActivities: [],
     potatoTimeLeft: 3600, // 默认60分钟
@@ -253,8 +287,12 @@ const saveToStorage = (state: GlobalState) => {
     longBreakTime: state.longBreakTime,
     restReminderEnabled: state.restReminderEnabled,
     restReminderInterval: state.restReminderInterval,
-    shortBreakReminderInterval: state.shortBreakReminderInterval,
-    longBreakReminderInterval: state.longBreakReminderInterval,
+    restReminderNotification: state.restReminderNotification,
+    restReminderTimeLeft: state.restReminderTimeLeft,
+    restReminderTotalTime: state.restReminderTotalTime,
+    quizNum1: state.quizNum1,
+    quizNum2: state.quizNum2,
+    restBreakCount: state.restBreakCount,
     waterReminderEnabled: state.waterReminderEnabled,
     waterReminderInterval: state.waterReminderInterval,
     dailyWaterGoal: state.dailyWaterGoal,
@@ -301,15 +339,18 @@ export const useStore = create<GlobalState>((set, get) => {
     pausePomodoro: () => set({ isRunning: false }),
 
     resetPomodoro: () => {
-      const { pomodoroType, pomodoroTime, shortBreakTime, longBreakTime } = get()
+      const { pomodoroType, pomodoroTime, shortBreakTime, longBreakTime, restReminderInterval } = get()
       let time = pomodoroTime * 60
       if (pomodoroType === 'shortBreak') time = shortBreakTime * 60
       if (pomodoroType === 'longBreak') time = longBreakTime * 60
 
+      const restTotal = restReminderInterval * 60
       set({
         isRunning: false,
         timeLeft: time,
-        currentTime: time
+        currentTime: time,
+        restReminderTimeLeft: restTotal,
+        restReminderTotalTime: restTotal,
       })
     },
 
@@ -390,9 +431,13 @@ export const useStore = create<GlobalState>((set, get) => {
             tasks: updatedTasks,
             dailyStats: newDailyStats,
             showHydrationPrompt: true,
-            showBreakPrompt: 'shortBreak',
           })
           saveToStorage(get())
+
+          // 自动安排休息：每 4 个番茄钟后长休息
+          const newCompletedPomodoros = completedPomodoros + 1
+          const breakType = newCompletedPomodoros % 4 === 0 ? 'longBreak' : 'shortBreak'
+          get().setPomodoroType(breakType)
         } else if (pomodoroType === 'shortBreak' || pomodoroType === 'longBreak') {
           set({ showHydrationPrompt: true })
           get().setPomodoroType('pomodoro')
@@ -408,6 +453,12 @@ export const useStore = create<GlobalState>((set, get) => {
     updateSettings: (settings: Partial<GlobalState>) => {
       set((state) => {
         const newState = { ...state, ...settings }
+        // 当休息提醒间隔改变时，同步重置倒计时
+        if (settings.restReminderInterval !== undefined) {
+          const total = settings.restReminderInterval * 60
+          newState.restReminderTimeLeft = total
+          newState.restReminderTotalTime = total
+        }
         saveToStorage(newState)
         return newState
       })
@@ -446,14 +497,14 @@ export const useStore = create<GlobalState>((set, get) => {
 
     setShowHydrationPrompt: (show) => set({ showHydrationPrompt: show }),
 
-    setShowBreakPrompt: (show) => set({ showBreakPrompt: show }),
-
     resolvePomodoroPotatoConflict: (target: 'pomodoro' | 'potato') => {
+      const { restReminderInterval } = get()
+      const restTotal = restReminderInterval * 60
       set({ showPomodoroPotatoConflict: null })
       if (target === 'pomodoro') {
-        set({ isPotatoRunning: false, isRunning: true })
+        set({ isPotatoRunning: false, isRunning: true, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
       } else {
-        set({ isRunning: false })
+        set({ isRunning: false, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
         get().startPotato()
       }
     },
@@ -470,7 +521,84 @@ export const useStore = create<GlobalState>((set, get) => {
       set({ autoStartEnabled: enabled })
       saveToStorage(get())
     },
-    
+
+    // 休息提醒倒计时
+    startRestReminder: () => {
+      set((state) => {
+        if (state.restReminderTimeLeft <= 0) {
+          const total = state.restReminderInterval * 60
+          return { restReminderTimeLeft: total, restReminderTotalTime: total }
+        }
+        return state
+      })
+    },
+
+    pauseRestReminder: () => {
+      // 不改变 timeLeft，只是暂停（通过外部 hook 控制）
+    },
+
+    resetRestReminder: () => {
+      set((state) => {
+        const total = state.restReminderInterval * 60
+        return { restReminderTimeLeft: total, restReminderTotalTime: total }
+      })
+    },
+
+    tickRestReminder: () => {
+      set((state) => {
+        if (state.restReminderTimeLeft > 0) {
+          return { restReminderTimeLeft: state.restReminderTimeLeft - 1 }
+        }
+        // 倒计时到 0，显示全屏提示
+        return { showRestReminderPrompt: true, restReminderTimeLeft: 0 }
+      })
+    },
+
+    setShowRestReminderPrompt: (show) => {
+      set({ showRestReminderPrompt: show })
+    },
+
+    generateQuiz: () => {
+      const num1 = Math.floor(Math.random() * 90) + 10 // 10-99
+      const num2 = Math.floor(Math.random() * 90) + 10 // 10-99
+      set({
+        showQuiz: true,
+        quizNum1: num1,
+        quizNum2: num2,
+        userAnswer: null,
+        quizResult: null,
+      })
+    },
+
+    checkQuizAnswer: (answer: string) => {
+      const { quizNum1, quizNum2 } = get()
+      const correct = quizNum1 * quizNum2
+      const userNum = parseInt(answer, 10)
+      const isCorrect = userNum === correct
+      set({
+        userAnswer: userNum,
+        quizResult: isCorrect ? 'correct' : 'wrong',
+      })
+      return isCorrect
+    },
+
+    nextRestBreak: () => {
+      const { restBreakCount } = get()
+      // 每 3 次短休息后安排 1 次长休息
+      const newCount = restBreakCount >= 3 ? 0 : restBreakCount + 1
+      set({ restBreakCount: newCount })
+    },
+
+    closeQuizAndRestReminder: () => {
+      set({
+        showQuiz: false,
+        showRestReminderPrompt: false,
+        quizResult: null,
+        userAnswer: null,
+      })
+      get().resetRestReminder()
+    },
+
     addTask: (task) => {
       const newTask: Task = {
         ...task,
@@ -658,7 +786,7 @@ export const useStore = create<GlobalState>((set, get) => {
 
     // 土豆钟方法
     startPotato: () => {
-      const { isRunning, potatoTimeLeft, dailyPotatoLimit } = get()
+      const { isRunning, potatoTimeLeft, dailyPotatoLimit, restReminderInterval } = get()
 
       if (isRunning) {
         // 番茄钟正在运行，设置冲突标志，由 UI 层处理提示
@@ -668,7 +796,8 @@ export const useStore = create<GlobalState>((set, get) => {
 
       // 初始化土豆钟时间
       const startTime = potatoTimeLeft > 0 ? potatoTimeLeft : dailyPotatoLimit * 60
-      set({ isPotatoRunning: true, potatoTimeLeft: startTime })
+      const restTotal = restReminderInterval * 60
+      set({ isPotatoRunning: true, potatoTimeLeft: startTime, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
     },
 
     pausePotato: () => set({ isPotatoRunning: false }),

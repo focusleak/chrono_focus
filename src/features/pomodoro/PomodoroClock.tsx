@@ -3,7 +3,6 @@ import { useStore } from '../../store/store'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import TaskCompleteModal from './TaskCompleteModal'
 import HydrationPrompt from './HydrationPrompt'
-import { BreakPrompt } from './BreakPrompt'
 import { PomodoroControls } from './PomodoroControls'
 import { TaskSelector } from './TaskSelector'
 import { format } from 'date-fns'
@@ -13,7 +12,6 @@ const PomodoroClock = () => {
     timeLeft,
     tasks = [],
     currentTaskId,
-    setPomodoroType,
     stopPomodoro,
     finishEarlyPomodoro,
     completeTask,
@@ -44,14 +42,6 @@ const PomodoroClock = () => {
    * 获取当前选中的任务
    */
   const currentTask = tasks.find(t => t.id === currentTaskId)
-
-  /**
-   * 处理开始休息
-   * @param type - 休息类型：'shortBreak'（短休息）或 'longBreak'（长休息）
-   */
-  const handleStartBreak = (type: 'shortBreak' | 'longBreak') => {
-    setPomodoroType(type)
-  }
 
   /**
    * 处理提前结束番茄钟
@@ -144,13 +134,7 @@ const PomodoroClock = () => {
         onYes={handleHydrationYes}
         onNo={handleHydrationNo}
       />
-
-      {/* 休息提示弹窗：番茄钟完成后显示，提供短休息和长休息选项 */}
-      <BreakPrompt onBreakSelect={handleStartBreak} />
     </div>
-
-
-
   )
 }
 
