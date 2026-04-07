@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useOverlay, type RestReminderConfig, type QuizConfig } from '../hooks/useOverlay'
+import { useOverlay } from '../hooks/useOverlay'
 import { CheckCircle, XCircle, X } from 'lucide-react'
 
 /**
@@ -12,7 +12,6 @@ export function BrowserOverlay() {
     browserRestConfig,
     browserQuizConfig,
     close,
-    onContinueWorkRef,
     onSkipRef,
     onQuizCorrectRef,
     onQuizCloseRef,

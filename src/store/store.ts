@@ -15,7 +15,6 @@ export interface GlobalState {
 
   // 提示状态
   showTaskSelectWarning: boolean // 是否显示任务选择提示
-  showHydrationPrompt: boolean // 是否显示喝水提示
   showPomodoroPotatoConflict: 'pomodoro' | 'potato' | null // 番茄钟/土豆钟冲突提示
 
   // 开机自启动
@@ -84,9 +83,6 @@ export interface GlobalState {
   gazeReminderCount: number // 今日远眺提醒次数
   walkReminderCount: number // 今日走动提醒次数
 
-  // 任务完成弹窗
-  showTaskCompleteModal: boolean // 是否显示任务完成弹窗
-
   // 任务管理
   tasks: Task[]
   currentTaskId: string | null // 当前选中的任务ID（番茄钟用）
@@ -107,10 +103,7 @@ export interface GlobalState {
   incrementWater: () => void
   resetDailyStats: () => void
   setShowTaskSelectWarning: (show: boolean) => void
-  setShowHydrationPrompt: (show: boolean) => void
-  setShowTaskCompleteModal: (show: boolean) => void
   resolvePomodoroPotatoConflict: (target: 'pomodoro' | 'potato') => void
-  acknowledgeHydration: () => void
   setAutoStartEnabled: (enabled: boolean) => void
 
   // 休息提醒倒计时
@@ -207,8 +200,6 @@ const getInitialState = () => {
       isPotatoRunning: false,
       dailyPotatoLimit: saved.dailyPotatoLimit || 60,
       showTaskSelectWarning: saved.showTaskSelectWarning ?? false,
-      showHydrationPrompt: saved.showHydrationPrompt ?? false,
-      showTaskCompleteModal: false,
       showPomodoroPotatoConflict: saved.showPomodoroPotatoConflict ?? null,
     }
   }
@@ -258,8 +249,6 @@ const getInitialState = () => {
     currentEntertainmentId: null,
     dailyStats: [],
     showTaskSelectWarning: false,
-    showHydrationPrompt: false,
-    showTaskCompleteModal: false,
     showPomodoroPotatoConflict: null,
     autoStartEnabled: false,
     potatoActivities: [],
@@ -393,7 +382,7 @@ export const useStore = create<GlobalState>((set, get) => {
     },
 
     tick: () => {
-      const { timeLeft, pomodoroType, completedPomodoros, totalFocusTime, currentTaskId, tasks, waterCount, dailyStats, pomodoroTime, shortBreakTime, longBreakTime, breakTimeLeft, breakType, isRunning } = get()
+      const { timeLeft, pomodoroType, completedPomodoros, totalFocusTime, currentTaskId, tasks, waterCount, dailyStats, pomodoroTime, breakTimeLeft, isRunning } = get()
 
       if (timeLeft <= 0) {
         if (pomodoroType === 'pomodoro') {
@@ -426,7 +415,6 @@ export const useStore = create<GlobalState>((set, get) => {
 
           const newCompletedPomodoros = completedPomodoros + 1
           const theBreakType = newCompletedPomodoros % 4 === 0 ? 'longBreak' : 'shortBreak'
-          const breakTime = theBreakType === 'shortBreak' ? shortBreakTime * 60 : longBreakTime * 60
 
           set({
             completedPomodoros: newCompletedPomodoros,
@@ -510,10 +498,6 @@ export const useStore = create<GlobalState>((set, get) => {
 
     setShowTaskSelectWarning: (show) => set({ showTaskSelectWarning: show }),
 
-    setShowHydrationPrompt: (show) => set({ showHydrationPrompt: show }),
-
-    setShowTaskCompleteModal: (show) => set({ showTaskCompleteModal: show }),
-
     resolvePomodoroPotatoConflict: (target: 'pomodoro' | 'potato') => {
       const { restReminderInterval } = get()
       const restTotal = restReminderInterval * 60
@@ -524,10 +508,6 @@ export const useStore = create<GlobalState>((set, get) => {
         set({ isRunning: false, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
         get().startPotato()
       }
-    },
-
-    acknowledgeHydration: () => {
-      set({ showHydrationPrompt: false })
     },
 
     setAutoStartEnabled: (enabled) => {
@@ -659,7 +639,6 @@ export const useStore = create<GlobalState>((set, get) => {
           totalFocusTime: totalFocusTime + pomodoroTime,
           tasks: updatedTasks,
           dailyStats: newDailyStats,
-          showTaskCompleteModal: true,
           pomodoroType: breakType,
           timeLeft: breakTime * 60,
           currentTime: breakTime * 60,

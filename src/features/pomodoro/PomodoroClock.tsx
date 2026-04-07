@@ -9,13 +9,10 @@ const PomodoroClock = () => {
     timeLeft,
     breakTimeLeft,
     breakType,
-    tasks = [],
-    currentTaskId,
     isRunning,
     pomodoroType,
     stopPomodoro,
     finishEarlyPomodoro,
-    completeTask,
     showPomodoroPotatoConflict,
     resolvePomodoroPotatoConflict,
     setPomodoroType,
@@ -23,11 +20,6 @@ const PomodoroClock = () => {
     shortBreakTime,
     longBreakTime,
   } = useStore()
-
-  /**
-   * 获取当前选中的任务
-   */
-  const currentTask = tasks.find(t => t.id === currentTaskId)
 
   /**
    * 处理提前结束番茄钟
@@ -50,21 +42,6 @@ const PomodoroClock = () => {
       useStore.setState({ breakTimeLeft: breakTime })
       startPomodoro()
     }
-  }
-
-  /**
-   * 休息结束，切回番茄钟
-   */
-  const endBreak = () => {
-    const { pomodoroTime } = useStore.getState()
-    useStore.setState({
-      pomodoroType: 'pomodoro',
-      timeLeft: pomodoroTime * 60,
-      currentTime: pomodoroTime * 60,
-      isRunning: false,
-      breakTimeLeft: 0,
-      breakType: null,
-    })
   }
 
   /**

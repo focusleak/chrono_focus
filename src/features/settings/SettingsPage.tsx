@@ -28,7 +28,7 @@ const formatMinutesToSeconds = (minutes: number): string => {
   return `${mins}分${secs}秒`
 }
 
-const NumberInput = ({ value, defaultValue, min = 1, max = 999, step = 0.1, onSave, className, showSeconds = false }: NumberInputProps) => {
+const NumberInput = ({ value, defaultValue: _defaultValue, min = 1, max = 999, step = 0.1, onSave, className, showSeconds = false }: NumberInputProps) => {
   const [inputValue, setInputValue] = useState(String(value))
 
   const handleBlur = () => {

@@ -13,8 +13,6 @@ export const TaskSelector = () => {
     currentTaskId,
     setCurrentTask,
     pomodoroType,
-    isRunning,
-    showRestReminderPrompt,
   } = useStore()
 
   // 休息状态：短休息或长休息
