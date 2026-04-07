@@ -165,6 +165,8 @@ const getInitialState = () => {
     return {
       ...saved,
       isRunning: false,
+      isPotatoRunning: false,
+      restReminderNotification: saved.restReminderNotification ?? true,
       timeLeft: (saved.pomodoroTime ?? 25) * 60,
       currentTime: (saved.pomodoroTime ?? 25) * 60,
       dailyStats: saved.dailyStats || [],
@@ -205,6 +207,8 @@ const getInitialState = () => {
   }
 
   return {
+    isRunning: false,
+    isPotatoRunning: false,
     pomodoroTime: 25,
     shortBreakTime: 5,
     longBreakTime: 15,
@@ -253,7 +257,6 @@ const getInitialState = () => {
     autoStartEnabled: false,
     potatoActivities: [],
     potatoTimeLeft: 3600, // 默认60分钟
-    isPotatoRunning: false,
     dailyPotatoLimit: 60,
   }
 }
@@ -462,6 +465,24 @@ export const useStore = create<GlobalState>((set, get) => {
           newState.restReminderTimeLeft = total
           newState.restReminderTotalTime = total
         }
+        // 当番茄钟时长改变时，同步重置倒计时（仅在未运行时）
+        if (!state.isRunning) {
+          if (settings.pomodoroTime !== undefined && state.pomodoroType === 'pomodoro') {
+            const time = settings.pomodoroTime * 60
+            newState.timeLeft = time
+            newState.currentTime = time
+          }
+          if (settings.shortBreakTime !== undefined && state.pomodoroType === 'shortBreak') {
+            const time = settings.shortBreakTime * 60
+            newState.timeLeft = time
+            newState.currentTime = time
+          }
+          if (settings.longBreakTime !== undefined && state.pomodoroType === 'longBreak') {
+            const time = settings.longBreakTime * 60
+            newState.timeLeft = time
+            newState.currentTime = time
+          }
+        }
         saveToStorage(newState)
         return newState
       })
@@ -669,7 +690,11 @@ export const useStore = create<GlobalState>((set, get) => {
     },
 
     toggleRestReminderPause: () => {
-      set((state) => ({ restReminderPaused: !state.restReminderPaused }))
+      set((state) => {
+        const newState = { restReminderPaused: !state.restReminderPaused }
+        saveToStorage({ ...state, ...newState })
+        return newState
+      })
     },
 
     addTask: (task) => {
@@ -877,14 +902,14 @@ export const useStore = create<GlobalState>((set, get) => {
     },
 
     setDailyPotatoLimit: (minutes) => {
-      const { potatoTimeLeft, isPotatoRunning } = get()
+      const { isPotatoRunning } = get()
       set({ dailyPotatoLimit: minutes })
-      
+
       // 如果土豆钟没有在运行，重置剩余时间为新的限制
-      if (!isPotatoRunning && potatoTimeLeft === 0) {
+      if (!isPotatoRunning) {
         set({ potatoTimeLeft: minutes * 60 })
       }
-      
+
       saveToStorage(get())
     },
 

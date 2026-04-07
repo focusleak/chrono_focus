@@ -6,6 +6,8 @@ import { useInitAutoLaunch } from './hooks/useInitAutoLaunch'
 import { usePotatoTimer } from './hooks/usePotatoTimer'
 import { useThemeSync } from './hooks/useThemeSync'
 import { useRestReminder } from './hooks/useRestReminder'
+import { useTraySync } from './hooks/useTraySync'
+import { useTrayActions } from './hooks/useTrayActions'
 import { requestNotificationPermission } from './lib/utils'
 import PomodoroClock from './features/pomodoro/PomodoroClock'
 import SettingsPage from './features/settings/SettingsPage'
@@ -29,6 +31,8 @@ function AppContent() {
   usePotatoTimer()
   useThemeSync()
   useRestReminder()
+  useTraySync()
+  useTrayActions()
 
   const { pomodoroType } = useStore()
   const [activeTab, setActiveTab] = useState('timer')

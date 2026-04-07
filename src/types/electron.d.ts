@@ -20,6 +20,12 @@ export interface ElectronAPI {
   showQuizOverlay: (config: { num1: number; num2: number }) => Promise<boolean>
   // 关闭遮罩
   closeOverlay: () => Promise<boolean>
+  // 更新托盘文字
+  updateTrayText: (text: string) => Promise<boolean>
+  // 更新托盘菜单
+  updateTrayMenu: (state: string) => Promise<boolean>
+  // 监听托盘动作
+  onTrayAction: (callback: (action: string) => void) => () => void
   // 监听遮罩动作事件（从 Electron 遮罩窗口转发）
   onOverlayAction: (callback: (action: string) => void) => void
 }

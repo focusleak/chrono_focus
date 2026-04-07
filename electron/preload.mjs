@@ -36,6 +36,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // 关闭遮罩
   closeOverlay: () =>
     ipcRenderer.invoke('close-overlay'),
+  // 更新托盘文字
+  updateTrayText: (text) =>
+    ipcRenderer.invoke('update-tray-text', { text }),
+  // 更新托盘菜单
+  updateTrayMenu: (state) =>
+    ipcRenderer.invoke('update-tray-menu', { state }),
+  // 监听托盘动作
+  onTrayAction: (callback) => {
+    const handler = (_event, action) => callback(action)
+    ipcRenderer.on('tray-action', handler)
+    return () => ipcRenderer.removeListener('tray-action', handler)
+  },
   // 监听遮罩动作事件（从 Electron 遮罩窗口转发）
   onOverlayAction: (callback) => {
     ipcRenderer.on('overlay-action', (_event, action) => callback(action))

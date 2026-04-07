@@ -24,45 +24,49 @@ export const useRestReminder = () => {
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const hasNotifiedRef = useRef(false)
+  const prevShowPromptRef = useRef(false)
+  const prevRunningRef = useRef(isRunning || isPotatoRunning)
+
+  // 用 ref 存储最新状态
+  const tickRef = useRef(tickRestReminder)
+  const resetRef = useRef(resetRestReminder)
+  useEffect(() => {
+    tickRef.current = tickRestReminder
+    resetRef.current = resetRestReminder
+  }, [tickRestReminder, resetRestReminder])
 
   // 是否应该运行休息提醒倒计时
-  // 当弹窗显示时暂停倒计时（等待用户操作）
-  // 当手动暂停时也暂停
   const shouldRun = restReminderEnabled && !isRunning && !isPotatoRunning && !showRestReminderPrompt && !restReminderPaused
 
+  // 主定时器 useEffect
   useEffect(() => {
     if (shouldRun) {
+      // 每次开始运行时，确保通知标记为 false
       hasNotifiedRef.current = false
-      // 清除旧定时器
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
       }
-
-      // 启动新倒计时
       intervalRef.current = setInterval(() => {
-        tickRestReminder()
+        tickRef.current()
       }, 1000)
     } else {
-      // 停止倒计时
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
         intervalRef.current = null
       }
     }
-
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
       }
     }
-  }, [shouldRun, tickRestReminder])
+  }, [shouldRun])
 
-  // 当倒计时到 0 时显示全屏弹窗 + 发送通知
+  // 当倒计时到 0 时显示全屏弹窗
   useEffect(() => {
     if (restReminderTimeLeft <= 0 && shouldRun && !showRestReminderPrompt && !hasNotifiedRef.current) {
       hasNotifiedRef.current = true
       setShowRestReminderPrompt(true)
-      // 只在设置启用时发送通知和播放提示音
       if (restReminderNotification) {
         sendNotification('休息提醒', '你已经工作一段时间了，记得休息一下哦！')
         playSound('remind')
@@ -70,19 +74,29 @@ export const useRestReminder = () => {
     }
   }, [restReminderTimeLeft, shouldRun, showRestReminderPrompt, restReminderNotification, setShowRestReminderPrompt])
 
-  // 当番茄钟或土豆钟开始时，重置休息提醒倒计时（不运行）
+  // 监听 showRestReminderPrompt 从 true 变为 false（遮罩关闭），重置通知标记
   useEffect(() => {
-    if ((isRunning || isPotatoRunning) && restReminderTimeLeft > 0) {
-      resetRestReminder()
+    if (prevShowPromptRef.current && !showRestReminderPrompt) {
+      // 遮罩刚关闭，立即重置通知标记
       hasNotifiedRef.current = false
     }
-  }, [isRunning, isPotatoRunning, restReminderTimeLeft, resetRestReminder])
+    prevShowPromptRef.current = showRestReminderPrompt
+  }, [showRestReminderPrompt])
 
-  // 当番茄钟或土豆钟停止时，确保休息提醒倒计时被重置
+  // 监听专注状态变化，重置休息提醒
   useEffect(() => {
-    if (!isRunning && !isPotatoRunning && restReminderTimeLeft <= 0 && restReminderEnabled && !restReminderPaused) {
-      resetRestReminder()
+    const nowRunning = isRunning || isPotatoRunning
+    const wasRunning = prevRunningRef.current
+
+    if (nowRunning && !wasRunning) {
+      // 刚开始专注：重置休息提醒
+      resetRef.current()
+      hasNotifiedRef.current = false
+    } else if (!nowRunning && wasRunning) {
+      // 刚结束专注：重置休息提醒以开始新的倒计时
+      resetRef.current()
       hasNotifiedRef.current = false
     }
-  }, [isRunning, isPotatoRunning, restReminderTimeLeft, restReminderEnabled, restReminderPaused, resetRestReminder])
+    prevRunningRef.current = nowRunning
+  }, [isRunning, isPotatoRunning])
 }

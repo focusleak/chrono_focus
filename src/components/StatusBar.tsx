@@ -67,7 +67,7 @@ const StatusBar = () => {
   }
 
   /** 判断是否正在运行 */
-  const isActive = isRunning || isPotatoRunning || (restReminderEnabled && !showRestReminderPrompt)
+  const isActive = isRunning || isPotatoRunning || (restReminderEnabled && !showRestReminderPrompt && !restReminderPaused)
 
   /** 获取当前计时的已用时间和总时间 */
   const getTimerInfo = () => {
@@ -112,6 +112,12 @@ const StatusBar = () => {
             <span className="font-mono text-white/60 tabular-nums">
               {formatDuration(total)}
             </span>
+            {/* 休息提醒运行时显示百分数 */}
+            {!isRunning && !isPotatoRunning && restReminderEnabled && !showRestReminderPrompt && total > 0 && (
+              <span className="font-mono text-white/80 tabular-nums">
+                ({Math.round((elapsed / total) * 100)}%)
+              </span>
+            )}
             {/* 暂停/继续按钮 */}
             <div
               className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"

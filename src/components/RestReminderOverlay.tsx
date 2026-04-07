@@ -68,10 +68,13 @@ const RestReminderOverlay = () => {
           closeOverlay()
           nextRestBreak()
           resumeTimersAfterOverlay()
+          setShowRestReminderPrompt(false)
           useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
           break
         case 'quizClose':
           closeOverlay()
+          setShowRestReminderPrompt(false)
+          resumeTimersAfterOverlay()
           useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
           break
         case 'closed':
@@ -114,10 +117,13 @@ const RestReminderOverlay = () => {
             closeOverlay()
             nextRestBreak()
             resumeTimersAfterOverlay()
+            setShowRestReminderPrompt(false)
             useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
           },
           onQuizClose: () => {
             closeOverlay()
+            setShowRestReminderPrompt(false)
+            resumeTimersAfterOverlay()
             useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
           },
         }
@@ -136,10 +142,13 @@ const RestReminderOverlay = () => {
             closeOverlay()
             nextRestBreak()
             resumeTimersAfterOverlay()
+            setShowRestReminderPrompt(false)
             useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
           },
           onQuizClose: () => {
             closeOverlay()
+            setShowRestReminderPrompt(false)
+            resumeTimersAfterOverlay()
             useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
           },
         }
