@@ -23,6 +23,7 @@ export interface Task {
   isCompleted: boolean
   isRecurring: boolean // 是否循环任务
   isSimple: boolean // 是否无需分解的任务（不强制要求子任务）
+  order: number // 排序权重，数值越小越靠前
 }
 
 export interface DailyStats {
@@ -68,6 +69,8 @@ export interface GlobalState {
   // 休息提醒设置
   restReminderEnabled: boolean
   restReminderInterval: number // 休息提醒间隔（分钟）
+  shortBreakReminderInterval: number // 短休息提醒间隔（分钟）
+  longBreakReminderInterval: number // 长休息提醒间隔（分钟）
 
   // 喝水提醒设置
   waterReminderEnabled: boolean
@@ -127,9 +130,10 @@ export interface GlobalState {
   setAutoStartEnabled: (enabled: boolean) => void
 
   // 任务管理方法
-  addTask: (task: Omit<Task, 'id' | 'createdAt' | 'completedPomodoros' | 'isCompleted'>) => void
+  addTask: (task: Omit<Task, 'id' | 'createdAt' | 'completedPomodoros' | 'isCompleted' | 'order'>) => void
   updateTask: (id: string, updates: Partial<Task>) => void
   deleteTask: (id: string) => void
+  reorderTasks: (orderedIds: string[]) => void
   setCurrentTask: (id: string | null) => void
   setCurrentEntertainment: (id: string | null) => void
   toggleSubtask: (taskId: string, subtaskId: string) => void
@@ -183,6 +187,8 @@ const getInitialState = () => {
       gazeReminderInterval: saved.gazeReminderInterval ?? 20,
       walkReminderEnabled: saved.walkReminderEnabled ?? true,
       walkReminderInterval: saved.walkReminderInterval ?? 60,
+      shortBreakReminderInterval: saved.shortBreakReminderInterval ?? 5,
+      longBreakReminderInterval: saved.longBreakReminderInterval ?? 10,
       tasks: migratedTasks,
       waterCount: saved.waterCount ?? 0,
       completedPomodoros: saved.completedPomodoros ?? 0,
@@ -205,6 +211,8 @@ const getInitialState = () => {
     longBreakTime: 15,
     restReminderEnabled: true,
     restReminderInterval: 30,
+    shortBreakReminderInterval: 5,
+    longBreakReminderInterval: 10,
     waterReminderEnabled: true,
     waterReminderInterval: 60,
     dailyWaterGoal: 8,
@@ -245,6 +253,8 @@ const saveToStorage = (state: GlobalState) => {
     longBreakTime: state.longBreakTime,
     restReminderEnabled: state.restReminderEnabled,
     restReminderInterval: state.restReminderInterval,
+    shortBreakReminderInterval: state.shortBreakReminderInterval,
+    longBreakReminderInterval: state.longBreakReminderInterval,
     waterReminderEnabled: state.waterReminderEnabled,
     waterReminderInterval: state.waterReminderInterval,
     dailyWaterGoal: state.dailyWaterGoal,
@@ -470,6 +480,7 @@ export const useStore = create<GlobalState>((set, get) => {
         isCompleted: false,
         isRecurring: task.isRecurring ?? false,
         isSimple: task.isSimple ?? false,
+        order: Date.now(),
       }
       set((state) => {
         const newState = {
@@ -487,6 +498,19 @@ export const useStore = create<GlobalState>((set, get) => {
           tasks: state.tasks.map(task =>
             task.id === id ? { ...task, ...updates } : task
           )
+        }
+        saveToStorage({ ...state, ...newState })
+        return newState
+      })
+    },
+
+    reorderTasks: (orderedIds) => {
+      set((state) => {
+        const newState = {
+          tasks: state.tasks.map(task => ({
+            ...task,
+            order: orderedIds.indexOf(task.id),
+          }))
         }
         saveToStorage({ ...state, ...newState })
         return newState

@@ -23,6 +23,8 @@ export const EntertainmentSelector = () => {
       placeholder="选择娱乐项目"
       emptyMessage="暂无可用娱乐项目"
       activeClassName="bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
+      selectedClassName="text-gray-900 hover:text-gray-700"
+      placeholderClassName="text-gray-500 hover:text-gray-400"
       className="mb-6"
     />
   )

@@ -4,7 +4,7 @@ import { useSetAutoLaunch } from '../../hooks/useInitAutoLaunch'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
-import { Sun, Moon, Monitor } from 'lucide-react'
+import { Sun, Moon, Monitor, Play, Palette, Clock, Coffee } from 'lucide-react'
 import { SettingRow } from './SettingRow'
 
 // 常规设置
@@ -19,8 +19,8 @@ const GeneralSettings = () => {
   const setAutoStartEnabled = useSetAutoLaunch()
 
   const themeOptions: { label: string; value: ThemeMode; icon: any }[] = [
-    { label: '亮色', value: 'light', icon: Sun },
-    { label: '暗色', value: 'dark', icon: Moon },
+    { label: '浅色', value: 'light', icon: Sun },
+    { label: '深色', value: 'dark', icon: Moon },
     { label: '跟随系统', value: 'system', icon: Monitor },
   ]
 
@@ -32,7 +32,10 @@ const GeneralSettings = () => {
     <div className="divide-y divide-gray-200 dark:divide-gray-700">
       {/* 启动设置 */}
       <div className="p-6">
-        <h3 className="text-base font-semibold mb-4 text-gray-900 dark:text-gray-100">启动设置</h3>
+        <h3 className="text-base font-semibold mb-4 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <Play className="w-4 h-4" />
+          启动设置
+        </h3>
         <div className="space-y-4">
           <SettingRow
             label="开机自启动"
@@ -44,21 +47,15 @@ const GeneralSettings = () => {
               className="data-[state=checked]:bg-[#34c759]"
             />
           </SettingRow>
-          {autoStartEnabled && (
-            <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-[#2c2c2e] rounded-lg p-3">
-              <p className="font-medium mb-1">macOS 系统开机自启动设置</p>
-              <p className="mb-2">运行以下命令设置系统级开机自启动：</p>
-              <code className="block bg-gray-200 dark:bg-[#3a3a3c] px-2 py-1 rounded text-xs font-mono">
-                ./setup-autostart.sh
-              </code>
-            </div>
-          )}
         </div>
       </div>
 
       {/* 外观设置 */}
       <div className="p-6">
-        <h3 className="text-base font-semibold mb-4 text-gray-900 dark:text-gray-100">外观</h3>
+        <h3 className="text-base font-semibold mb-4 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <Palette className="w-4 h-4" />
+          外观
+        </h3>
         <div className="space-y-4">
           <SettingRow label="主题模式" description="选择应用的颜色主题">
             <div className="flex gap-2 bg-white dark:bg-[#3a3a3c] rounded-lg p-1 shadow-sm">
@@ -88,7 +85,10 @@ const GeneralSettings = () => {
 
       {/* 番茄钟设置 */}
       <div className="p-6">
-        <h3 className="text-base font-semibold mb-4 text-gray-900 dark:text-gray-100">番茄钟</h3>
+        <h3 className="text-base font-semibold mb-4 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <Clock className="w-4 h-4" />
+          番茄钟
+        </h3>
         <div className="space-y-4">
           <SettingRow
             label="番茄钟时长"
@@ -143,7 +143,10 @@ const GeneralSettings = () => {
 
       {/* 土豆钟设置 */}
       <div className="p-6">
-        <h3 className="text-base font-semibold mb-4 text-gray-900 dark:text-gray-100">土豆钟</h3>
+        <h3 className="text-base font-semibold mb-4 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <Coffee className="w-4 h-4" />
+          土豆钟
+        </h3>
         <SettingRow
           label="每日娱乐时间限制"
           description="每天最多可用于娱乐的时间"

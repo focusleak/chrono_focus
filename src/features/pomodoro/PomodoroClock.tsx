@@ -98,10 +98,11 @@ const PomodoroClock = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8">
-      <div className="pb-8">
+    <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
+      {/* 时间和任务选择器 */}
+      <div className="mb-10">
         <div
-          className="text-8xl font-semibold tracking-tight mb-4 font-mono text-white"
+          className="text-8xl font-semibold tracking-tight mb-6 font-mono text-white"
           style={{
             fontVariantNumeric: 'tabular-nums',
             textShadow: '0 2px 8px rgba(0,0,0,0.2)'
@@ -110,10 +111,10 @@ const PomodoroClock = () => {
           {formatTime(timeLeft)}
         </div>
 
-        {/* 当前任务显示：点击可打开任务选择弹窗 */}
         <TaskSelector />
       </div>
-      {/* 控制按钮区域：开始/暂停、重置、提前结束 */}
+
+      {/* 控制按钮区域 */}
       <PomodoroControls onEarlyFinish={handleEarlyFinish} />
 
 

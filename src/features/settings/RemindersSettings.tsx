@@ -1,13 +1,14 @@
 import { useStore } from '../../store/store'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
-import { Droplets, Footprints, Eye, Timer, PersonStanding } from 'lucide-react'
+import { Droplets, Footprints, Eye, Timer, PersonStanding, StretchHorizontal } from 'lucide-react'
 import { SettingRow } from './SettingRow'
 
 // 提醒配置
 const RemindersSettings = () => {
   const {
     restReminderEnabled, restReminderInterval,
+    shortBreakReminderInterval, longBreakReminderInterval,
     waterReminderEnabled, waterReminderInterval, dailyWaterGoal,
     standReminderEnabled, standReminderInterval,
     stretchReminderEnabled, stretchReminderInterval,
@@ -18,6 +19,7 @@ const RemindersSettings = () => {
 
   const settings = {
     restReminderEnabled, restReminderInterval,
+    shortBreakReminderInterval, longBreakReminderInterval,
     waterReminderEnabled, waterReminderInterval, dailyWaterGoal,
     standReminderEnabled, standReminderInterval,
     stretchReminderEnabled, stretchReminderInterval,
@@ -46,19 +48,47 @@ const RemindersSettings = () => {
             />
           </SettingRow>
           {settings.restReminderEnabled && (
-            <SettingRow label="提醒间隔" description="每隔多久提醒一次">
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  min={5}
-                  max={120}
-                  value={settings.restReminderInterval}
-                  onChange={(e) => handleChange('restReminderInterval', parseInt(e.target.value))}
-                  className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
-                />
-                <span className="text-sm text-gray-500 dark:text-gray-400">分钟</span>
-              </div>
-            </SettingRow>
+            <>
+              <SettingRow label="提醒间隔" description="每隔多久提醒一次">
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min={5}
+                    max={120}
+                    value={settings.restReminderInterval}
+                    onChange={(e) => handleChange('restReminderInterval', parseInt(e.target.value))}
+                    className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+                  />
+                  <span className="text-sm text-gray-500 dark:text-gray-400 w-8">分钟</span>
+                </div>
+              </SettingRow>
+              <SettingRow label="短休息提醒间隔" description="短休息时提醒频率">
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min={1}
+                    max={30}
+                    value={settings.shortBreakReminderInterval}
+                    onChange={(e) => handleChange('shortBreakReminderInterval', parseInt(e.target.value))}
+                    className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+                  />
+                  <span className="text-sm text-gray-500 dark:text-gray-400 w-8">分钟</span>
+                </div>
+              </SettingRow>
+              <SettingRow label="长休息提醒间隔" description="长休息时提醒频率">
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min={1}
+                    max={60}
+                    value={settings.longBreakReminderInterval}
+                    onChange={(e) => handleChange('longBreakReminderInterval', parseInt(e.target.value))}
+                    className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+                  />
+                  <span className="text-sm text-gray-500 dark:text-gray-400 w-8">分钟</span>
+                </div>
+              </SettingRow>
+            </>
           )}
         </div>
       </div>
@@ -144,7 +174,10 @@ const RemindersSettings = () => {
 
       {/* 拉伸提醒 */}
       <div className="p-6">
-        <h3 className="text-base font-semibold mb-4 text-gray-900 dark:text-gray-100">拉伸提醒</h3>
+        <h3 className="text-base font-semibold mb-4 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <StretchHorizontal className="w-4 h-4" />
+          拉伸提醒
+        </h3>
         <div className="space-y-4">
           <SettingRow label="启用拉伸提醒" description="定时提醒伸展身体">
             <Switch
