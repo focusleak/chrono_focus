@@ -3,7 +3,7 @@ import { ItemSelector } from '../../components/common/ItemSelector'
 import { useStore } from '../../store/store'
 
 export const TaskSelector = () => {
-  const { tasks = [], currentTaskId, setCurrentTask, pomodoroType } = useStore()
+  const { tasks = [], currentPomodoroTaskId, setCurrentPomodoroTask, pomodoroType } = useStore()
   const isBreak = pomodoroType === 'shortBreak' || pomodoroType === 'longBreak'
 
   if (isBreak) {
@@ -17,9 +17,9 @@ export const TaskSelector = () => {
 
   return (
     <ItemSelector
-      selectedId={currentTaskId}
-      items={tasks.filter(t => t.type === 'task')}
-      onSelect={setCurrentTask}
+      selectedId={currentPomodoroTaskId}
+      items={tasks.filter((t: any) => t.type === 'task')}
+      onSelect={setCurrentPomodoroTask}
       icon={Target}
       dialogTitle="选择任务"
       placeholder="选择任务"

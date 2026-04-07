@@ -6,19 +6,16 @@ import { formatDuration } from '../../lib/utils'
 
 const PomodoroClock = () => {
   const {
-    timeLeft,
-    breakTimeLeft,
-    breakType,
-    isRunning,
+    pomodoroTimeLeft,
+    pomodoroBreakType,
+    isPomodoroRunning,
     pomodoroType,
     stopPomodoro,
     finishEarlyPomodoro,
     showPomodoroPotatoConflict,
     resolvePomodoroPotatoConflict,
-    setPomodoroType,
-    startPomodoro,
-    shortBreakTime,
-    longBreakTime,
+    pomodoroShortBreakTime,
+    pomodoroLongBreakTime,
   } = useStore()
 
   const handleEarlyFinish = () => {
@@ -28,26 +25,29 @@ const PomodoroClock = () => {
 
   const startBreak = () => {
     const state = useStore.getState()
-    const { breakType: storedBreakType, shortBreakTime, longBreakTime } = state
-    if (storedBreakType) {
-      const breakTime = storedBreakType === 'shortBreak' ? shortBreakTime * 60 : longBreakTime * 60
-      setPomodoroType(storedBreakType)
-      useStore.setState({ breakTimeLeft: breakTime })
-      startPomodoro()
+    const { pomodoroBreakType, pomodoroShortBreakTime, pomodoroLongBreakTime } = state
+    if (pomodoroBreakType) {
+      const breakTime = pomodoroBreakType === 'shortBreak' ? pomodoroShortBreakTime * 60 : pomodoroLongBreakTime * 60
+      useStore.setState({
+        pomodoroType: pomodoroBreakType,
+        pomodoroTimeLeft: breakTime,
+        currentPomodoroTime: breakTime,
+        pomodoroBreakType: pomodoroBreakType,
+        isPomodoroRunning: true,
+      })
     }
   }
 
-  const showBreakButton = timeLeft === 0 && pomodoroType === 'pomodoro' && breakType !== null
-  const isBreakRunning = isRunning && (pomodoroType === 'shortBreak' || pomodoroType === 'longBreak')
-  const displayTime = isBreakRunning ? breakTimeLeft : timeLeft
-  const breakLabel = breakType === 'longBreak' ? '长休息' : '短休息'
+  const showBreakButton = pomodoroTimeLeft === 0 && pomodoroType === 'pomodoro' && pomodoroBreakType !== null
+  const displayTime = pomodoroTimeLeft
+  const breakLabel = pomodoroBreakType === 'longBreak' ? '长休息' : '短休息'
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
       <div className="mb-10">
         {showBreakButton && (
           <div className="text-sm font-medium text-white/60 mb-4">
-            {breakLabel} 建议 {breakType === 'longBreak' ? longBreakTime : shortBreakTime} 分钟
+            {breakLabel} 建议 {pomodoroBreakType === 'longBreak' ? pomodoroLongBreakTime : pomodoroShortBreakTime} 分钟
           </div>
         )}
         <div
@@ -68,7 +68,7 @@ const PomodoroClock = () => {
         </div>
       )}
 
-      {!isRunning && !showBreakButton && <PomodoroControls onEarlyFinish={handleEarlyFinish} />}
+      {!isPomodoroRunning && !showBreakButton && <PomodoroControls onEarlyFinish={handleEarlyFinish} />}
 
       <ConfirmDialog
         open={showPomodoroPotatoConflict === 'pomodoro'}

@@ -24,7 +24,7 @@ const StatsPanel = () => {
 
   const [selectedCategory, setSelectedCategory] = useState<StatsCategory>('overview')
 
-  const completedTasks = tasks.filter(t => t.isCompleted).length
+  const completedTasks = tasks.filter((t: any) => t.isCompleted).length
   const totalTasks = tasks.length
 
   const categories = [
@@ -108,7 +108,7 @@ const StatsPanel = () => {
                 icon={Timer}
                 iconColor="text-orange-500"
                 bgColor="bg-orange-100 dark:bg-orange-900/30"
-                value={potatoActivities.reduce((sum, a) => sum + a.duration, 0)}
+                value={potatoActivities.reduce((sum: number, a: any) => sum + a.duration, 0)}
                 label="已用时间（分钟）"
               />
               <StatCard
@@ -122,7 +122,7 @@ const StatsPanel = () => {
                 icon={Timer}
                 iconColor="text-orange-500"
                 bgColor="bg-orange-100 dark:bg-orange-900/30"
-                value={Math.max(0, dailyPotatoLimit - potatoActivities.reduce((sum, a) => sum + a.duration, 0))}
+                value={Math.max(0, dailyPotatoLimit - potatoActivities.reduce((sum: number, a: any) => sum + a.duration, 0))}
                 label="剩余时间（分钟）"
               />
               <StatCard
@@ -324,7 +324,7 @@ const StatsPanel = () => {
                 icon={Timer}
                 iconColor="text-orange-500"
                 bgColor="bg-orange-100 dark:bg-orange-900/30"
-                value={potatoActivities.reduce((sum, a) => sum + a.duration, 0)}
+                value={potatoActivities.reduce((sum: number, a: any) => sum + a.duration, 0)}
                 label="娱乐时间（分钟）"
               />
 

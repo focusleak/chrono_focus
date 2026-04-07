@@ -6,10 +6,10 @@ import { useStore } from '../store/store'
  */
 export const useTraySync = () => {
   const {
-    isRunning,
+    isPomodoroRunning,
     isPotatoRunning,
     pomodoroType,
-    timeLeft,
+    pomodoroTimeLeft,
     potatoTimeLeft,
     restReminderEnabled,
     restReminderTimeLeft,
@@ -25,9 +25,9 @@ export const useTraySync = () => {
       let text = '⏸️ 空闲'
       let menuState = 'idle'
 
-      if (isRunning) {
+      if (isPomodoroRunning) {
         if (pomodoroType === 'pomodoro') {
-          const mins = Math.ceil(timeLeft / 60)
+          const mins = Math.ceil(pomodoroTimeLeft / 60)
           text = `番茄钟-已专注 ${mins}分钟`
           menuState = 'pomodoro'
         } else if (pomodoroType === 'shortBreak') {
@@ -67,5 +67,5 @@ export const useTraySync = () => {
     }
 
     updateTray()
-  }, [isRunning, isPotatoRunning, pomodoroType, timeLeft, potatoTimeLeft, restReminderEnabled, restReminderTimeLeft, restReminderTotalTime, showRestReminderPrompt, restReminderPaused])
+  }, [isPomodoroRunning, isPotatoRunning, pomodoroType, pomodoroTimeLeft, potatoTimeLeft, restReminderEnabled, restReminderTimeLeft, restReminderTotalTime, showRestReminderPrompt, restReminderPaused])
 }

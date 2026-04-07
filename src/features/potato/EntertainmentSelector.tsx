@@ -9,15 +9,15 @@ import { useStore } from '../../store/store'
 export const EntertainmentSelector = () => {
   const {
     tasks = [],
-    currentEntertainmentId,
-    setCurrentEntertainment,
+    currentPotatoTaskId,
+    setCurrentPotatoTask,
   } = useStore()
 
   return (
     <ItemSelector
-      selectedId={currentEntertainmentId}
-      items={tasks.filter(t => t.type === 'entertainment')}
-      onSelect={setCurrentEntertainment}
+      selectedId={currentPotatoTaskId}
+      items={tasks.filter((t: any) => t.type === 'entertainment')}
+      onSelect={setCurrentPotatoTask}
       icon={Gamepad2}
       dialogTitle="选择娱乐项目"
       placeholder="选择娱乐项目"

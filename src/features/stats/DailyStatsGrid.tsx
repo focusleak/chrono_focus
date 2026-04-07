@@ -44,7 +44,7 @@ const DailyStatsGrid = ({ title = '每日统计' }: DailyStatsGridProps) => {
   }, [viewMode, currentDate])
 
   const stats = useMemo(() => {
-    return dailyStats.filter(s => {
+    return dailyStats.filter((s: any) => {
       const date = new Date(s.date)
       return (isAfter(date, getDateRange.start) || isSameDay(date, getDateRange.start)) &&
              (isAfter(getDateRange.end, date) || isSameDay(date, getDateRange.end))
@@ -87,7 +87,7 @@ const DailyStatsGrid = ({ title = '每日统计' }: DailyStatsGridProps) => {
   }, [dateList])
 
   const getDayStats = (date: string) => {
-    return stats.find(s => s.date === date)
+    return stats.find((s: any) => s.date === date)
   }
 
   const getColorIntensity = (pomodoros: number) => {
@@ -101,12 +101,12 @@ const DailyStatsGrid = ({ title = '每日统计' }: DailyStatsGridProps) => {
 
   const cellSize = viewMode === 'month' ? 'w-5 h-5' : 'w-3 h-3'
 
-  const totalPomodoros = stats.reduce((sum, s) => sum + s.pomodoros, 0)
-  const totalFocusMinutes = stats.reduce((sum, s) => sum + s.focusTime, 0)
-  const totalWater = stats.reduce((sum, s) => sum + s.waterCount, 0)
-  const totalTasks = stats.reduce((sum, s) => sum + s.tasksCompleted, 0)
-  const totalPotatoTime = stats.reduce((sum, s) => sum + (s.potatoTime || 0), 0)
-  const activeDays = stats.filter(s => s.pomodoros > 0).length
+  const totalPomodoros = stats.reduce((sum: number, s: any) => sum + s.pomodoros, 0)
+  const totalFocusMinutes = stats.reduce((sum: number, s: any) => sum + s.focusTime, 0)
+  const totalWater = stats.reduce((sum: number, s: any) => sum + s.waterCount, 0)
+  const totalTasks = stats.reduce((sum: number, s: any) => sum + s.tasksCompleted, 0)
+  const totalPotatoTime = stats.reduce((sum: number, s: any) => sum + (s.potatoTime || 0), 0)
+  const activeDays = stats.filter((s: any) => s.pomodoros > 0).length
 
   const goToPrevious = () => {
     if (viewMode === 'month') {

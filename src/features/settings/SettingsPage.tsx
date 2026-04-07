@@ -11,7 +11,7 @@ import { ReminderSettings } from '../../components/common/ReminderSettings'
 const SettingsPage = () => {
   const { theme, setTheme } = useThemeStore()
   const {
-    pomodoroTime, shortBreakTime, longBreakTime,
+    pomodoroTime, pomodoroShortBreakTime, pomodoroLongBreakTime,
     autoStartEnabled,
     dailyPotatoLimit, setDailyPotatoLimit,
     restReminderEnabled, restReminderInterval, restReminderNotification, restBreakDuration, restReminderSkipInterval,
@@ -104,21 +104,21 @@ const SettingsPage = () => {
           </SettingRow>
           <SettingRow label="短休息时长" description="短休息时间">
             <NumberInput
-              value={shortBreakTime}
+              value={pomodoroShortBreakTime}
               min={0.1}
               max={30}
               showSeconds
-              onSave={(v) => handleChange('shortBreakTime', v)}
+              onSave={(v) => handleChange('pomodoroShortBreakTime', v)}
               className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
             />
           </SettingRow>
           <SettingRow label="长休息时长" description="长休息时间">
             <NumberInput
-              value={longBreakTime}
+              value={pomodoroLongBreakTime}
               min={0.1}
               max={60}
               showSeconds
-              onSave={(v) => handleChange('longBreakTime', v)}
+              onSave={(v) => handleChange('pomodoroLongBreakTime', v)}
               className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
             />
           </SettingRow>

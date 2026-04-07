@@ -6,7 +6,7 @@ import { useStore } from '../store/store'
  */
 export const useTrayActions = () => {
   const {
-    isRunning,
+    isPomodoroRunning,
     isPotatoRunning,
     pomodoroType,
     pausePomodoro,
@@ -21,7 +21,7 @@ export const useTrayActions = () => {
 
   // 用 ref 存储最新的状态和方法，避免闭包捕获过期值
   const stateRef = useRef({
-    isRunning,
+    isPomodoroRunning,
     isPotatoRunning,
     pomodoroType,
     restReminderPaused,
@@ -36,7 +36,7 @@ export const useTrayActions = () => {
 
   useEffect(() => {
     stateRef.current = {
-      isRunning,
+      isPomodoroRunning,
       isPotatoRunning,
       pomodoroType,
       restReminderPaused,
@@ -48,7 +48,7 @@ export const useTrayActions = () => {
       resetPotato,
       toggleRestReminderPause,
     }
-  }, [isRunning, isPotatoRunning, pomodoroType, restReminderPaused,
+  }, [isPomodoroRunning, isPotatoRunning, pomodoroType, restReminderPaused,
     pausePomodoro, startPomodoro, resetPomodoro,
     pausePotato, startPotato, resetPotato,
     toggleRestReminderPause])
@@ -63,7 +63,7 @@ export const useTrayActions = () => {
           s.startPomodoro()
           break
         case 'pomodoro-toggle':
-          if (s.isRunning) {
+          if (s.isPomodoroRunning) {
             s.pausePomodoro()
           } else {
             s.startPomodoro()
@@ -73,7 +73,7 @@ export const useTrayActions = () => {
           s.resetPomodoro()
           break
         case 'break-toggle':
-          if (s.isRunning) {
+          if (s.isPomodoroRunning) {
             s.pausePomodoro()
           } else {
             s.startPomodoro()

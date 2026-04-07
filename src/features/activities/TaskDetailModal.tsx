@@ -15,11 +15,11 @@ interface TaskDetailModalProps {
 const TaskDetailModal = ({ taskId, onClose }: TaskDetailModalProps) => {
   const { tasks = [], toggleSubtask, completeTask } = useStore()
 
-  const task = tasks.find(t => t.id === taskId)
+  const task = tasks.find((t: any) => t.id === taskId)
   
   if (!task) return null
 
-  const completedSubtasks = task.subtasks.filter(st => st.completed).length
+  const completedSubtasks = task.subtasks.filter((st: any) => st.completed).length
   const totalSubtasks = task.subtasks.length
   const progress = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0
 
@@ -62,7 +62,7 @@ const TaskDetailModal = ({ taskId, onClose }: TaskDetailModalProps) => {
           )}
 
           <div className="space-y-2">
-            {task.subtasks.map(subtask => (
+            {task.subtasks.map((subtask: any) => (
               <div
                 key={subtask.id}
                 className={`p-3 rounded-xl transition-all ${

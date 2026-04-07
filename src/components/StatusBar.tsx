@@ -8,11 +8,11 @@ import { formatDuration } from '../lib/utils'
  */
 const StatusBar = () => {
   const {
-    timeLeft,
-    currentTime,
-    isRunning,
+    pomodoroTimeLeft,
+    currentPomodoroTime,
+    isPomodoroRunning,
     pomodoroType,
-    currentTaskId,
+    currentPomodoroTaskId,
     tasks = [],
     potatoTimeLeft,
     dailyPotatoLimit,
@@ -28,7 +28,7 @@ const StatusBar = () => {
     totalFocusTime,
   } = useStore()
 
-  const currentTask = tasks.find(t => t.id === currentTaskId)
+  const currentTask = tasks.find((t: any) => t.id === currentPomodoroTaskId)
 
   /** 切换暂停/运行 */
   const togglePause = () => {
@@ -39,7 +39,7 @@ const StatusBar = () => {
   const getActiveLabel = () => {
     if (showRestReminderPrompt) return '休息提醒'
     if (isPotatoRunning) return '娱乐'
-    if (isRunning) {
+    if (isPomodoroRunning) {
       switch (pomodoroType) {
         case 'pomodoro': return '专注'
         case 'shortBreak': return '短休息'
@@ -47,7 +47,7 @@ const StatusBar = () => {
       }
     }
     if (restReminderEnabled) return '休息提醒'
-    if (!restReminderEnabled && !isRunning && !isPotatoRunning) return '休息提醒已关闭'
+    if (!restReminderEnabled && !isPomodoroRunning && !isPotatoRunning) return '休息提醒已关闭'
     return ''
   }
 
@@ -55,7 +55,7 @@ const StatusBar = () => {
   const getDotColor = () => {
     if (showRestReminderPrompt) return 'bg-orange-500'
     if (isPotatoRunning) return 'bg-yellow-500'
-    if (isRunning) {
+    if (isPomodoroRunning) {
       switch (pomodoroType) {
         case 'pomodoro': return 'bg-green-500'
         case 'shortBreak': return 'bg-teal-500'
@@ -67,7 +67,7 @@ const StatusBar = () => {
   }
 
   /** 判断是否正在运行 */
-  const isActive = isRunning || isPotatoRunning || (restReminderEnabled && !showRestReminderPrompt && !restReminderPaused)
+  const isActive = isPomodoroRunning || isPotatoRunning || (restReminderEnabled && !showRestReminderPrompt && !restReminderPaused)
 
   /** 获取当前计时的已用时间和总时间 */
   const getTimerInfo = () => {
@@ -78,8 +78,8 @@ const StatusBar = () => {
       const elapsed = Math.max(0, dailyPotatoLimit * 60 - potatoTimeLeft)
       return { elapsed, total: dailyPotatoLimit * 60 }
     }
-    if (isRunning) {
-      return { elapsed: Math.max(0, currentTime - timeLeft), total: currentTime }
+    if (isPomodoroRunning) {
+      return { elapsed: Math.max(0, currentPomodoroTime - pomodoroTimeLeft), total: currentPomodoroTime }
     }
     if (restReminderEnabled) {
       return { elapsed: restReminderTotalTime - restReminderTimeLeft, total: restReminderTotalTime }
@@ -113,7 +113,7 @@ const StatusBar = () => {
               {formatDuration(total)}
             </span>
             {/* 休息提醒运行时显示百分数 */}
-            {!isRunning && !isPotatoRunning && restReminderEnabled && !showRestReminderPrompt && total > 0 && (
+            {!isPomodoroRunning && !isPotatoRunning && restReminderEnabled && !showRestReminderPrompt && total > 0 && (
               <span className="font-mono text-white/80 tabular-nums">
                 ({Math.round((elapsed / total) * 100)}%)
               </span>
@@ -134,7 +134,7 @@ const StatusBar = () => {
         )}
 
         {/* 当前任务 */}
-        {currentTask && isRunning && pomodoroType === 'pomodoro' && (
+        {currentTask && isPomodoroRunning && pomodoroType === 'pomodoro' && (
           <div className="flex items-center gap-1.5 min-w-0 truncate">
             <span className="text-white/40 shrink-0">|</span>
             <span className="text-white/80 truncate">{currentTask.title}</span>

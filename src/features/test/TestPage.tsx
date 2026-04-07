@@ -8,7 +8,7 @@ const TestPage = () => {
     triggerPomodoroComplete,
     triggerPotatoComplete,
     triggerRestReminder,
-    isRunning,
+    isPomodoroRunning,
     isPotatoRunning,
     showRestReminderPrompt,
     pomodoroType,
@@ -140,7 +140,7 @@ const TestPage = () => {
         <p className="mb-2 font-medium">状态信息：</p>
         <p>electronAPI: {typeof window !== 'undefined' && window.electronAPI ? '可用' : '不可用'}</p>
         <p>通知权限: {typeof Notification !== 'undefined' ? Notification.permission : '不支持'}</p>
-        <p>番茄钟运行: {isRunning ? '是' : '否'} ({pomodoroType})</p>
+        <p>番茄钟运行: {isPomodoroRunning ? '是' : '否'} ({pomodoroType})</p>
         <p>土豆钟运行: {isPotatoRunning ? '是' : '否'}</p>
         <p>休息提醒弹窗: {showRestReminderPrompt ? '显示中' : '未显示'}</p>
         {error && (

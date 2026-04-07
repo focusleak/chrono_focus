@@ -10,7 +10,7 @@ interface PomodoroControlsProps {
 
 export const PomodoroControls = ({ onEarlyFinish }: PomodoroControlsProps) => {
   const {
-    isRunning,
+    isPomodoroRunning,
     pomodoroType,
     startPomodoro,
     pausePomodoro,
@@ -19,7 +19,7 @@ export const PomodoroControls = ({ onEarlyFinish }: PomodoroControlsProps) => {
 
   return (
     <div className="flex justify-center gap-3">
-      {!isRunning ? (
+      {!isPomodoroRunning ? (
         <TimerButton icon={Play} label="开始" onClick={startPomodoro} />
       ) : (
         <TimerButton icon={Pause} label="暂停" onClick={pausePomodoro} />
@@ -33,7 +33,7 @@ export const PomodoroControls = ({ onEarlyFinish }: PomodoroControlsProps) => {
         重置
       </button>
 
-      {isRunning && pomodoroType === 'pomodoro' && (
+      {isPomodoroRunning && pomodoroType === 'pomodoro' && (
         <EarlyFinishConfirm onConfirm={onEarlyFinish} />
       )}
     </div>

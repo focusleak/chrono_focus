@@ -1,0 +1,118 @@
+import { create } from 'zustand'
+import { storage } from '../lib/storage'
+
+export interface SettingsState {
+  /** 番茄钟时长（分钟） */
+  pomodoroTime: number
+  /** 番茄钟短休息时长（分钟） */
+  pomodoroShortBreakTime: number
+  /** 番茄钟长休息时长（分钟） */
+  pomodoroLongBreakTime: number
+  /** 是否启用休息提醒 */
+  restReminderEnabled: boolean
+  /** 休息提醒间隔（分钟） */
+  restReminderInterval: number
+  /** 休息提醒时是否发送通知 */
+  restReminderNotification: boolean
+  /** 休息时长（分钟） */
+  restBreakDuration: number
+  /** 跳过休息后再次提醒的间隔（分钟） */
+  restReminderSkipInterval: number
+  /** 是否启用喝水提醒 */
+  waterReminderEnabled: boolean
+  /** 喝水提醒间隔（分钟） */
+  waterReminderInterval: number
+  /** 每日喝水目标（杯） */
+  dailyWaterGoal: number
+  /** 是否启用站立提醒 */
+  standReminderEnabled: boolean
+  /** 站立提醒间隔（分钟） */
+  standReminderInterval: number
+  /** 是否启用拉伸提醒 */
+  stretchReminderEnabled: boolean
+  /** 拉伸提醒间隔（分钟） */
+  stretchReminderInterval: number
+  /** 是否启用远眺提醒 */
+  gazeReminderEnabled: boolean
+  /** 远眺提醒间隔（分钟） */
+  gazeReminderInterval: number
+  /** 是否启用走动提醒 */
+  walkReminderEnabled: boolean
+  /** 走动提醒间隔（分钟） */
+  walkReminderInterval: number
+  /** 每日娱乐时间限制（分钟） */
+  dailyPotatoLimit: number
+  /** 是否启用开机自启动 */
+  autoStartEnabled: boolean
+
+  /** 批量更新设置 */
+  updateSettings: (settings: Partial<SettingsState>) => void
+  /** 设置每日娱乐时间限制 */
+  setDailyPotatoLimit: (minutes: number) => void
+  /** 设置开机自启动状态 */
+  setAutoStartEnabled: (enabled: boolean) => void
+}
+
+const SETTINGS_KEY = 'pomodoro-settings'
+
+const getInitialSettings = (): Partial<SettingsState> => {
+  const saved = storage.get<Partial<SettingsState>>(SETTINGS_KEY)
+  return saved || {}
+}
+
+const defaultSettings: SettingsState = {
+  pomodoroTime: 25,
+  pomodoroShortBreakTime: 5,
+  pomodoroLongBreakTime: 15,
+  restReminderEnabled: true,
+  restReminderInterval: 30,
+  restReminderNotification: true,
+  restBreakDuration: 5,
+  restReminderSkipInterval: 1,
+  waterReminderEnabled: true,
+  waterReminderInterval: 60,
+  dailyWaterGoal: 8,
+  standReminderEnabled: true,
+  standReminderInterval: 45,
+  stretchReminderEnabled: true,
+  stretchReminderInterval: 30,
+  gazeReminderEnabled: true,
+  gazeReminderInterval: 20,
+  walkReminderEnabled: true,
+  walkReminderInterval: 60,
+  dailyPotatoLimit: 60,
+  autoStartEnabled: false,
+
+  updateSettings: () => {},
+  setDailyPotatoLimit: () => {},
+  setAutoStartEnabled: () => {},
+}
+
+export const useSettingsStore = create<SettingsState>((set, get) => {
+  const saved = getInitialSettings()
+
+  return {
+    ...defaultSettings,
+    ...saved,
+
+    updateSettings: (settings: Partial<SettingsState>) => {
+      set((state) => {
+        const newState = { ...state, ...settings }
+        storage.set(SETTINGS_KEY, newState)
+        return newState
+      })
+    },
+
+    setDailyPotatoLimit: (minutes: number) => {
+      set({ dailyPotatoLimit: minutes })
+      const state = get()
+      storage.set(SETTINGS_KEY, state)
+    },
+
+    setAutoStartEnabled: (enabled: boolean) => {
+      set({ autoStartEnabled: enabled })
+      const state = get()
+      storage.set(SETTINGS_KEY, state)
+    },
+  }
+})
