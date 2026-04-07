@@ -1,25 +1,33 @@
 // Electron main process
-import { createRequire } from 'node:module'
-const require = createRequire(import.meta.url)
-const { app, BrowserWindow, Notification, ipcMain } = require('electron')
-import path from 'path'
-import { fileURLToPath } from 'url'
-import fs from 'fs'
-import AutoLaunch from 'auto-launch'
-import { createOverlayManager } from './overlay.mjs'
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+const {
+  app,
+  BrowserWindow,
+  Notification,
+  ipcMain,
+  Tray,
+  Menu,
+  nativeImage,
+} = require("electron");
+import path from "path";
+import { fileURLToPath } from "url";
+import fs from "fs";
+import AutoLaunch from "auto-launch";
+import { createOverlayManager } from "./overlay.mjs";
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-let mainWindow = null
-let overlayManager = null
+let mainWindow = null;
+let overlayManager = null;
 
 // 配置开机自启动
 const autoLauncher = new AutoLaunch({
-  name: 'Chrono Focus',
-  path: app.getPath('exe'),
+  name: "Chrono Focus",
+  path: app.getPath("exe"),
   isHidden: false,
-})
+});
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -28,100 +36,141 @@ function createWindow() {
     minWidth: 900,
     minHeight: 650,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.mjs'),
+      preload: path.join(__dirname, "preload.mjs"),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
     },
-    titleBarStyle: 'hiddenInset',
-    title: 'Chrono Focus',
-    backgroundColor: '#f5f5f7',
-  })
+    titleBarStyle: "hiddenInset",
+    title: "Chrono Focus",
+    backgroundColor: "#f5f5f7",
+  });
 
   // 开发环境加载 Vite 开发服务器
-  console.log('NODE_ENV:', process.env.NODE_ENV)
-  console.log('Loading app in development mode')
+  console.log("NODE_ENV:", process.env.NODE_ENV);
+  console.log("Loading app in development mode");
 
-  mainWindow.loadURL('http://localhost:5173')
-  mainWindow.webContents.openDevTools()
+  mainWindow.loadURL("http://localhost:5173");
+  mainWindow.webContents.openDevTools();
 
-  mainWindow.on('closed', () => {
-    mainWindow = null
-    overlayManager = null
-  })
+  mainWindow.on("closed", () => {
+    mainWindow = null;
+    overlayManager = null;
+  });
 
   // 初始化遮罩管理器
-  overlayManager = createOverlayManager(mainWindow)
+  overlayManager = createOverlayManager(mainWindow);
+}
+
+function createTray() {
+  let tray = null;
+  // 推荐使用 template 图标（黑白模板图），macOS 会自动适配浅色/深色模式
+  const iconPath = path.join(__dirname, "assets", "tray-icon.png"); // 建议 20x20 或 22x22 大小
+  const icon = nativeImage.createFromPath(iconPath);
+
+  // 如果是模板图标（推荐），可以这样设置（自动适配 Dark Mode）
+  icon.setTemplateImage(true); // 关键：让图标在深色模式下变白
+
+  tray = new Tray(icon);
+
+  // 设置图标旁边的文字（动态更新非常方便）
+  tray.setTitle("Hello"); // 显示文字，例如 "CPU 42%"、"12:34" 等
+
+  // 设置鼠标悬停提示
+  tray.setToolTip("我的 Electron 状态栏应用");
+
+  // 创建右键/点击弹出的上下文菜单（可选，但强烈推荐）
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: "显示主窗口",
+      click: () => {
+        /* 显示 BrowserWindow */
+      },
+    },
+    { label: "更新文字", click: () => tray.setTitle("New Text") },
+    { type: "separator" },
+    { label: "退出", role: "quit" },
+  ]);
+
+  tray.setContextMenu(contextMenu);
+
+  // 点击图标时的行为（macOS 上点击通常显示菜单，也可自定义）
+  tray.on("click", () => {
+    // 可在此处显示主窗口或执行其他操作
+    console.log("Tray icon clicked");
+  });
+  return tray;
 }
 
 app.whenReady().then(() => {
-  createWindow()
+  createWindow();
+  createTray()
 
-  app.on('activate', () => {
+  app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
+      createWindow();
     }
-  })
-})
+  });
+});
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
   }
-})
+});
 
 // IPC: 显示系统通知
-ipcMain.handle('show-notification', async (_event, { title, body }) => {
+ipcMain.handle("show-notification", async (_event, { title, body }) => {
   try {
-    const iconPath = path.join(__dirname, '../build/icon.png')
+    const iconPath = path.join(__dirname, "../build/icon.png");
     const notification = new Notification({
       title,
       body,
       ...(fs.existsSync(iconPath) ? { icon: iconPath } : {}),
-    })
-    notification.show()
-    return true
+    });
+    notification.show();
+    return true;
   } catch (error) {
-    console.error('Failed to show notification:', error)
-    return false
+    console.error("Failed to show notification:", error);
+    return false;
   }
-})
+});
 
 // IPC: 请求通知权限
-ipcMain.handle('request-notification-permission', async () => {
-  return true
-})
+ipcMain.handle("request-notification-permission", async () => {
+  return true;
+});
 
 // IPC: 设置开机自启动
-ipcMain.handle('set-auto-launch', async (_event, enabled) => {
+ipcMain.handle("set-auto-launch", async (_event, enabled) => {
   try {
     if (enabled) {
-      await autoLauncher.enable()
+      await autoLauncher.enable();
     } else {
-      await autoLauncher.disable()
+      await autoLauncher.disable();
     }
-    const isEnabled = await autoLauncher.isEnabled()
-    return { success: true, enabled: isEnabled }
+    const isEnabled = await autoLauncher.isEnabled();
+    return { success: true, enabled: isEnabled };
   } catch (error) {
-    console.error('Failed to set auto-launch:', error)
-    return { success: false, error: String(error) }
+    console.error("Failed to set auto-launch:", error);
+    return { success: false, error: String(error) };
   }
-})
+});
 
 // IPC: 获取开机自启动状态
-ipcMain.handle('get-auto-launch', async () => {
+ipcMain.handle("get-auto-launch", async () => {
   try {
-    const isEnabled = await autoLauncher.isEnabled()
-    return { success: true, enabled: isEnabled }
+    const isEnabled = await autoLauncher.isEnabled();
+    return { success: true, enabled: isEnabled };
   } catch (error) {
-    console.error('Failed to get auto-launch status:', error)
-    return { success: false, enabled: false, error: String(error) }
+    console.error("Failed to get auto-launch status:", error);
+    return { success: false, enabled: false, error: String(error) };
   }
-})
+});
 
 // IPC: 显示全屏遮罩
-ipcMain.handle('show-fullscreen-overlay', async () => {
-  if (!overlayManager) return false
+ipcMain.handle("show-fullscreen-overlay", async () => {
+  if (!overlayManager) return false;
 
   return overlayManager.show({
     content: `
@@ -141,27 +190,34 @@ ipcMain.handle('show-fullscreen-overlay', async () => {
         })
       </script>
     `,
-  })
-})
+  });
+});
 
 // IPC: 关闭全屏遮罩
-ipcMain.handle('close-fullscreen-overlay', async () => {
-  if (!overlayManager) return false
-  return overlayManager.close()
-})
+ipcMain.handle("close-fullscreen-overlay", async () => {
+  if (!overlayManager) return false;
+  return overlayManager.close();
+});
 
 // 格式化时间辅助函数
 function formatTime(seconds) {
-  const m = Math.floor(seconds / 60)
-  const s = seconds % 60
-  return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0')
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
 }
 
 // IPC: 显示休息提醒遮罩
-ipcMain.handle('show-rest-reminder-overlay', async (_event, config) => {
-  if (!overlayManager) return false
+ipcMain.handle("show-rest-reminder-overlay", async (_event, config) => {
+  if (!overlayManager) return false;
 
-  const { isLongBreak, timeLeft, progress, breakDuration, isSkipped, skipCount } = config
+  const {
+    isLongBreak,
+    timeLeft,
+    progress,
+    breakDuration,
+    isSkipped,
+    skipCount,
+  } = config;
 
   const content = `
     <style>
@@ -290,9 +346,9 @@ ipcMain.handle('show-rest-reminder-overlay', async (_event, config) => {
           <line x1="14" x2="14" y1="2" y2="4"/>
         </svg>
       </div>
-      <h2>${isLongBreak ? '长休息提醒' : '休息提醒'}</h2>
-      <p class="subtitle">${isLongBreak ? '已经连续短休多次，本次为长休息' : '你已经工作了一段时间，记得休息一下哦'}</p>
-      ${isSkipped ? `<p class="skip-hint">已跳过 ${skipCount} 次</p>` : ''}
+      <h2>${isLongBreak ? "长休息提醒" : "休息提醒"}</h2>
+      <p class="subtitle">${isLongBreak ? "已经连续短休多次，本次为长休息" : "你已经工作了一段时间，记得休息一下哦"}</p>
+      ${isSkipped ? `<p class="skip-hint">已跳过 ${skipCount} 次</p>` : ""}
       <div class="timer" id="timerDisplay">${formatTime(timeLeft)}</div>
       <div class="progress-bar">
         <div class="progress-fill" id="progressFill" style="width: ${progress}%"></div>
@@ -352,16 +408,16 @@ ipcMain.handle('show-rest-reminder-overlay', async (_event, config) => {
         }
       });
     </script>
-  `
+  `;
 
-  return overlayManager.show({ content })
-})
+  return overlayManager.show({ content });
+});
 
 // IPC: 显示答题遮罩
-ipcMain.handle('show-quiz-overlay', async (_event, config) => {
-  if (!overlayManager) return false
+ipcMain.handle("show-quiz-overlay", async (_event, config) => {
+  if (!overlayManager) return false;
 
-  const { num1, num2 } = config
+  const { num1, num2 } = config;
 
   const content = `
     <style>
@@ -558,29 +614,29 @@ ipcMain.handle('show-quiz-overlay', async (_event, config) => {
         }
       });
     </script>
-  `
+  `;
 
-  return overlayManager.show({ content })
-})
+  return overlayManager.show({ content });
+});
 
 // IPC: 关闭遮罩
-ipcMain.handle('close-overlay', async () => {
-  console.log('[main] close-overlay called, overlayManager:', !!overlayManager)
-  if (!overlayManager) return false
-  const result = overlayManager.close()
-  console.log('[main] overlayManager.close() result:', result)
-  return result
-})
+ipcMain.handle("close-overlay", async () => {
+  console.log("[main] close-overlay called, overlayManager:", !!overlayManager);
+  if (!overlayManager) return false;
+  const result = overlayManager.close();
+  console.log("[main] overlayManager.close() result:", result);
+  return result;
+});
 
 // IPC: 接收遮罩窗口动作并转发到主窗口
-ipcMain.handle('overlay-action', async (event, { action }) => {
-  console.log('[main] overlay-action received:', action)
+ipcMain.handle("overlay-action", async (event, { action }) => {
+  console.log("[main] overlay-action received:", action);
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('overlay-action', action)
+    mainWindow.webContents.send("overlay-action", action);
   }
   // 如果是关闭动作，同时关闭遮罩窗口
-  if (action === 'closed') {
-    if (overlayManager) overlayManager.close()
+  if (action === "closed") {
+    if (overlayManager) overlayManager.close();
   }
-  return true
-})
+  return true;
+});
