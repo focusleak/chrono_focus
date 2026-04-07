@@ -1,17 +1,34 @@
-import { Target } from 'lucide-react'
+import { Target, Coffee } from 'lucide-react'
 import { ItemSelector } from '../../components/ItemSelector'
 import { useStore } from '../../store/store'
 
 /**
  * 任务选择器组件
  * 显示当前任务，点击可打开选择弹窗
+ * 休息状态下显示"休息中"
  */
 export const TaskSelector = () => {
   const {
     tasks = [],
     currentTaskId,
     setCurrentTask,
+    pomodoroType,
+    isRunning,
+    showRestReminderPrompt,
   } = useStore()
+
+  // 休息状态：短休息或长休息
+  const isBreak = pomodoroType === 'shortBreak' || pomodoroType === 'longBreak'
+
+  // 休息状态下不显示任务选择器，显示休息中标识
+  if (isBreak) {
+    return (
+      <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white/70 text-sm">
+        <Coffee className="w-4 h-4" />
+        <span>休息中</span>
+      </div>
+    )
+  }
 
   return (
     <ItemSelector

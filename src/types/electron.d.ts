@@ -6,6 +6,20 @@ export interface ElectronAPI {
   showFullscreenOverlay: () => Promise<boolean>
   closeFullscreenOverlay: () => Promise<boolean>
   onOverlayClosed: (callback: () => void) => void
+
+  // 休息提醒遮罩
+  showRestReminderOverlay: (config: {
+    isLongBreak: boolean
+    timeLeft: number
+    progress: number
+    breakDuration: number
+    isSkipped?: boolean
+    skipCount?: number
+  }) => Promise<boolean>
+  // 答题遮罩
+  showQuizOverlay: (config: { num1: number; num2: number }) => Promise<boolean>
+  // 关闭遮罩
+  closeOverlay: () => Promise<boolean>
 }
 
 declare global {

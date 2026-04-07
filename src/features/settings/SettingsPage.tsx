@@ -1,11 +1,75 @@
+import { useState } from 'react'
 import { useStore } from '../../store/store'
 import { useThemeStore, type ThemeMode } from '../../hooks/useThemeStore'
 import { useSetAutoLaunch } from '../../hooks/useInitAutoLaunch'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Switch } from '../../components/ui/switch'
-import { Sun, Moon, Monitor, Play, Palette, Clock, Coffee, Droplets, Footprints, StretchHorizontal, Eye, PersonStanding } from 'lucide-react'
+import { Sun, Moon, Monitor, Play, Palette, Clock, Gamepad2, Droplets, Footprints, StretchHorizontal, Eye, PersonStanding } from 'lucide-react'
 import { SettingRow } from '../../components/SettingRow'
+
+interface NumberInputProps {
+  value: number
+  defaultValue: number
+  min?: number
+  max?: number
+  step?: number
+  onSave: (value: number) => void
+  className?: string
+  showSeconds?: boolean
+}
+
+const formatMinutesToSeconds = (minutes: number): string => {
+  const totalSeconds = Math.round(minutes * 60)
+  const mins = Math.floor(totalSeconds / 60)
+  const secs = totalSeconds % 60
+  if (mins === 0) return `${secs}秒`
+  if (secs === 0) return `${mins}分钟`
+  return `${mins}分${secs}秒`
+}
+
+const NumberInput = ({ value, defaultValue, min = 1, max = 999, step = 0.1, onSave, className, showSeconds = false }: NumberInputProps) => {
+  const [inputValue, setInputValue] = useState(String(value))
+
+  const handleBlur = () => {
+    const num = parseFloat(inputValue)
+    if (isNaN(num) || inputValue.trim() === '') {
+      setInputValue(String(value))
+      return
+    }
+    const clamped = Math.min(max, Math.max(min, num))
+    const rounded = Math.round(clamped * 10) / 10
+    setInputValue(String(rounded))
+    onSave(rounded)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleBlur()
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <Input
+        type="number"
+        min={min}
+        max={max}
+        step={step}
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+        className={className}
+      />
+      {showSeconds && (
+        <span className="text-xs text-gray-400 dark:text-gray-500 w-16 shrink-0">
+          ({formatMinutesToSeconds(value)})
+        </span>
+      )}
+    </div>
+  )
+}
 
 const SettingsPage = () => {
   const { theme, setTheme } = useThemeStore()
@@ -92,43 +156,37 @@ const SettingsPage = () => {
         </h3>
         <div className="space-y-4">
           <SettingRow label="番茄钟时长" description="工作时间">
-            <div className="flex items-center gap-2">
-              <Input
-                type="number"
-                min={1}
-                max={60}
-                value={pomodoroTime}
-                onChange={(e) => handleChange('pomodoroTime', parseInt(e.target.value))}
-                className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
-              />
-              <span className="text-sm text-gray-500 dark:text-gray-400 w-8">分钟</span>
-            </div>
+            <NumberInput
+              value={pomodoroTime}
+              defaultValue={25}
+              min={0.1}
+              max={60}
+              showSeconds
+              onSave={(v) => handleChange('pomodoroTime', v)}
+              className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+            />
           </SettingRow>
           <SettingRow label="短休息时长" description="短休息时间">
-            <div className="flex items-center gap-2">
-              <Input
-                type="number"
-                min={1}
-                max={30}
-                value={shortBreakTime}
-                onChange={(e) => handleChange('shortBreakTime', parseInt(e.target.value))}
-                className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
-              />
-              <span className="text-sm text-gray-500 dark:text-gray-400 w-8">分钟</span>
-            </div>
+            <NumberInput
+              value={shortBreakTime}
+              defaultValue={5}
+              min={0.1}
+              max={30}
+              showSeconds
+              onSave={(v) => handleChange('shortBreakTime', v)}
+              className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+            />
           </SettingRow>
           <SettingRow label="长休息时长" description="长休息时间">
-            <div className="flex items-center gap-2">
-              <Input
-                type="number"
-                min={1}
-                max={60}
-                value={longBreakTime}
-                onChange={(e) => handleChange('longBreakTime', parseInt(e.target.value))}
-                className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
-              />
-              <span className="text-sm text-gray-500 dark:text-gray-400 w-8">分钟</span>
-            </div>
+            <NumberInput
+              value={longBreakTime}
+              defaultValue={15}
+              min={0.1}
+              max={60}
+              showSeconds
+              onSave={(v) => handleChange('longBreakTime', v)}
+              className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+            />
           </SettingRow>
         </div>
       </div>
@@ -136,21 +194,19 @@ const SettingsPage = () => {
       {/* 土豆钟设置 */}
       <div className="p-6">
         <h3 className="text-base font-semibold mb-4 text-gray-900 dark:text-gray-100 flex items-center gap-2">
-          <Coffee className="w-4 h-4" />
+          <Gamepad2 className="w-4 h-4" />
           土豆钟
         </h3>
         <SettingRow label="每日娱乐时间限制" description="每天最多可用于娱乐的时间">
-          <div className="flex items-center gap-2">
-            <Input
-              type="number"
-              min={5}
-              max={240}
-              value={dailyPotatoLimit}
-              onChange={(e) => setDailyPotatoLimit(parseInt(e.target.value))}
-              className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
-            />
-            <span className="text-sm text-gray-500 dark:text-gray-400 w-8">分钟</span>
-          </div>
+          <NumberInput
+            value={dailyPotatoLimit}
+            defaultValue={60}
+            min={0.1}
+            max={240}
+            showSeconds
+            onSave={setDailyPotatoLimit}
+            className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+          />
         </SettingRow>
       </div>
 
@@ -178,17 +234,15 @@ const SettingsPage = () => {
                 />
               </SettingRow>
               <SettingRow label="提醒间隔" description="每隔多久提醒一次">
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    min={5}
-                    max={120}
-                    value={restReminderInterval}
-                    onChange={(e) => handleChange('restReminderInterval', parseInt(e.target.value))}
-                    className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
-                  />
-                  <span className="text-sm text-gray-500 dark:text-gray-400 w-8">分钟</span>
-                </div>
+                <NumberInput
+                  value={restReminderInterval}
+                  defaultValue={30}
+                  min={0.1}
+                  max={120}
+                  showSeconds
+                  onSave={(v) => handleChange('restReminderInterval', v)}
+                  className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+                />
               </SettingRow>
             </>
           )}
@@ -212,30 +266,25 @@ const SettingsPage = () => {
           {waterReminderEnabled && (
             <>
               <SettingRow label="提醒间隔" description="每隔多久提醒一次">
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    min={5}
-                    max={120}
-                    value={waterReminderInterval}
-                    onChange={(e) => handleChange('waterReminderInterval', parseInt(e.target.value))}
-                    className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
-                  />
-                  <span className="text-sm text-gray-500 dark:text-gray-400 w-8">分钟</span>
-                </div>
+                <NumberInput
+                  value={waterReminderInterval}
+                  defaultValue={60}
+                  min={0.1}
+                  max={120}
+                  showSeconds
+                  onSave={(v) => handleChange('waterReminderInterval', v)}
+                  className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+                />
               </SettingRow>
               <SettingRow label="每日喝水目标" description="每天喝多少杯水">
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    min={1}
-                    max={20}
-                    value={dailyWaterGoal}
-                    onChange={(e) => handleChange('dailyWaterGoal', parseInt(e.target.value))}
-                    className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
-                  />
-                  <span className="text-sm text-gray-500 dark:text-gray-400 w-8">杯</span>
-                </div>
+                <NumberInput
+                  value={dailyWaterGoal}
+                  defaultValue={8}
+                  min={1}
+                  max={20}
+                  onSave={(v) => handleChange('dailyWaterGoal', v)}
+                  className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+                />
               </SettingRow>
             </>
           )}
@@ -258,17 +307,15 @@ const SettingsPage = () => {
           </SettingRow>
           {standReminderEnabled && (
             <SettingRow label="提醒间隔" description="坐多久后提醒">
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  min={5}
-                  max={120}
-                  value={standReminderInterval}
-                  onChange={(e) => handleChange('standReminderInterval', parseInt(e.target.value))}
-                  className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
-                />
-                <span className="text-sm text-gray-500 dark:text-gray-400 w-8">分钟</span>
-              </div>
+              <NumberInput
+                value={standReminderInterval}
+                defaultValue={45}
+                min={0.1}
+                max={120}
+                showSeconds
+                onSave={(v) => handleChange('standReminderInterval', v)}
+                className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+              />
             </SettingRow>
           )}
         </div>
@@ -290,17 +337,15 @@ const SettingsPage = () => {
           </SettingRow>
           {stretchReminderEnabled && (
             <SettingRow label="提醒间隔" description="每隔多久提醒一次">
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  min={5}
-                  max={120}
-                  value={stretchReminderInterval}
-                  onChange={(e) => handleChange('stretchReminderInterval', parseInt(e.target.value))}
-                  className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
-                />
-                <span className="text-sm text-gray-500 dark:text-gray-400 w-8">分钟</span>
-              </div>
+              <NumberInput
+                value={stretchReminderInterval}
+                defaultValue={30}
+                min={0.1}
+                max={120}
+                showSeconds
+                onSave={(v) => handleChange('stretchReminderInterval', v)}
+                className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+              />
             </SettingRow>
           )}
         </div>
@@ -322,17 +367,15 @@ const SettingsPage = () => {
           </SettingRow>
           {gazeReminderEnabled && (
             <SettingRow label="提醒间隔" description="每隔多久提醒一次">
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  min={5}
-                  max={120}
-                  value={gazeReminderInterval}
-                  onChange={(e) => handleChange('gazeReminderInterval', parseInt(e.target.value))}
-                  className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
-                />
-                <span className="text-sm text-gray-500 dark:text-gray-400 w-8">分钟</span>
-              </div>
+              <NumberInput
+                value={gazeReminderInterval}
+                defaultValue={20}
+                min={0.1}
+                max={120}
+                showSeconds
+                onSave={(v) => handleChange('gazeReminderInterval', v)}
+                className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+              />
             </SettingRow>
           )}
         </div>
@@ -354,17 +397,15 @@ const SettingsPage = () => {
           </SettingRow>
           {walkReminderEnabled && (
             <SettingRow label="提醒间隔" description="每隔多久提醒一次">
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  min={5}
-                  max={120}
-                  value={walkReminderInterval}
-                  onChange={(e) => handleChange('walkReminderInterval', parseInt(e.target.value))}
-                  className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
-                />
-                <span className="text-sm text-gray-500 dark:text-gray-400 w-8">分钟</span>
-              </div>
+              <NumberInput
+                value={walkReminderInterval}
+                defaultValue={60}
+                min={0.1}
+                max={120}
+                showSeconds
+                onSave={(v) => handleChange('walkReminderInterval', v)}
+                className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+              />
             </SettingRow>
           )}
         </div>

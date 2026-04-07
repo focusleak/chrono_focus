@@ -22,10 +22,11 @@ export const usePomodoroTimer = () => {
     gazeReminderInterval,
     walkReminderEnabled,
     walkReminderInterval,
+    showRestReminderPrompt,
   } = useStore()
 
-  // 主定时器
-  useInterval(tick, 1000, isRunning)
+  // 主定时器：当休息提醒弹窗显示时暂停
+  useInterval(tick, 1000, isRunning && !showRestReminderPrompt)
 
   // 定时器结束时发送通知
   const prevTimeLeftRef = useRef(timeLeft)

@@ -15,6 +15,7 @@ import ActivitiesPage from './features/activities/ActivitiesPage'
 import TestPage from './features/test/TestPage'
 import StatusBar from './components/StatusBar'
 import RestReminderOverlay from './components/RestReminderOverlay'
+import { BrowserOverlay } from './components/BrowserOverlay'
 import { NavItem } from './components/NavItem'
 import { ToastContainer } from '@/components/ui/toast'
 
@@ -22,7 +23,7 @@ import { ToastContainer } from '@/components/ui/toast'
 function AppContent() {
   const navigate = useNavigate()
   const location = useLocation()
-  
+
   usePomodoroTimer()
   useInitAutoLaunch()
   usePotatoTimer()
@@ -111,25 +112,30 @@ function AppContent() {
   const isDev = import.meta.env.DEV
 
   return (
-    <div className={`min-h-screen transition-colors ${getBackgroundColor()}`} style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
+    <div className={`min-h-screen transition-colors ${getBackgroundColor()}`}>
       <div className="flex flex-col h-screen">
+        {/* 顶部拖拽区域（横跨整个窗口顶部） */}
+        <div className="h-8 w-full shrink-0 absolute left-0 top-0 z-1" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
+
+        </div>
+
         {/* 中间区域 */}
         <div className="flex flex-1 min-h-0">
           {/* 左侧导航栏 */}
           <div className="w-56 bg-white/10 backdrop-blur-xl border-r border-white/20 flex flex-col">
-            {/* 导航菜单（pt-8 留出 macOS 系统关闭按钮空间） */}
-            <nav className="flex-1 px-3 pt-8 pb-2 space-y-0.5 overflow-y-auto">
+            {/* 导航菜单 */}
+            <nav className="flex-1 px-3 pt-10 pb-2 space-y-0.5 overflow-y-auto">
               <NavItem label="番茄钟" isActive={activeTab === 'pomodoro'} onClick={() => handleNav('pomodoro')} />
               <NavItem label="土豆钟" isActive={activeTab === 'potato'} onClick={() => handleNav('potato')} />
             </nav>
 
             {/* 底部导航 */}
-            <div className="px-3 py-2 space-y-0.5">
+            <nav className="px-3 py-2 space-y-0.5">
               <NavItem label="活动" isActive={activeTab === 'activities'} onClick={() => handleNav('activities')} />
               {isDev && <NavItem label="测试" isActive={activeTab === 'test'} onClick={() => handleNav('test')} />}
               <NavItem label="统计" isActive={activeTab === 'stats'} onClick={() => handleNav('stats')} />
               <NavItem label="设置" isActive={activeTab === 'settings'} onClick={() => handleNav('settings')} />
-            </div>
+            </nav>
           </div>
 
           {/* 主内容区域 */}
@@ -151,6 +157,7 @@ function AppContent() {
         <StatusBar />
       </div>
       <RestReminderOverlay />
+      <BrowserOverlay />
       <ToastContainer />
     </div>
   )

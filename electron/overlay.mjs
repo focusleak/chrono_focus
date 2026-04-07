@@ -91,6 +91,17 @@ export class OverlayManager {
   }
 
   /**
+   * 更新遮罩内容
+   * @param {string} content - HTML 内容
+   */
+  updateContent(content) {
+    if (this.overlayWindow) {
+      const html = this.buildHTML({ content })
+      this.overlayWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html))
+    }
+  }
+
+  /**
    * 关闭全屏遮罩
    * @returns {boolean}
    */

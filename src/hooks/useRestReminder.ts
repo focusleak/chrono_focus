@@ -6,6 +6,7 @@ import { sendNotification, playSound } from '../lib/utils'
  * 休息提醒倒计时 Hook
  * 应用启动后自动开始倒计时，到时间后弹出全屏提醒
  * 当番茄钟或土豆钟运行时暂停，结束后恢复
+ * 当休息提醒弹窗显示时暂停所有计时，弹窗关闭后恢复
  */
 export const useRestReminder = () => {
   const {
@@ -15,6 +16,7 @@ export const useRestReminder = () => {
     restReminderNotification,
     restReminderTimeLeft,
     showRestReminderPrompt,
+    restReminderPaused,
     tickRestReminder,
     resetRestReminder,
     setShowRestReminderPrompt,
@@ -24,7 +26,9 @@ export const useRestReminder = () => {
   const hasNotifiedRef = useRef(false)
 
   // 是否应该运行休息提醒倒计时
-  const shouldRun = restReminderEnabled && !isRunning && !isPotatoRunning && !showRestReminderPrompt
+  // 当弹窗显示时暂停倒计时（等待用户操作）
+  // 当手动暂停时也暂停
+  const shouldRun = restReminderEnabled && !isRunning && !isPotatoRunning && !showRestReminderPrompt && !restReminderPaused
 
   useEffect(() => {
     if (shouldRun) {
@@ -53,7 +57,7 @@ export const useRestReminder = () => {
     }
   }, [shouldRun, tickRestReminder])
 
-  // 当倒计时到 0 时显示弹窗 + 发送通知
+  // 当倒计时到 0 时显示全屏弹窗 + 发送通知
   useEffect(() => {
     if (restReminderTimeLeft <= 0 && shouldRun && !showRestReminderPrompt && !hasNotifiedRef.current) {
       hasNotifiedRef.current = true

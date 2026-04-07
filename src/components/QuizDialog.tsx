@@ -48,8 +48,7 @@ export const QuizDialog = ({ onClose }: QuizDialogProps) => {
       <button
         onClick={() => {
           setAnswerInput('')
-          useStore.setState({ quizResult: null, userAnswer: null })
-          onClose()
+          useStore.setState({ quizResult: null, userAnswer: null, showQuiz: false })
         }}
         className="absolute top-4 right-4 p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2c2c2e] transition-colors"
       >

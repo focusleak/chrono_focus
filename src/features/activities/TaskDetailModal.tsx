@@ -25,7 +25,7 @@ const TaskDetailModal = ({ taskId, onClose }: TaskDetailModalProps) => {
 
   const handleCompleteTask = () => {
     completeTask(task.id)
-    toast.success('🎉 任务已完成！')
+    toast.success('任务已完成！')
     onClose()
   }
 
@@ -33,7 +33,7 @@ const TaskDetailModal = ({ taskId, onClose }: TaskDetailModalProps) => {
     <Dialog open={!!taskId} onOpenChange={() => onClose()}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>📋 任务详情</DialogTitle>
+          <DialogTitle>任务详情</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">

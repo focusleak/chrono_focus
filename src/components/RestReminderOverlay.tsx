@@ -1,14 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from '../store/store'
-import { Coffee, Armchair } from 'lucide-react'
-import { formatDuration } from '../lib/utils'
-import { QuizDialog } from './QuizDialog'
+import { useOverlay } from '../hooks/useOverlay'
 
 /**
  * 休息提醒全屏遮罩组件
- * 休息提醒倒计时到 0 后显示，全屏遮罩
- * 使用设置的短/长休息时长进行倒计时
- * 每 3 次短休息后自动安排 1 次长休息
+ * 使用 useOverlay hook（Electron 模式调用原生遮罩，浏览器模式降级为 React 组件）
+ * 休息提醒倒计时到 0 后显示
+ * 弹出后暂停所有计时，关闭后恢复
  */
 const RestReminderOverlay = () => {
   const {
@@ -17,12 +15,20 @@ const RestReminderOverlay = () => {
     shortBreakTime,
     longBreakTime,
     restBreakCount,
+    restReminderSkipped,
+    restReminderSkipCount,
     setShowRestReminderPrompt,
-    resetRestReminder,
     generateQuiz,
-    closeQuizAndRestReminder,
     nextRestBreak,
+    skipRestReminder,
+    resumeTimersAfterOverlay,
   } = useStore()
+
+  const {
+    showRestReminder,
+    showQuiz: showQuizOverlay,
+    close: closeOverlay,
+  } = useOverlay()
 
   // 判断本次是短休息还是长休息
   const isLongBreak = restBreakCount >= 3
@@ -31,11 +37,13 @@ const RestReminderOverlay = () => {
   const [timeLeft, setTimeLeft] = useState(breakDuration)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const initializedRef = useRef(false)
+  const overlayShownRef = useRef(false)
 
   // 弹窗首次显示时初始化倒计时
   useEffect(() => {
     if (showRestReminderPrompt && !showQuiz && !initializedRef.current) {
       initializedRef.current = true
+      overlayShownRef.current = false
       setTimeLeft(breakDuration)
     }
   }, [showRestReminderPrompt, showQuiz, breakDuration])
@@ -44,10 +52,106 @@ const RestReminderOverlay = () => {
   useEffect(() => {
     if (!showRestReminderPrompt) {
       initializedRef.current = false
+      overlayShownRef.current = false
     }
   }, [showRestReminderPrompt])
 
-  // 当弹窗显示时，开始确认倒计时
+  // 监听 Electron 遮罩窗口转发的动作事件
+  useEffect(() => {
+    const handleOverlayAction = (action: string) => {
+      switch (action) {
+        case 'skip':
+          closeOverlay()
+          skipRestReminder()
+          setShowRestReminderPrompt(false)
+          break
+        case 'continueWork':
+          generateQuiz()
+          break
+        case 'quizCorrect':
+          closeOverlay()
+          nextRestBreak()
+          resumeTimersAfterOverlay()
+          useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
+          break
+        case 'quizClose':
+          closeOverlay()
+          useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
+          break
+        case 'closed':
+          // 遮罩窗口被关闭（从外部关闭）
+          useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
+          setShowRestReminderPrompt(false)
+          resumeTimersAfterOverlay()
+          break
+      }
+    }
+
+    if (window.electronAPI?.onOverlayAction) {
+      window.electronAPI.onOverlayAction(handleOverlayAction)
+    }
+  }, [closeOverlay, generateQuiz, nextRestBreak, resumeTimersAfterOverlay, setShowRestReminderPrompt, skipRestReminder])
+
+  // 当弹窗显示且未显示遮罩时，显示休息提醒遮罩
+  useEffect(() => {
+    if (showRestReminderPrompt && !showQuiz && !overlayShownRef.current) {
+      overlayShownRef.current = true
+      const progress = breakDuration > 0 ? ((breakDuration - timeLeft) / breakDuration) * 100 : 0
+
+      showRestReminder(
+        {
+          isLongBreak,
+          timeLeft,
+          progress,
+          breakDuration,
+          isSkipped: restReminderSkipped,
+          skipCount: restReminderSkipCount || 0,
+        },
+        {
+          onContinueWork: () => generateQuiz(),
+          onSkip: () => {
+            closeOverlay()
+            skipRestReminder()
+            setShowRestReminderPrompt(false)
+          },
+          onQuizCorrect: () => {
+            closeOverlay()
+            nextRestBreak()
+            resumeTimersAfterOverlay()
+            useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
+          },
+          onQuizClose: () => {
+            closeOverlay()
+            useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
+          },
+        }
+      )
+    }
+  }, [showRestReminderPrompt, showQuiz])
+
+  // 当 showQuiz 变为 true 时，显示答题遮罩
+  useEffect(() => {
+    if (showQuiz) {
+      const { quizNum1, quizNum2 } = useStore.getState()
+      showQuizOverlay(
+        { num1: quizNum1, num2: quizNum2 },
+        {
+          onQuizCorrect: () => {
+            closeOverlay()
+            nextRestBreak()
+            resumeTimersAfterOverlay()
+            useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
+          },
+          onQuizClose: () => {
+            closeOverlay()
+            useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
+          },
+        }
+      )
+    }
+  }, [showQuiz])
+
+  // 倒计时更新
   useEffect(() => {
     if (showRestReminderPrompt && !showQuiz && timeLeft > 0) {
       intervalRef.current = setInterval(() => {
@@ -65,80 +169,17 @@ const RestReminderOverlay = () => {
     }
   }, [showRestReminderPrompt, showQuiz, timeLeft > 0])
 
-  // 倒计时结束，自动关闭遮罩并重置
+  // 倒计时结束，自动关闭遮罩并恢复计时
   useEffect(() => {
     if (showRestReminderPrompt && !showQuiz && timeLeft <= 0) {
+      closeOverlay()
       nextRestBreak()
-      setShowRestReminderPrompt(false)
-      resetRestReminder()
+      resumeTimersAfterOverlay()
     }
-  }, [showRestReminderPrompt, showQuiz, timeLeft, setShowRestReminderPrompt, resetRestReminder, nextRestBreak])
+  }, [showRestReminderPrompt, showQuiz, timeLeft, nextRestBreak, resumeTimersAfterOverlay])
 
-  // 休息提醒倒计时未到 0，不显示
-  if (!showRestReminderPrompt) return null
-
-  const progress = breakDuration > 0 ? ((breakDuration - timeLeft) / breakDuration) * 100 : 0
-
-  // 乘法题界面
-  if (showQuiz) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-        <QuizDialog onClose={closeQuizAndRestReminder} />
-      </div>
-    )
-  }
-
-  // 休息提醒主界面（倒计时）
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl shadow-2xl p-10 max-w-md w-full mx-4 text-center">
-        {/* 图标 */}
-        <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-            <Coffee className="w-8 h-8 text-orange-500" />
-          </div>
-        </div>
-
-        {/* 标题 */}
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-          {isLongBreak ? '长休息提醒' : '休息提醒'}
-        </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
-          {isLongBreak ? '已经连续短休多次，本次为长休息' : '你已经工作了一段时间，记得休息一下哦'}
-        </p>
-
-        {/* 休息倒计时 */}
-        <div className="mb-8">
-          <div
-            className="text-5xl font-semibold font-mono text-gray-900 dark:text-gray-100 mb-2"
-            style={{ fontVariantNumeric: 'tabular-nums' }}
-          >
-            {formatDuration(timeLeft)}
-          </div>
-          <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-2">
-            <div
-              className="h-full rounded-full bg-orange-500 transition-all duration-1000 ease-linear"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <p className="text-xs text-gray-400 dark:text-gray-500">
-            倒计时结束后自动关闭
-          </p>
-        </div>
-
-        {/* 操作按钮 */}
-        <div className="flex gap-3">
-          <button
-            onClick={generateQuiz}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#2c2c2e] hover:bg-gray-200 dark:hover:bg-[#3a3a3c] transition-colors"
-          >
-            <Armchair className="w-4 h-4" />
-            继续工作
-          </button>
-        </div>
-      </div>
-    </div>
-  )
+  // React 层不再渲染任何内容（浏览器降级由 BrowserOverlay 组件处理）
+  return null
 }
 
 export default RestReminderOverlay

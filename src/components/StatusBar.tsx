@@ -23,14 +23,21 @@ const StatusBar = () => {
     restReminderTotalTime,
     restReminderEnabled,
     showRestReminderPrompt,
+    restReminderPaused,
+    toggleRestReminderPause,
   } = useStore()
 
   const currentTask = tasks.find(t => t.id === currentTaskId)
 
+  /** 切换暂停/运行 */
+  const togglePause = () => {
+    toggleRestReminderPause()
+  }
+
   /** 获取计时类型标签 */
   const getActiveLabel = () => {
     if (showRestReminderPrompt) return '休息提醒'
-    if (isPotatoRunning) return '土豆钟'
+    if (isPotatoRunning) return '娱乐'
     if (isRunning) {
       switch (pomodoroType) {
         case 'pomodoro': return '专注'
@@ -103,6 +110,18 @@ const StatusBar = () => {
             <span className="font-mono text-white/60 tabular-nums">
               {formatDuration(total)}
             </span>
+            {/* 暂停/继续按钮 */}
+            <div
+              className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={togglePause}
+              title={restReminderPaused ? '继续' : '暂停'}
+            >
+              {restReminderPaused ? (
+                <Play className="w-3 h-3 text-white" />
+              ) : (
+                <Pause className="w-3 h-3 text-white" />
+              )}
+            </div>
           </div>
         )}
 
@@ -133,15 +152,6 @@ const StatusBar = () => {
           <span className="text-white/80">
             {waterCount}/{dailyWaterGoal}
           </span>
-        </div>
-
-        {/* 运行状态 */}
-        <div className="flex items-center gap-1.5 min-w-[60px]">
-          {isActive ? (
-            <Play className="w-3 h-3 text-green-400" />
-          ) : (
-            <Pause className="w-3 h-3 text-white/40" />
-          )}
         </div>
       </div>
     </div>

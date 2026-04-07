@@ -1,8 +1,5 @@
-import { useState } from 'react'
 import { useStore } from '../../store/store'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
-import TaskCompleteModal from './TaskCompleteModal'
-import HydrationPrompt from './HydrationPrompt'
 import { PomodoroControls } from './PomodoroControls'
 import { TaskSelector } from './TaskSelector'
 import { formatDuration } from '../../lib/utils'
@@ -10,19 +7,22 @@ import { formatDuration } from '../../lib/utils'
 const PomodoroClock = () => {
   const {
     timeLeft,
+    breakTimeLeft,
+    breakType,
     tasks = [],
     currentTaskId,
+    isRunning,
+    pomodoroType,
     stopPomodoro,
     finishEarlyPomodoro,
     completeTask,
-    showHydrationPrompt,
-    setShowHydrationPrompt,
-    acknowledgeHydration,
     showPomodoroPotatoConflict,
     resolvePomodoroPotatoConflict,
+    setPomodoroType,
+    startPomodoro,
+    shortBreakTime,
+    longBreakTime,
   } = useStore()
-
-  const [showTaskCompleteModal, setShowTaskCompleteModal] = useState(false)
 
   /**
    * 获取当前选中的任务
@@ -39,44 +39,63 @@ const PomodoroClock = () => {
   }
 
   /**
-   * 处理任务完成
-   * 如果当前有关联任务，则标记任务为完成状态，并关闭弹窗
+   * 开始休息
    */
-  const handleTaskComplete = () => {
-    if (currentTaskId) {
-      completeTask(currentTaskId)
+  const startBreak = () => {
+    const state = useStore.getState()
+    const { breakType: storedBreakType, shortBreakTime, longBreakTime } = state
+    if (storedBreakType) {
+      const breakTime = storedBreakType === 'shortBreak' ? shortBreakTime * 60 : longBreakTime * 60
+      setPomodoroType(storedBreakType)
+      useStore.setState({ breakTimeLeft: breakTime })
+      startPomodoro()
     }
-    setShowTaskCompleteModal(false)
   }
 
   /**
-   * 处理任务未完成
-   * 关闭任务完成弹窗，继续下一个番茄钟
+   * 休息结束，切回番茄钟
    */
-  const handleTaskNotComplete = () => {
-    setShowTaskCompleteModal(false)
+  const endBreak = () => {
+    const { pomodoroTime } = useStore.getState()
+    useStore.setState({
+      pomodoroType: 'pomodoro',
+      timeLeft: pomodoroTime * 60,
+      currentTime: pomodoroTime * 60,
+      isRunning: false,
+      breakTimeLeft: 0,
+      breakType: null,
+    })
   }
 
   /**
-   * 处理喝水提示 - 选择"喝一杯水"
-   * 确认喝水并记录
+   * 番茄钟结束后是否显示休息按钮
    */
-  const handleHydrationYes = () => {
-    acknowledgeHydration()
-  }
+  const showBreakButton = timeLeft === 0 && pomodoroType === 'pomodoro' && breakType !== null
 
   /**
-   * 处理喝水提示 - 选择"不需要"
-   * 关闭喝水提示弹窗
+   * 休息中（正在休息计时）
    */
-  const handleHydrationNo = () => {
-    setShowHydrationPrompt(false)
-  }
+  const isBreakRunning = isRunning && (pomodoroType === 'shortBreak' || pomodoroType === 'longBreak')
+
+  /**
+   * 显示的时间：番茄钟用 timeLeft，休息正计时用 breakTimeLeft
+   */
+  const displayTime = isBreakRunning ? breakTimeLeft : timeLeft
+
+  /**
+   * 休息类型标签
+   */
+  const breakLabel = breakType === 'longBreak' ? '长休息' : '短休息'
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
       {/* 时间和任务选择器 */}
       <div className="mb-10">
+        {showBreakButton && (
+          <div className="text-sm font-medium text-white/60 mb-4">
+            {breakLabel} 建议 {breakType === 'longBreak' ? longBreakTime : shortBreakTime} 分钟
+          </div>
+        )}
         <div
           className="text-8xl font-semibold tracking-tight mb-6 font-mono text-white"
           style={{
@@ -84,15 +103,29 @@ const PomodoroClock = () => {
             textShadow: '0 2px 8px rgba(0,0,0,0.2)'
           }}
         >
-          {formatDuration(timeLeft)}
+          {formatDuration(displayTime)}
         </div>
-
-        <TaskSelector />
       </div>
 
-      {/* 控制按钮区域 */}
-      <PomodoroControls onEarlyFinish={handleEarlyFinish} />
+      {/* 任务选择器 - 始终显示，放在时间下面，按钮上面 */}
+      <TaskSelector />
 
+      {/* 番茄钟结束后显示开始休息按钮 */}
+      {showBreakButton && (
+        <div className="flex justify-center gap-3 mb-6">
+          <button
+            onClick={startBreak}
+            className="px-10 h-11 text-base font-medium rounded-xl border border-white/30 text-white hover:bg-white/10 transition-all duration-200 flex items-center backdrop-blur-sm"
+          >
+            开始休息
+          </button>
+        </div>
+      )}
+
+      {/* 控制按钮区域 - 运行中或显示休息按钮时不显示 */}
+      {!isRunning && !showBreakButton && (
+        <PomodoroControls onEarlyFinish={handleEarlyFinish} />
+      )}
 
       {/* 冲突提示弹窗：当土豆钟正在运行时，尝试启动番茄钟会显示此确认弹窗 */}
       <ConfirmDialog
@@ -104,21 +137,6 @@ const PomodoroClock = () => {
         cancelLabel="取消"
         onConfirm={() => resolvePomodoroPotatoConflict('pomodoro')}
         confirmClassName="bg-[#ba4949] text-white hover:bg-[#a83d3d] font-medium"
-      />
-
-      {/* 任务完成弹窗：番茄钟结束后询问关联任务是否完成 */}
-      <TaskCompleteModal
-        open={showTaskCompleteModal}
-        onTaskComplete={handleTaskComplete}
-        onTaskNotComplete={handleTaskNotComplete}
-        taskTitle={currentTask?.title || ''}
-      />
-
-      {/* 喝水提示弹窗：定期提醒用户喝水 */}
-      <HydrationPrompt
-        open={showHydrationPrompt}
-        onYes={handleHydrationYes}
-        onNo={handleHydrationNo}
       />
     </div>
   )
