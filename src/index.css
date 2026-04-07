@@ -77,6 +77,11 @@ body {
   min-height: 100vh;
 }
 
+/* 所有交互元素自动设置为不可拖动区域 */
+button, a, input, select, textarea, [role="button"], [onclick] {
+  -webkit-app-region: no-drag;
+}
+
 #root {
   width: 100%;
   min-height: 100vh;

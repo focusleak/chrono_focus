@@ -1,11 +1,11 @@
 import { useStore } from '../../store/store'
 import { useThemeStore, type ThemeMode } from '../../hooks/useThemeStore'
 import { useSetAutoLaunch } from '../../hooks/useInitAutoLaunch'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
+import { Button } from '../../components/ui/button'
+import { Input } from '../../components/ui/input'
+import { Switch } from '../../components/ui/switch'
 import { Sun, Moon, Monitor, Play, Palette, Clock, Coffee, Droplets, Footprints, StretchHorizontal, Eye, PersonStanding } from 'lucide-react'
-import { SettingRow } from './SettingRow'
+import { SettingRow } from '../../components/SettingRow'
 
 const SettingsPage = () => {
   const { theme, setTheme } = useThemeStore()

@@ -1,6 +1,6 @@
 import { useStore } from '../../store/store'
-import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { format } from 'date-fns'
+import { ConfirmDialog } from '../../components/ConfirmDialog'
+import { formatDuration } from '../../lib/utils'
 import { EntertainmentSelector } from './EntertainmentSelector'
 import { PotatoControls } from './PotatoControls'
 
@@ -12,20 +12,6 @@ const PotatoClock = () => {
   } = useStore()
 
   /**
-   * 将秒数格式化为 MM:SS 格式
-   * @param seconds - 秒数（可以是负数，负数时表示超时，显示 + 前缀）
-   * @returns 格式化后的时间字符串，如 "45:30" 或 "+05:15"
-   */
-  const formatTime = (seconds: number): string => {
-    const isOvertime = seconds < 0
-    const absSeconds = Math.abs(seconds)
-    const mins = Math.floor(absSeconds / 60)
-    const secs = absSeconds % 60
-    const timeStr = format(new Date(0, 0, 0, 0, mins, secs), 'mm:ss')
-    return isOvertime ? `+${timeStr}` : timeStr
-  }
-
-  /**
    * 判断是否已超时（剩余时间为负数）
    */
   const isOvertime = potatoTimeLeft < 0
@@ -35,7 +21,7 @@ const PotatoClock = () => {
       {/* 时间和娱乐项目选择器 */}
       <div className="mb-10">
         <div className={`text-8xl font-mono font-semibold mb-6 ${isOvertime ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'}`} style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {formatTime(potatoTimeLeft)}
+          {formatDuration(potatoTimeLeft)}
         </div>
 
         <EntertainmentSelector />

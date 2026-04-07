@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useStore } from '../store/store'
 import { sendNotification, playSound } from '../lib/utils'
 import { useReminder } from './useReminder'
+import { useInterval } from './useInterval'
 
 export const usePomodoroTimer = () => {
   const {
@@ -23,24 +24,8 @@ export const usePomodoroTimer = () => {
     walkReminderInterval,
   } = useStore()
 
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-
   // 主定时器
-  useEffect(() => {
-    if (isRunning) {
-      intervalRef.current = setInterval(() => {
-        tick()
-      }, 1000)
-    } else if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
-    }
-  }, [isRunning, tick])
+  useInterval(tick, 1000, isRunning)
 
   // 定时器结束时发送通知
   const prevTimeLeftRef = useRef(timeLeft)

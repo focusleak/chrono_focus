@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "description": "Chrono Focus - 跨平台番茄钟+休息提醒+喝水提醒应用",
   "type": "module",
-  "main": "electron/main.ts",
+  "main": "electron/main.js",
   "author": "Chrono Focus Team",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "electron:start": "node electron.mjs",
+    "electron:start": "tsx electron.ts",
     "electron:dev": "concurrently \"pnpm dev\" \"wait-on http://localhost:5173 && pnpm electron:start\""
   },
   "dependencies": {

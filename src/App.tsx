@@ -8,12 +8,14 @@ import { useThemeSync } from './hooks/useThemeSync'
 import { useRestReminder } from './hooks/useRestReminder'
 import { requestNotificationPermission } from './lib/utils'
 import PomodoroClock from './features/pomodoro/PomodoroClock'
-import SettingsPanel from './features/settings/SettingsPanel'
+import SettingsPage from './features/settings/SettingsPage'
 import StatsPanel from './features/stats/StatsPanel'
 import PotatoClock from './features/potato/PotatoClock'
 import ActivitiesPage from './features/activities/ActivitiesPage'
+import TestPage from './features/test/TestPage'
 import StatusBar from './components/StatusBar'
 import RestReminderOverlay from './components/RestReminderOverlay'
+import { NavItem } from './components/NavItem'
 import { ToastContainer } from '@/components/ui/toast'
 
 // 主内容组件，使用路由
@@ -41,6 +43,8 @@ function AppContent() {
       setActiveTab('stats')
     } else if (path.startsWith('/activities')) {
       setActiveTab('activities')
+    } else if (path.startsWith('/test')) {
+      setActiveTab('test')
     } else {
       setActiveTab('pomodoro')
     }
@@ -91,6 +95,9 @@ function AppContent() {
       case 'activities':
         navigate('/activities')
         break
+      case 'test':
+        navigate('/test')
+        break
       case 'stats':
         navigate('/stats')
         break
@@ -100,8 +107,11 @@ function AppContent() {
     }
   }
 
+  // 仅开发环境显示"测试"导航
+  const isDev = import.meta.env.DEV
+
   return (
-    <div className={`min-h-screen transition-colors duration-500 ${getBackgroundColor()}`}>
+    <div className={`min-h-screen transition-colors ${getBackgroundColor()}`} style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
       <div className="flex flex-col h-screen">
         {/* 中间区域 */}
         <div className="flex flex-1 min-h-0">
@@ -109,60 +119,16 @@ function AppContent() {
           <div className="w-56 bg-white/10 backdrop-blur-xl border-r border-white/20 flex flex-col">
             {/* 导航菜单（pt-8 留出 macOS 系统关闭按钮空间） */}
             <nav className="flex-1 px-3 pt-8 pb-2 space-y-0.5 overflow-y-auto">
-              <button
-                onClick={() => handleNav('pomodoro')}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  activeTab === 'pomodoro'
-                    ? 'bg-black/10 text-gray-900 dark:bg-white/10 dark:text-white shadow-sm'
-                    : 'text-gray-900 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-[#2c2c2e]/80'
-                }`}
-              >
-                <span className="text-sm">番茄钟</span>
-              </button>
-              <button
-                onClick={() => handleNav('potato')}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  activeTab === 'potato'
-                    ? 'bg-black/10 text-gray-900 dark:bg-white/10 dark:text-white shadow-sm'
-                    : 'text-gray-900 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-[#2c2c2e]/80'
-                }`}
-              >
-                <span className="text-sm">土豆钟</span>
-              </button>
+              <NavItem label="番茄钟" isActive={activeTab === 'pomodoro'} onClick={() => handleNav('pomodoro')} />
+              <NavItem label="土豆钟" isActive={activeTab === 'potato'} onClick={() => handleNav('potato')} />
             </nav>
 
             {/* 底部导航 */}
             <div className="px-3 py-2 space-y-0.5">
-              <button
-                onClick={() => handleNav('activities')}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  activeTab === 'activities'
-                    ? 'bg-black/10 text-gray-900 dark:bg-white/10 dark:text-white shadow-sm'
-                    : 'text-gray-900 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-[#2c2c2e]/80'
-                }`}
-              >
-                <span className="text-sm">活动</span>
-              </button>
-              <button
-                onClick={() => handleNav('stats')}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  activeTab === 'stats'
-                    ? 'bg-black/10 text-gray-900 dark:bg-white/10 dark:text-white shadow-sm'
-                    : 'text-gray-900 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-[#2c2c2e]/80'
-                }`}
-              >
-                <span className="text-sm">统计</span>
-              </button>
-              <button
-                onClick={() => handleNav('settings')}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  activeTab === 'settings'
-                    ? 'bg-black/10 text-gray-900 dark:bg-white/10 dark:text-white shadow-sm'
-                    : 'text-gray-900 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-[#2c2c2e]/80'
-                }`}
-              >
-                <span className="text-sm">设置</span>
-              </button>
+              <NavItem label="活动" isActive={activeTab === 'activities'} onClick={() => handleNav('activities')} />
+              {isDev && <NavItem label="测试" isActive={activeTab === 'test'} onClick={() => handleNav('test')} />}
+              <NavItem label="统计" isActive={activeTab === 'stats'} onClick={() => handleNav('stats')} />
+              <NavItem label="设置" isActive={activeTab === 'settings'} onClick={() => handleNav('settings')} />
             </div>
           </div>
 
@@ -173,8 +139,9 @@ function AppContent() {
                 <Route path="/" element={<PomodoroClock />} />
                 <Route path="/potato" element={<PotatoClock />} />
                 <Route path="/activities" element={<ActivitiesPage />} />
+                {isDev && <Route path="/test" element={<TestPage />} />}
                 <Route path="/stats" element={<StatsPanel />} />
-                <Route path="/settings/*" element={<SettingsPanel />} />
+                <Route path="/settings/*" element={<SettingsPage />} />
               </Routes>
             </div>
           </div>

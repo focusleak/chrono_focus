@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useStore, ActivityType, Task } from '../../store/store'
+import { useStore } from '../../store/store'
+import type { ActivityType, Task } from '../../types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'

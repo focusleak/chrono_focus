@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useStore, SubTask, ActivityType, Task } from '../../store/store'
+import { useStore } from '../../store/store'
+import type { SubTask, ActivityType, Task } from '../../types'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

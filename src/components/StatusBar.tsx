@@ -1,6 +1,6 @@
 import { useStore } from '../store/store'
-import { format } from 'date-fns'
 import { Play, Pause, Timer, Gamepad2, Droplets, Clock } from 'lucide-react'
+import { formatDuration } from '../lib/utils'
 
 /**
  * 底部状态栏组件
@@ -26,14 +26,6 @@ const StatusBar = () => {
   } = useStore()
 
   const currentTask = tasks.find(t => t.id === currentTaskId)
-
-  /** 格式化秒数为 MM:SS */
-  const formatTime = (seconds: number): string => {
-    const absSeconds = Math.abs(seconds)
-    const mins = Math.floor(absSeconds / 60)
-    const secs = absSeconds % 60
-    return format(new Date(0, 0, 0, 0, mins, secs), 'mm:ss')
-  }
 
   /** 获取计时类型标签 */
   const getActiveLabel = () => {
@@ -105,11 +97,11 @@ const StatusBar = () => {
           <div className="flex items-center gap-1.5 shrink-0">
             <Timer className="w-3.5 h-3.5 text-white/60" />
             <span className="font-mono text-white tabular-nums">
-              {formatTime(elapsed)}
+              {formatDuration(elapsed)}
             </span>
             <span className="text-white/40">/</span>
             <span className="font-mono text-white/60 tabular-nums">
-              {formatTime(total)}
+              {formatDuration(total)}
             </span>
           </div>
         )}

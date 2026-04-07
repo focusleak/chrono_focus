@@ -5,7 +5,7 @@ import TaskCompleteModal from './TaskCompleteModal'
 import HydrationPrompt from './HydrationPrompt'
 import { PomodoroControls } from './PomodoroControls'
 import { TaskSelector } from './TaskSelector'
-import { format } from 'date-fns'
+import { formatDuration } from '../../lib/utils'
 
 const PomodoroClock = () => {
   const {
@@ -23,20 +23,6 @@ const PomodoroClock = () => {
   } = useStore()
 
   const [showTaskCompleteModal, setShowTaskCompleteModal] = useState(false)
-
-  /**
-   * 将秒数格式化为 MM:SS 格式
-   * @param seconds - 秒数（可以是负数，负数时显示 + 前缀）
-   * @returns 格式化后的时间字符串，如 "25:00" 或 "+03:15"
-   */
-  const formatTime = (seconds: number): string => {
-    const isNegative = seconds < 0
-    const absSeconds = Math.abs(seconds)
-    const mins = Math.floor(absSeconds / 60)
-    const secs = absSeconds % 60
-    const timeStr = format(new Date(0, 0, 0, 0, mins, secs), 'mm:ss')
-    return isNegative ? `+${timeStr}` : timeStr
-  }
 
   /**
    * 获取当前选中的任务
@@ -98,7 +84,7 @@ const PomodoroClock = () => {
             textShadow: '0 2px 8px rgba(0,0,0,0.2)'
           }}
         >
-          {formatTime(timeLeft)}
+          {formatDuration(timeLeft)}
         </div>
 
         <TaskSelector />

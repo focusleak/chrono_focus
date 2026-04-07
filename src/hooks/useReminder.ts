@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react'
 import { sendNotification, playSound } from '../lib/utils'
+import { useInterval } from './useInterval'
 
 /**
  * 通用提醒 Hook
@@ -16,22 +16,12 @@ export const useReminder = (
   body: string,
   condition: boolean = true,
 ) => {
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-
-  useEffect(() => {
-    if (enabled && condition) {
-      intervalRef.current = setInterval(() => {
-        sendNotification(title, body)
-        playSound('remind')
-      }, intervalMinutes * 60 * 1000)
-    } else if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
-    }
-  }, [enabled, intervalMinutes, title, body, condition])
+  useInterval(
+    () => {
+      sendNotification(title, body)
+      playSound('remind')
+    },
+    intervalMinutes * 60 * 1000,
+    enabled && condition,
+  )
 }

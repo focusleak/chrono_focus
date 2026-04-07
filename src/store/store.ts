@@ -1,49 +1,10 @@
 import { create } from 'zustand'
 import { format } from 'date-fns'
-import { sendNotification, playSound } from '../lib/utils'
+import { sendNotification } from '../lib/utils'
 import { storage } from '../lib/storage'
+import type { Task, DailyStats, PotatoActivity, PomodoroType } from '../types'
 
-export type ActivityType = 'task' | 'entertainment'
-
-export interface SubTask {
-  id: string
-  title: string
-  completed: boolean
-}
-
-export interface Task {
-  id: string
-  title: string
-  description: string
-  type: ActivityType // 活动类型：任务或娱乐项目
-  subtasks: SubTask[]
-  completedPomodoros: number
-  createdAt: string
-  completedAt?: string
-  isCompleted: boolean
-  isRecurring: boolean // 是否循环任务
-  isSimple: boolean // 是否无需分解的任务（不强制要求子任务）
-  order: number // 排序权重，数值越小越靠前
-}
-
-export interface DailyStats {
-  date: string // YYYY-MM-DD
-  pomodoros: number
-  focusTime: number // 分钟
-  waterCount: number
-  tasksCompleted: number
-  potatoTime: number // 土豆钟娱乐时间（分钟）
-}
-
-// 土豆钟活动类型
-export interface PotatoActivity {
-  id: string
-  title: string
-  duration: number // 分钟
-  createdAt: string
-}
-
-export type PomodoroType = 'pomodoro' | 'shortBreak' | 'longBreak'
+export type { ActivityType, SubTask, Task, DailyStats, PotatoActivity, PomodoroType } from '../types'
 
 export interface GlobalState {
   // 定时器状态
@@ -160,13 +121,6 @@ export interface GlobalState {
   toggleSubtask: (taskId: string, subtaskId: string) => void
   completeTask: (id: string) => void
 
-  // 站立提醒
-  triggerStandReminder: () => void
-
-  // 拉伸提醒
-  triggerStretchReminder: () => void
-
-  // 历史记录方法
   addDailyStats: (stats: DailyStats) => void
   getDailyStats: (days: number) => DailyStats[]
   getTodayStats: () => DailyStats | null
@@ -738,10 +692,6 @@ export const useStore = create<GlobalState>((set, get) => {
       })
     },
 
-    triggerStandReminder: () => {
-      // This is just a marker, actual reminder is handled in the hook
-    },
-
     addDailyStats: (stats) => {
       set((state) => {
         const existingIndex = state.dailyStats.findIndex(s => s.date === stats.date)
@@ -848,7 +798,6 @@ export const useStore = create<GlobalState>((set, get) => {
         })
 
         sendNotification('娱乐时间已用完', '已超过限制时间，现在是正计时。建议回去专注工作！')
-        playSound('complete')
         return
       }
 
