@@ -104,7 +104,7 @@ export const useSettingsStore = create<SettingsState>()(
       },
     }),
     {
-      name: 'pomodoro-settings',
+      name: 'chrono-focus-settings',
     },
   ),
 )

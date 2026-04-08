@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { immer } from 'zustand/middleware/immer'
 import { format } from 'date-fns'
 import { sendNotification } from '../lib/utils'
 import type { Task, DailyStats, PotatoActivity, PomodoroType } from '../types'
@@ -179,42 +180,8 @@ export interface RuntimeState {
   getTodayStats: () => DailyStats | null
 }
 
-/** 需要从 localStorage 持久化的字段 */
-interface PersistedRuntimeState {
-  tasks: Task[]
-  currentPomodoroTaskId: string | null
-  currentPotatoTaskId: string | null
-  dailyStats: DailyStats[]
-  potatoActivities: PotatoActivity[]
-  potatoTimeLeft: number
-  isPotatoRunning: boolean
-  completedPomodoros: number
-  totalFocusTime: number
-  waterCount: number
-  standReminderCount: number
-  gazeReminderCount: number
-  walkReminderCount: number
-}
-
-/** 持久化字段的默认初始值 */
-const defaultPersistedState: PersistedRuntimeState = {
-  tasks: [],
-  currentPomodoroTaskId: null,
-  currentPotatoTaskId: null,
-  dailyStats: [],
-  potatoActivities: [],
-  potatoTimeLeft: 0,
-  isPotatoRunning: false,
-  completedPomodoros: 0,
-  totalFocusTime: 0,
-  waterCount: 0,
-  standReminderCount: 0,
-  gazeReminderCount: 0,
-  walkReminderCount: 0,
-}
-
 export const useRuntimeStore = create<RuntimeState>()(
-  persist(
+  immer(persist(
     (set, get) => {
       const settings = useSettingsStore.getState()
 
@@ -740,7 +707,7 @@ export const useRuntimeStore = create<RuntimeState>()(
       }
     },
     {
-      name: 'pomodoro-runtime',
+      name: 'chrono-focus-runtime',
       /** 只持久化需要保存的字段 */
       partialize: (state) => ({
         tasks: state.tasks,
@@ -756,20 +723,7 @@ export const useRuntimeStore = create<RuntimeState>()(
         standReminderCount: state.standReminderCount,
         gazeReminderCount: state.gazeReminderCount,
         walkReminderCount: state.walkReminderCount,
-      }),
-      /** 数据迁移：确保旧数据中的任务都有 type: 'task' */
-      migrate: (persistedState: any): PersistedRuntimeState => {
-        const migratedTasks = (persistedState?.tasks || []).map((t: any) => ({
-          type: 'task',
-          ...t,
-        }))
-
-        return {
-          ...defaultPersistedState,
-          ...persistedState,
-          tasks: migratedTasks,
-        }
-      },
+      })
     },
-  ),
+  )),
 )
