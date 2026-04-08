@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
+
+import { useOverlay } from '@/hooks/common/useOverlay'
+
 import { useRuntimeStore } from '@/store/runtimeStore'
 import { useSettingsStore } from '@/store/settingsStore'
-import { useOverlay } from '@/hooks/useOverlay'
 
 /**
  * 休息提醒全屏遮罩组件

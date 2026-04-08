@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { useOverlay } from '@/hooks/useOverlay'
 import { CheckCircle, XCircle, X } from 'lucide-react'
+
+import { useOverlay } from '@/hooks/common/useOverlay'
 
 /**
  * 浏览器降级全屏遮罩组件

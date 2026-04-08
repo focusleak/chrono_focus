@@ -1,10 +1,4 @@
 import { useMemo, useState } from 'react'
-import { useRuntimeStore } from '@/store/runtimeStore'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Button } from '@/components/ui/button'
-import { Segmented } from '@/components/ui/segmented'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import type { DailyStats } from '@/types'
 import {
   startOfMonth,
   endOfMonth,
@@ -20,6 +14,15 @@ import {
   isAfter,
   isSameDay,
 } from 'date-fns'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
+import { Segmented } from '@/components/ui/segmented'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+
+import { useRuntimeStore } from '@/store/runtimeStore'
+
+import type { DailyStats } from '@/types'
 
 interface DailyStatsGridProps {
   title?: string

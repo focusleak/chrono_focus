@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -15,7 +16,6 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import type { ReactNode } from 'react'
 
 /** 拖拽手柄 Props，合并到可拖拽元素的 attributes 和 listeners */
 export interface DragHandleProps {

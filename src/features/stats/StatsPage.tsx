@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { Flame, Clock, CheckSquare, Eye, Footprints, Droplets, Target, TrendingUp, Plus, Minus, PersonStanding, Gamepad2, Timer } from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
+
 import { useRuntimeStore } from '@/store/runtimeStore'
 import { useSettingsStore } from '@/store/settingsStore'
-import { Flame, Clock, CheckSquare, Eye, Footprints, Droplets, Target, TrendingUp, Plus, Minus, PersonStanding, Gamepad2, Timer } from 'lucide-react'
 import DailyStatsGrid from './DailyStatsGrid'
-import { Button } from '@/components/ui/button'
 import { StatCard, StatSection } from './StatCard'
 
 import type { Task } from '@/types'

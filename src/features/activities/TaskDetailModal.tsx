@@ -1,11 +1,14 @@
-import { useRuntimeStore } from '@/store/runtimeStore'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Progress } from '@/components/ui/progress'
+import { CheckCircle } from 'lucide-react'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { CheckCircle } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Progress } from '@/components/ui/progress'
 import { toast } from '@/components/ui/toast'
+
+import { useRuntimeStore } from '@/store/runtimeStore'
+
 import type { Task, SubTask } from '@/types'
 
 interface TaskDetailModalProps {

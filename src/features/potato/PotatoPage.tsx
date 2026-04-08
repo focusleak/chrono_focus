@@ -1,14 +1,14 @@
-import { useRuntimeStore } from '@/store/runtimeStore'
-import { ConfirmDialog } from '@/components/common/ConfirmDialog'
+import { useState } from 'react'
+import { Gamepad2, Play, Pause } from 'lucide-react'
+
 import { formatDuration } from '@/lib/utils'
 
-
-import { Gamepad2 } from 'lucide-react'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ItemSelector } from '@/components/common/ItemSelector'
-import { useState } from 'react'
-import { Play, Pause } from 'lucide-react'
-
 import { TimerButton } from '@/components/common/TimerButton'
+
+import { useRuntimeStore } from '@/store/runtimeStore'
+
 import type { Task } from '@/types'
 const PotatoPage = () => {
   const potatoTimeLeft = useRuntimeStore.use.potatoTimeLeft()

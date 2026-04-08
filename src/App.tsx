@@ -1,26 +1,36 @@
 import { useEffect, useMemo } from 'react'
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
-import { useRuntimeStore } from '@/store/runtimeStore'
-import { PomodoroStatus } from '@/types'
-import { usePomodoroTimer } from '@/hooks/usePomodoroTimer'
-import { useInitAutoLaunch } from '@/hooks/useInitAutoLaunch'
-import { usePotatoTimer } from '@/hooks/usePotatoTimer'
-import { useThemeSync } from '@/hooks/useThemeSync'
-import { useRestReminder } from '@/hooks/useRestReminder'
-import { useTraySync } from '@/hooks/useTraySync'
-import { useTrayActions } from '@/hooks/useTrayActions'
+
 import { requestNotificationPermission } from '@/lib/utils'
-import PomodoroPage from '@/features/pomodoro/PomodoroPage'
-import SettingsPage from '@/features/settings/SettingsPage'
-import StatsPage from '@/features/stats/StatsPage'
-import PotatoPage from '@/features/potato/PotatoPage'
-import ActivitiesPage from '@/features/activities/ActivitiesPage'
-import TestPage from '@/features/test/TestPage'
-import StatusBar from '@/components/StatusBar'
-import RestReminderOverlay from '@/components/RestReminderOverlay'
+
 import { BrowserOverlay } from '@/components/BrowserOverlay'
+import RestReminderOverlay from '@/components/RestReminderOverlay'
+import StatusBar from '@/components/StatusBar'
 import { NavItem } from '@/components/common/NavItem'
 import { ToastContainer } from '@/components/ui/toast'
+
+import { useInitAutoLaunch } from '@/hooks/common/useInitAutoLaunch'
+import { usePomodoroTimer } from '@/hooks/usePomodoroTimer'
+import { usePotatoTimer } from '@/hooks/usePotatoTimer'
+import { useRestReminder } from '@/hooks/useRestReminder'
+import { useThemeSync } from '@/hooks/useThemeSync'
+import { useTrayActions } from '@/hooks/useTrayActions'
+import { useTraySync } from '@/hooks/useTraySync'
+
+
+import { useReminder } from '@/hooks/common/useReminder'
+
+import ActivitiesPage from '@/features/activities/ActivitiesPage'
+import PomodoroPage from '@/features/pomodoro/PomodoroPage'
+import PotatoPage from '@/features/potato/PotatoPage'
+import SettingsPage from '@/features/settings/SettingsPage'
+import StatsPage from '@/features/stats/StatsPage'
+import TestPage from '@/features/test/TestPage'
+
+import { useSettingsStore } from '@/store/settingsStore'
+import { useRuntimeStore } from '@/store/runtimeStore'
+
+import { PomodoroStatus } from '@/types'
 
 const routeMap: Record<string, string> = {
   pomodoro: '/',
@@ -52,8 +62,73 @@ function App() {
   usePomodoroTimer()
   usePotatoTimer()
 
-
+  const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
+  const restReminderInterval = useSettingsStore.use.restReminderInterval()
+  const waterReminderEnabled = useSettingsStore.use.waterReminderEnabled()
+  const waterReminderInterval = useSettingsStore.use.waterReminderInterval()
+  const standReminderEnabled = useSettingsStore.use.standReminderEnabled()
+  const standReminderInterval = useSettingsStore.use.standReminderInterval()
+  const stretchReminderEnabled = useSettingsStore.use.stretchReminderEnabled()
+  const stretchReminderInterval = useSettingsStore.use.stretchReminderInterval()
+  const gazeReminderEnabled = useSettingsStore.use.gazeReminderEnabled()
+  const gazeReminderInterval = useSettingsStore.use.gazeReminderInterval()
+  const walkReminderEnabled = useSettingsStore.use.walkReminderEnabled()
+  const walkReminderInterval = useSettingsStore.use.walkReminderInterval()
   const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
+
+  const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
+
+  const isWorking = pomodoroStatus === PomodoroStatus.Pomodoro && isPomodoroRunning
+
+  useReminder(
+    restReminderEnabled,
+    restReminderInterval,
+    '休息提醒',
+    '你已经工作一段时间了，记得休息一下哦！',
+    isWorking,
+  )
+
+  useReminder(
+    waterReminderEnabled,
+    waterReminderInterval,
+    '喝水提醒',
+    '该喝水啦！保持身体健康！',
+  )
+
+  useReminder(
+    standReminderEnabled,
+    standReminderInterval,
+    '站立提醒',
+    '你已经坐了一段时间了，站起来活动一下吧！',
+    isWorking,
+  )
+
+  useReminder(
+    stretchReminderEnabled,
+    stretchReminderInterval,
+    '拉伸提醒',
+    '是时候做些伸展运动了，活动一下身体！',
+    isWorking,
+  )
+
+  useReminder(
+    gazeReminderEnabled,
+    gazeReminderInterval,
+    '远眺提醒',
+    '看向远方，放松一下你的眼睛！',
+    isWorking,
+  )
+
+  useReminder(
+    walkReminderEnabled,
+    walkReminderInterval,
+    '走动提醒',
+    '你已经坐了一段时间了，起身走走吧！',
+    isWorking,
+  )
+
+
+
   const activeTab = getActiveTab(location.pathname)
   const isDev = import.meta.env.DEV
 

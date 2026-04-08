@@ -1,7 +1,8 @@
+import type { LucideIcon } from 'lucide-react'
+
 import { Switch } from '@/components/ui/switch'
 import { SettingRow } from './SettingRow'
 import { NumberInput } from './NumberInput'
-import type { LucideIcon } from 'lucide-react'
 
 interface ReminderSettingsProps {
   icon: LucideIcon

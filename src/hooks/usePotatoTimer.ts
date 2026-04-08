@@ -1,5 +1,6 @@
+import { useInterval } from './common/useInterval'
+
 import { useRuntimeStore } from '@/store/runtimeStore'
-import { useInterval } from './useInterval'
 
 export const usePotatoTimer = () => {
   const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()

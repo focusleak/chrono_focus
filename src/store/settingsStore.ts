@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+
 import { createSelectors } from '@/store/createSelectors'
 
 export type ThemeMode = 'light' | 'dark' | 'system'

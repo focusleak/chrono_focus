@@ -2,11 +2,14 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { format } from 'date-fns'
+
 import { sendNotification } from '@/lib/utils'
-import type { Task, DailyStats, PotatoActivity } from '@/types'
-import { PomodoroStatus } from '@/types'
+
 import { useSettingsStore } from '@/store/settingsStore'
 import { createSelectors } from '@/store/createSelectors'
+
+import type { Task, DailyStats, PotatoActivity } from '@/types'
+import { PomodoroStatus } from '@/types'
 export interface RuntimeState {
   // ========== 番茄钟运行状态 ==========
   /** 番茄钟是否运行中 */

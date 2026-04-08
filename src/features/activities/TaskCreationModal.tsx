@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react'
-import { useRuntimeStore } from '@/store/runtimeStore'
-import type { SubTask, ActivityType, Task } from '@/types'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Plus, Trash2, Lightbulb, Briefcase, Gamepad2 } from 'lucide-react'
+
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Plus, Trash2, Lightbulb, Briefcase, Gamepad2 } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { toast } from '@/components/ui/toast'
+
+import { useRuntimeStore } from '@/store/runtimeStore'
+
+import type { SubTask, ActivityType, Task } from '@/types'
 
 interface TaskCreationModalProps {
   open: boolean

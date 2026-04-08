@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react'
-import { useRuntimeStore } from '@/store/runtimeStore'
-import { useSettingsStore } from '@/store/settingsStore'
 import { sendNotification, playSound } from '@/lib/utils'
-import { useReminder } from './useReminder'
-import { useInterval } from './useInterval'
+
+import { useInterval } from './common/useInterval'
+
+import { useRuntimeStore } from '@/store/runtimeStore'
+
 import { PomodoroStatus } from '@/types'
 
 export const usePomodoroTimer = () => {
@@ -13,20 +14,7 @@ export const usePomodoroTimer = () => {
   const tickPomodoro = useRuntimeStore.use.tickPomodoro()
   const showRestReminderPrompt = useRuntimeStore.use.showRestReminderPrompt()
 
-  const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
-  const restReminderInterval = useSettingsStore.use.restReminderInterval()
-  const waterReminderEnabled = useSettingsStore.use.waterReminderEnabled()
-  const waterReminderInterval = useSettingsStore.use.waterReminderInterval()
-  const standReminderEnabled = useSettingsStore.use.standReminderEnabled()
-  const standReminderInterval = useSettingsStore.use.standReminderInterval()
-  const stretchReminderEnabled = useSettingsStore.use.stretchReminderEnabled()
-  const stretchReminderInterval = useSettingsStore.use.stretchReminderInterval()
-  const gazeReminderEnabled = useSettingsStore.use.gazeReminderEnabled()
-  const gazeReminderInterval = useSettingsStore.use.gazeReminderInterval()
-  const walkReminderEnabled = useSettingsStore.use.walkReminderEnabled()
-  const walkReminderInterval = useSettingsStore.use.walkReminderInterval()
 
-  const isWorking = pomodoroStatus === PomodoroStatus.Pomodoro && isPomodoroRunning
 
   // 主定时器：当休息提醒弹窗显示时暂停
   useInterval(tickPomodoro, 1000, isPomodoroRunning && !showRestReminderPrompt)
@@ -50,51 +38,5 @@ export const usePomodoroTimer = () => {
     prevTimeLeftRef.current = pomodoroTimeLeft
   }, [pomodoroTimeLeft, pomodoroStatus])
 
-  // 使用通用提醒 Hook
-  useReminder(
-    restReminderEnabled,
-    restReminderInterval,
-    '休息提醒',
-    '你已经工作一段时间了，记得休息一下哦！',
-    isWorking,
-  )
-
-  useReminder(
-    waterReminderEnabled,
-    waterReminderInterval,
-    '喝水提醒',
-    '该喝水啦！保持身体健康！',
-  )
-
-  useReminder(
-    standReminderEnabled,
-    standReminderInterval,
-    '站立提醒',
-    '你已经坐了一段时间了，站起来活动一下吧！',
-    isWorking,
-  )
-
-  useReminder(
-    stretchReminderEnabled,
-    stretchReminderInterval,
-    '拉伸提醒',
-    '是时候做些伸展运动了，活动一下身体！',
-    isWorking,
-  )
-
-  useReminder(
-    gazeReminderEnabled,
-    gazeReminderInterval,
-    '远眺提醒',
-    '看向远方，放松一下你的眼睛！',
-    isWorking,
-  )
-
-  useReminder(
-    walkReminderEnabled,
-    walkReminderInterval,
-    '走动提醒',
-    '你已经坐了一段时间了，起身走走吧！',
-    isWorking,
-  )
+  
 }

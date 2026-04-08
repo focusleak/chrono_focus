@@ -1,4 +1,5 @@
 import { format } from 'date-fns'
+
 import type { DailyStats } from '@/types'
 
 /**

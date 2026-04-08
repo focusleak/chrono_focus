@@ -1,17 +1,16 @@
-import { ConfirmDialog } from '@/components/common/ConfirmDialog'
+import { useState } from 'react'
+import { Target, Coffee, Play, Pause, RotateCcw, SkipForward } from 'lucide-react'
 
 import { formatDuration } from '@/lib/utils'
 
-import { Target, Coffee } from 'lucide-react'
 import { ItemSelector } from '@/components/common/ItemSelector'
-import { useState } from 'react'
-import { Play, Pause, RotateCcw, SkipForward } from 'lucide-react'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { useRuntimeStore } from '@/store/runtimeStore'
 import { TimerButton } from '@/components/common/TimerButton'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+
+import { useRuntimeStore } from '@/store/runtimeStore'
+
 import { PomodoroStatus } from '@/types'
-
-
 import type { Task } from '@/types'
 
 const PomodoroPage = () => {

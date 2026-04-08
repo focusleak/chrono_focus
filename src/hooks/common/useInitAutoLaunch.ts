@@ -1,4 +1,5 @@
 import { useEffect, useCallback } from 'react'
+
 import { useSettingsStore } from '@/store/settingsStore'
 
 /**

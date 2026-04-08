@@ -1,6 +1,8 @@
-import { useOverlay } from '@/hooks/useOverlay'
-import { useRuntimeStore } from '@/store/runtimeStore'
 import { sendNotification } from '@/lib/utils'
+
+import { useOverlay } from '@/hooks/common/useOverlay'
+import { useRuntimeStore } from '@/store/runtimeStore'
+
 import { PomodoroStatus } from '@/types'
 
 const TestPage = () => {

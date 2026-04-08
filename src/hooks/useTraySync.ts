@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
+
 import { useRuntimeStore } from '@/store/runtimeStore'
 import { useSettingsStore } from '@/store/settingsStore'
+
 import { PomodoroStatus } from '@/types'
 
 /**
