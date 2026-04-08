@@ -6,20 +6,16 @@ import { TaskSelector } from './TaskSelector'
 import { formatDuration } from '@/lib/utils'
 
 const PomodoroClock = () => {
-  const {
-    pomodoroTimeLeft,
-    pomodoroBreakType,
-    isPomodoroRunning,
-    pomodoroType,
-    stopPomodoro,
-    finishEarlyPomodoro,
-    showPomodoroPotatoConflict,
-    resolvePomodoroPotatoConflict,
-  } = useRuntimeStore()
-  const {
-    pomodoroShortBreakTime,
-    pomodoroLongBreakTime,
-  } = useSettingsStore()
+  const pomodoroTimeLeft = useRuntimeStore.use.pomodoroTimeLeft()
+  const pomodoroBreakType = useRuntimeStore.use.pomodoroBreakType()
+  const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
+  const pomodoroType = useRuntimeStore.use.pomodoroType()
+  const stopPomodoro = useRuntimeStore.use.stopPomodoro()
+  const finishEarlyPomodoro = useRuntimeStore.use.finishEarlyPomodoro()
+  const showPomodoroPotatoConflict = useRuntimeStore.use.showPomodoroPotatoConflict()
+  const resolvePomodoroPotatoConflict = useRuntimeStore.use.resolvePomodoroPotatoConflict()
+  const pomodoroShortBreakTime = useSettingsStore.use.pomodoroShortBreakTime()
+  const pomodoroLongBreakTime = useSettingsStore.use.pomodoroLongBreakTime()
 
   const handleEarlyFinish = () => {
     stopPomodoro()

@@ -9,21 +9,17 @@ import { StatCard, StatSection } from './StatCard'
 type StatsCategory = 'overview' | 'focus' | 'potato' | 'water' | 'stand' | 'gaze' | 'walk'
 
 const StatsPanel = () => {
-  const {
-    completedPomodoros,
-    totalFocusTime,
-    waterCount,
-    gazeReminderCount = 0,
-    walkReminderCount = 0,
-    standReminderCount = 0,
-    potatoActivities = [],
-    tasks = []
-  } = useRuntimeStore()
-  const {
-    dailyWaterGoal = 8,
-    standReminderInterval = 45,
-    dailyPotatoLimit = 60,
-  } = useSettingsStore()
+  const completedPomodoros = useRuntimeStore.use.completedPomodoros()
+  const totalFocusTime = useRuntimeStore.use.totalFocusTime()
+  const waterCount = useRuntimeStore.use.waterCount()
+  const gazeReminderCount = useRuntimeStore.use.gazeReminderCount()
+  const walkReminderCount = useRuntimeStore.use.walkReminderCount()
+  const standReminderCount = useRuntimeStore.use.standReminderCount()
+  const potatoActivities = useRuntimeStore.use.potatoActivities()
+  const tasks = useRuntimeStore.use.tasks()
+  const dailyWaterGoal = useSettingsStore.use.dailyWaterGoal()
+  const standReminderInterval = useSettingsStore.use.standReminderInterval()
+  const dailyPotatoLimit = useSettingsStore.use.dailyPotatoLimit()
 
   const [selectedCategory, setSelectedCategory] = useState<StatsCategory>('overview')
 

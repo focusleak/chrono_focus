@@ -6,27 +6,23 @@ import { useReminder } from './useReminder'
 import { useInterval } from './useInterval'
 
 export const usePomodoroTimer = () => {
-  const {
-    isPomodoroRunning,
-    pomodoroTimeLeft,
-    pomodoroType,
-    tickPomodoro,
-    showRestReminderPrompt,
-  } = useRuntimeStore()
-  const {
-    restReminderEnabled,
-    restReminderInterval,
-    waterReminderEnabled,
-    waterReminderInterval,
-    standReminderEnabled,
-    standReminderInterval,
-    stretchReminderEnabled,
-    stretchReminderInterval,
-    gazeReminderEnabled,
-    gazeReminderInterval,
-    walkReminderEnabled,
-    walkReminderInterval,
-  } = useSettingsStore()
+  const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
+  const pomodoroTimeLeft = useRuntimeStore.use.pomodoroTimeLeft()
+  const pomodoroType = useRuntimeStore.use.pomodoroType()
+  const tickPomodoro = useRuntimeStore.use.tickPomodoro()
+  const showRestReminderPrompt = useRuntimeStore.use.showRestReminderPrompt()
+  const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
+  const restReminderInterval = useSettingsStore.use.restReminderInterval()
+  const waterReminderEnabled = useSettingsStore.use.waterReminderEnabled()
+  const waterReminderInterval = useSettingsStore.use.waterReminderInterval()
+  const standReminderEnabled = useSettingsStore.use.standReminderEnabled()
+  const standReminderInterval = useSettingsStore.use.standReminderInterval()
+  const stretchReminderEnabled = useSettingsStore.use.stretchReminderEnabled()
+  const stretchReminderInterval = useSettingsStore.use.stretchReminderInterval()
+  const gazeReminderEnabled = useSettingsStore.use.gazeReminderEnabled()
+  const gazeReminderInterval = useSettingsStore.use.gazeReminderInterval()
+  const walkReminderEnabled = useSettingsStore.use.walkReminderEnabled()
+  const walkReminderInterval = useSettingsStore.use.walkReminderInterval()
 
   // 主定时器：当休息提醒弹窗显示时暂停
   useInterval(tickPomodoro, 1000, isPomodoroRunning && !showRestReminderPrompt)

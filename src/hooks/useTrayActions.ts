@@ -5,19 +5,17 @@ import { useRuntimeStore } from '@/store/runtimeStore'
  * 监听托盘动作并执行对应操作
  */
 export const useTrayActions = () => {
-  const {
-    isPomodoroRunning,
-    isPotatoRunning,
-    pomodoroType,
-    pausePomodoro,
-    startPomodoro,
-    resetPomodoro,
-    pausePotato,
-    startPotato,
-    resetPotato,
-    restReminderPaused,
-    toggleRestReminderPause,
-  } = useRuntimeStore()
+  const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
+  const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
+  const pomodoroType = useRuntimeStore.use.pomodoroType()
+  const pausePomodoro = useRuntimeStore.use.pausePomodoro()
+  const startPomodoro = useRuntimeStore.use.startPomodoro()
+  const resetPomodoro = useRuntimeStore.use.resetPomodoro()
+  const pausePotato = useRuntimeStore.use.pausePotato()
+  const startPotato = useRuntimeStore.use.startPotato()
+  const resetPotato = useRuntimeStore.use.resetPotato()
+  const restReminderPaused = useRuntimeStore.use.restReminderPaused()
+  const toggleRestReminderPause = useRuntimeStore.use.toggleRestReminderPause()
 
   // 用 ref 存储最新的状态和方法，避免闭包捕获过期值
   const stateRef = useRef({

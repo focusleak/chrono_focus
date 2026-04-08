@@ -6,20 +6,16 @@ import { useSettingsStore } from '@/store/settingsStore'
  * 同步当前运行状态到托盘文字和菜单
  */
 export const useTraySync = () => {
-  const {
-    isPomodoroRunning,
-    isPotatoRunning,
-    pomodoroType,
-    pomodoroTimeLeft,
-    potatoTimeLeft,
-    showRestReminderPrompt,
-    restReminderPaused,
-    restReminderTimeLeft,
-    restReminderTotalTime,
-  } = useRuntimeStore()
-  const {
-    restReminderEnabled,
-  } = useSettingsStore()
+  const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
+  const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
+  const pomodoroType = useRuntimeStore.use.pomodoroType()
+  const pomodoroTimeLeft = useRuntimeStore.use.pomodoroTimeLeft()
+  const potatoTimeLeft = useRuntimeStore.use.potatoTimeLeft()
+  const showRestReminderPrompt = useRuntimeStore.use.showRestReminderPrompt()
+  const restReminderPaused = useRuntimeStore.use.restReminderPaused()
+  const restReminderTimeLeft = useRuntimeStore.use.restReminderTimeLeft()
+  const restReminderTotalTime = useRuntimeStore.use.restReminderTotalTime()
+  const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
 
   useEffect(() => {
     const updateTray = () => {

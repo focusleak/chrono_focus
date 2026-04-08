@@ -4,15 +4,13 @@ import { sendNotification } from '@/lib/utils'
 
 const TestPage = () => {
   const { isOpen, error, show, hide } = useOverlay()
-  const {
-    triggerPomodoroComplete,
-    triggerPotatoComplete,
-    triggerRestReminder,
-    isPomodoroRunning,
-    isPotatoRunning,
-    showRestReminderPrompt,
-    pomodoroType,
-  } = useRuntimeStore()
+  const triggerPomodoroComplete = useRuntimeStore.use.triggerPomodoroComplete()
+  const triggerPotatoComplete = useRuntimeStore.use.triggerPotatoComplete()
+  const triggerRestReminder = useRuntimeStore.use.triggerRestReminder()
+  const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
+  const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
+  const showRestReminderPrompt = useRuntimeStore.use.showRestReminderPrompt()
+  const pomodoroType = useRuntimeStore.use.pomodoroType()
 
   const handleTestNotification = () => {
     sendNotification('测试通知', '这是一条测试通知，如果你看到它说明通知功能正常！')

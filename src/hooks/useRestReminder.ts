@@ -10,20 +10,16 @@ import { sendNotification, playSound } from '@/lib/utils'
  * 当休息提醒弹窗显示时暂停所有计时，弹窗关闭后恢复
  */
 export const useRestReminder = () => {
-  const {
-    isPomodoroRunning,
-    isPotatoRunning,
-    restReminderTimeLeft,
-    showRestReminderPrompt,
-    restReminderPaused,
-    tickRestReminder,
-    resetRestReminder,
-    setShowRestReminderPrompt,
-  } = useRuntimeStore()
-  const {
-    restReminderEnabled,
-    restReminderNotification,
-  } = useSettingsStore()
+  const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
+  const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
+  const restReminderTimeLeft = useRuntimeStore.use.restReminderTimeLeft()
+  const showRestReminderPrompt = useRuntimeStore.use.showRestReminderPrompt()
+  const restReminderPaused = useRuntimeStore.use.restReminderPaused()
+  const tickRestReminder = useRuntimeStore.use.tickRestReminder()
+  const resetRestReminder = useRuntimeStore.use.resetRestReminder()
+  const setShowRestReminderPrompt = useRuntimeStore.use.setShowRestReminderPrompt()
+  const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
+  const restReminderNotification = useSettingsStore.use.restReminderNotification()
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const hasNotifiedRef = useRef(false)

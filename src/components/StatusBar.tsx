@@ -8,28 +8,24 @@ import { formatDuration } from '@/lib/utils'
  * 显示当前计时情况和系统状态
  */
 const StatusBar = () => {
-  const {
-    pomodoroTimeLeft,
-    currentPomodoroTime,
-    isPomodoroRunning,
-    pomodoroType,
-    currentPomodoroTaskId,
-    tasks = [],
-    potatoTimeLeft,
-    isPotatoRunning,
-    waterCount,
-    restReminderTimeLeft,
-    restReminderTotalTime,
-    showRestReminderPrompt,
-    restReminderPaused,
-    toggleRestReminderPause,
-    totalFocusTime,
-  } = useRuntimeStore()
-  const {
-    dailyPotatoLimit,
-    dailyWaterGoal,
-    restReminderEnabled,
-  } = useSettingsStore()
+  const pomodoroTimeLeft = useRuntimeStore.use.pomodoroTimeLeft()
+  const currentPomodoroTime = useRuntimeStore.use.currentPomodoroTime()
+  const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
+  const pomodoroType = useRuntimeStore.use.pomodoroType()
+  const currentPomodoroTaskId = useRuntimeStore.use.currentPomodoroTaskId()
+  const tasks = useRuntimeStore.use.tasks()
+  const potatoTimeLeft = useRuntimeStore.use.potatoTimeLeft()
+  const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
+  const waterCount = useRuntimeStore.use.waterCount()
+  const restReminderTimeLeft = useRuntimeStore.use.restReminderTimeLeft()
+  const restReminderTotalTime = useRuntimeStore.use.restReminderTotalTime()
+  const showRestReminderPrompt = useRuntimeStore.use.showRestReminderPrompt()
+  const restReminderPaused = useRuntimeStore.use.restReminderPaused()
+  const toggleRestReminderPause = useRuntimeStore.use.toggleRestReminderPause()
+  const totalFocusTime = useRuntimeStore.use.totalFocusTime()
+  const dailyPotatoLimit = useSettingsStore.use.dailyPotatoLimit()
+  const dailyWaterGoal = useSettingsStore.use.dailyWaterGoal()
+  const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
 
   const currentTask = tasks.find((t: any) => t.id === currentPomodoroTaskId)
 

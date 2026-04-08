@@ -9,18 +9,31 @@ import { NumberInput } from '@/components/common/NumberInput'
 import { ReminderSettings } from '@/components/common/ReminderSettings'
 
 const SettingsPage = () => {
-  const { theme, setTheme,
-    pomodoroTime, pomodoroShortBreakTime, pomodoroLongBreakTime,
-    autoStartEnabled,
-    dailyPotatoLimit, setDailyPotatoLimit,
-    restReminderEnabled, restReminderInterval, restReminderNotification, restBreakDuration, restReminderSkipInterval,
-    waterReminderEnabled, waterReminderInterval, dailyWaterGoal,
-    standReminderEnabled, standReminderInterval,
-    stretchReminderEnabled, stretchReminderInterval,
-    gazeReminderEnabled, gazeReminderInterval,
-    walkReminderEnabled, walkReminderInterval,
-    updateSettings
-  } = useSettingsStore()
+  const theme = useSettingsStore.use.theme()
+  const setTheme = useSettingsStore.use.setTheme()
+  const pomodoroTime = useSettingsStore.use.pomodoroTime()
+  const pomodoroShortBreakTime = useSettingsStore.use.pomodoroShortBreakTime()
+  const pomodoroLongBreakTime = useSettingsStore.use.pomodoroLongBreakTime()
+  const autoStartEnabled = useSettingsStore.use.autoStartEnabled()
+  const dailyPotatoLimit = useSettingsStore.use.dailyPotatoLimit()
+  const setDailyPotatoLimit = useSettingsStore.use.setDailyPotatoLimit()
+  const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
+  const restReminderInterval = useSettingsStore.use.restReminderInterval()
+  const restReminderNotification = useSettingsStore.use.restReminderNotification()
+  const restBreakDuration = useSettingsStore.use.restBreakDuration()
+  const restReminderSkipInterval = useSettingsStore.use.restReminderSkipInterval()
+  const waterReminderEnabled = useSettingsStore.use.waterReminderEnabled()
+  const waterReminderInterval = useSettingsStore.use.waterReminderInterval()
+  const dailyWaterGoal = useSettingsStore.use.dailyWaterGoal()
+  const standReminderEnabled = useSettingsStore.use.standReminderEnabled()
+  const standReminderInterval = useSettingsStore.use.standReminderInterval()
+  const stretchReminderEnabled = useSettingsStore.use.stretchReminderEnabled()
+  const stretchReminderInterval = useSettingsStore.use.stretchReminderInterval()
+  const gazeReminderEnabled = useSettingsStore.use.gazeReminderEnabled()
+  const gazeReminderInterval = useSettingsStore.use.gazeReminderInterval()
+  const walkReminderEnabled = useSettingsStore.use.walkReminderEnabled()
+  const walkReminderInterval = useSettingsStore.use.walkReminderInterval()
+  const updateSettings = useSettingsStore.use.updateSettings()
   const setAutoStartEnabled = useSetAutoLaunch()
 
   const themeOptions: { label: string; value: ThemeMode; icon: any }[] = [

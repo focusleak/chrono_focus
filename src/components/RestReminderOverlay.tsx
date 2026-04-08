@@ -10,20 +10,16 @@ import { useOverlay } from '@/hooks/useOverlay'
  * 弹出后暂停所有计时，关闭后恢复
  */
 const RestReminderOverlay = () => {
-  const {
-    showRestReminderPrompt,
-    showQuiz,
-    restReminderSkipped,
-    restReminderSkipCount,
-    setShowRestReminderPrompt,
-    generateQuiz,
-    nextRestBreak,
-    skipRestReminder,
-    resumeTimersAfterOverlay,
-  } = useRuntimeStore()
-  const {
-    restBreakDuration,
-  } = useSettingsStore()
+  const showRestReminderPrompt = useRuntimeStore.use.showRestReminderPrompt()
+  const showQuiz = useRuntimeStore.use.showQuiz()
+  const restReminderSkipped = useRuntimeStore.use.restReminderSkipped()
+  const restReminderSkipCount = useRuntimeStore.use.restReminderSkipCount()
+  const setShowRestReminderPrompt = useRuntimeStore.use.setShowRestReminderPrompt()
+  const generateQuiz = useRuntimeStore.use.generateQuiz()
+  const nextRestBreak = useRuntimeStore.use.nextRestBreak()
+  const skipRestReminder = useRuntimeStore.use.skipRestReminder()
+  const resumeTimersAfterOverlay = useRuntimeStore.use.resumeTimersAfterOverlay()
+  const restBreakDuration = useSettingsStore.use.restBreakDuration()
 
   const {
     showRestReminder,
