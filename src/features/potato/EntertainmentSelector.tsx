@@ -2,6 +2,8 @@ import { Gamepad2 } from 'lucide-react'
 import { ItemSelector } from '@/components/common/ItemSelector'
 import { useRuntimeStore } from '@/store/runtimeStore'
 
+import type { Task } from '@/types'
+
 /**
  * 娱乐项目选择器组件
  * 显示当前娱乐项目，点击可打开选择弹窗
@@ -14,7 +16,7 @@ export const EntertainmentSelector = () => {
   return (
     <ItemSelector
       selectedId={currentPotatoTaskId}
-      items={tasks.filter((t: any) => t.type === 'entertainment')}
+      items={tasks.filter((t: Task) => t.type === 'entertainment')}
       onSelect={setCurrentPotatoTask}
       icon={Gamepad2}
       dialogTitle="选择娱乐项目"

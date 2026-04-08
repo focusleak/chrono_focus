@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { CheckCircle } from 'lucide-react'
 import { toast } from '@/components/ui/toast'
+import type { Task, SubTask } from '@/types'
 
 interface TaskDetailModalProps {
   taskId: string | null
@@ -17,11 +18,11 @@ const TaskDetailModal = ({ taskId, onClose }: TaskDetailModalProps) => {
   const toggleSubtask = useRuntimeStore.use.toggleSubtask()
   const completeTask = useRuntimeStore.use.completeTask()
 
-  const task = tasks.find((t: any) => t.id === taskId)
-  
+  const task = tasks.find((t: Task) => t.id === taskId)
+
   if (!task) return null
 
-  const completedSubtasks = task.subtasks.filter((st: any) => st.completed).length
+  const completedSubtasks = task.subtasks.filter((st: SubTask) => st.completed).length
   const totalSubtasks = task.subtasks.length
   const progress = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0
 
@@ -64,7 +65,7 @@ const TaskDetailModal = ({ taskId, onClose }: TaskDetailModalProps) => {
           )}
 
           <div className="space-y-2">
-            {task.subtasks.map((subtask: any) => (
+            {task.subtasks.map((subtask: SubTask) => (
               <div
                 key={subtask.id}
                 className={`p-3 rounded-xl transition-all ${

@@ -11,6 +11,7 @@ export const usePomodoroTimer = () => {
   const pomodoroType = useRuntimeStore.use.pomodoroType()
   const tickPomodoro = useRuntimeStore.use.tickPomodoro()
   const showRestReminderPrompt = useRuntimeStore.use.showRestReminderPrompt()
+
   const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
   const restReminderInterval = useSettingsStore.use.restReminderInterval()
   const waterReminderEnabled = useSettingsStore.use.waterReminderEnabled()
@@ -23,6 +24,8 @@ export const usePomodoroTimer = () => {
   const gazeReminderInterval = useSettingsStore.use.gazeReminderInterval()
   const walkReminderEnabled = useSettingsStore.use.walkReminderEnabled()
   const walkReminderInterval = useSettingsStore.use.walkReminderInterval()
+
+  const isWorking = pomodoroType === 'pomodoro' && isPomodoroRunning
 
   // 主定时器：当休息提醒弹窗显示时暂停
   useInterval(tickPomodoro, 1000, isPomodoroRunning && !showRestReminderPrompt)
@@ -52,7 +55,7 @@ export const usePomodoroTimer = () => {
     restReminderInterval,
     '休息提醒',
     '你已经工作一段时间了，记得休息一下哦！',
-    pomodoroType === 'pomodoro',
+    isWorking,
   )
 
   useReminder(
@@ -67,7 +70,7 @@ export const usePomodoroTimer = () => {
     standReminderInterval,
     '站立提醒',
     '你已经坐了一段时间了，站起来活动一下吧！',
-    pomodoroType === 'pomodoro' && isPomodoroRunning,
+    isWorking,
   )
 
   useReminder(
@@ -75,7 +78,7 @@ export const usePomodoroTimer = () => {
     stretchReminderInterval,
     '拉伸提醒',
     '是时候做些伸展运动了，活动一下身体！',
-    pomodoroType === 'pomodoro' && isPomodoroRunning,
+    isWorking,
   )
 
   useReminder(
@@ -83,7 +86,7 @@ export const usePomodoroTimer = () => {
     gazeReminderInterval,
     '远眺提醒',
     '看向远方，放松一下你的眼睛！',
-    pomodoroType === 'pomodoro' && isPomodoroRunning,
+    isWorking,
   )
 
   useReminder(
@@ -91,6 +94,6 @@ export const usePomodoroTimer = () => {
     walkReminderInterval,
     '走动提醒',
     '你已经坐了一段时间了，起身走走吧！',
-    pomodoroType === 'pomodoro' && isPomodoroRunning,
+    isWorking,
   )
 }

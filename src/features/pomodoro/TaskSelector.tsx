@@ -2,6 +2,8 @@ import { Target, Coffee } from 'lucide-react'
 import { ItemSelector } from '@/components/common/ItemSelector'
 import { useRuntimeStore } from '@/store/runtimeStore'
 
+import type { Task } from '@/types'
+
 export const TaskSelector = () => {
   const tasks = useRuntimeStore.use.tasks()
   const currentPomodoroTaskId = useRuntimeStore.use.currentPomodoroTaskId()
@@ -21,7 +23,7 @@ export const TaskSelector = () => {
   return (
     <ItemSelector
       selectedId={currentPomodoroTaskId}
-      items={tasks.filter((t: any) => t.type === 'task')}
+      items={tasks.filter((t: Task) => t.type === 'task')}
       onSelect={setCurrentPomodoroTask}
       icon={Target}
       dialogTitle="选择任务"

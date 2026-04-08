@@ -1,5 +1,5 @@
 import { useSettingsStore } from '@/store/settingsStore'
-import type { ThemeMode } from '@/store/settingsStore'
+import type { ThemeMode, SettingsState } from '@/store/settingsStore'
 import { useSetAutoLaunch } from '@/hooks/useInitAutoLaunch'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
@@ -42,7 +42,7 @@ const SettingsPage = () => {
     { label: '跟随系统', value: 'system', icon: Monitor },
   ]
 
-  const handleChange = (key: string, value: any) => {
+  const handleChange = <K extends keyof SettingsState>(key: K, value: SettingsState[K]) => {
     updateSettings({ [key]: value })
   }
 

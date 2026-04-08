@@ -4,6 +4,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Button } from '@/components/ui/button'
 import { Segmented } from '@/components/ui/segmented'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import type { DailyStats } from '@/types'
 import {
   startOfMonth,
   endOfMonth,
@@ -44,7 +45,7 @@ const DailyStatsGrid = ({ title = '每日统计' }: DailyStatsGridProps) => {
   }, [viewMode, currentDate])
 
   const stats = useMemo(() => {
-    return dailyStats.filter((s: any) => {
+    return dailyStats.filter((s: DailyStats) => {
       const date = new Date(s.date)
       return (isAfter(date, getDateRange.start) || isSameDay(date, getDateRange.start)) &&
              (isAfter(getDateRange.end, date) || isSameDay(date, getDateRange.end))
@@ -86,9 +87,12 @@ const DailyStatsGrid = ({ title = '每日统计' }: DailyStatsGridProps) => {
     return weeks
   }, [dateList])
 
-  const getDayStats = (date: string) => {
-    return stats.find((s: any) => s.date === date)
-  }
+  // 使用 Map 优化查找，从 O(n) 降低到 O(1)
+  const statsMap = useMemo(() => {
+    return new Map(stats.map(s => [s.date, s]))
+  }, [stats])
+
+  const getDayStats = (date: string) => statsMap.get(date)
 
   const getColorIntensity = (pomodoros: number) => {
     if (pomodoros === 0) return 'bg-gray-100 dark:bg-gray-800'
@@ -101,12 +105,12 @@ const DailyStatsGrid = ({ title = '每日统计' }: DailyStatsGridProps) => {
 
   const cellSize = viewMode === 'month' ? 'w-5 h-5' : 'w-3 h-3'
 
-  const totalPomodoros = stats.reduce((sum: number, s: any) => sum + s.pomodoros, 0)
-  const totalFocusMinutes = stats.reduce((sum: number, s: any) => sum + s.focusTime, 0)
-  const totalWater = stats.reduce((sum: number, s: any) => sum + s.waterCount, 0)
-  const totalTasks = stats.reduce((sum: number, s: any) => sum + s.tasksCompleted, 0)
-  const totalPotatoTime = stats.reduce((sum: number, s: any) => sum + (s.potatoTime || 0), 0)
-  const activeDays = stats.filter((s: any) => s.pomodoros > 0).length
+  const totalPomodoros = stats.reduce((sum, s) => sum + s.pomodoros, 0)
+  const totalFocusMinutes = stats.reduce((sum, s) => sum + s.focusTime, 0)
+  const totalWater = stats.reduce((sum, s) => sum + s.waterCount, 0)
+  const totalTasks = stats.reduce((sum, s) => sum + s.tasksCompleted, 0)
+  const totalPotatoTime = stats.reduce((sum, s) => sum + (s.potatoTime || 0), 0)
+  const activeDays = stats.filter((s: DailyStats) => s.pomodoros > 0).length
 
   const goToPrevious = () => {
     if (viewMode === 'month') {

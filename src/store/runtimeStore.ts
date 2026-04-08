@@ -371,11 +371,16 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
 
         // ========== 土豆钟方法 ==========
         startPotato: () => {
-          const settings = useSettingsStore.getState()
-          const { potatoTimeLeft } = get()
-          const startTime = potatoTimeLeft > 0 ? potatoTimeLeft : settings.dailyPotatoLimit * 60
-          const restTotal = settings.restReminderInterval * 60
-          set({ isPotatoRunning: true, potatoTimeLeft: startTime, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
+          const { isPomodoroRunning } = get()
+          if (isPomodoroRunning) {
+            set({ showPomodoroPotatoConflict: 'potato' })
+          } else {
+            const settings = useSettingsStore.getState()
+            const { potatoTimeLeft } = get()
+            const startTime = potatoTimeLeft > 0 ? potatoTimeLeft : settings.dailyPotatoLimit * 60
+            const restTotal = settings.restReminderInterval * 60
+            set({ isPotatoRunning: true, potatoTimeLeft: startTime, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
+          }
         },
 
         pausePotato: () => set({ isPotatoRunning: false }),

@@ -3,6 +3,8 @@ import { useSettingsStore } from '@/store/settingsStore'
 import { Play, Pause, Timer, Gamepad2, Droplets, Clock } from 'lucide-react'
 import { formatDuration } from '@/lib/utils'
 
+import type { Task } from '@/types'
+
 /**
  * 底部状态栏组件
  * 显示当前计时情况和系统状态
@@ -27,7 +29,7 @@ const StatusBar = () => {
   const dailyWaterGoal = useSettingsStore.use.dailyWaterGoal()
   const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
 
-  const currentTask = tasks.find((t: any) => t.id === currentPomodoroTaskId)
+  const currentTask = tasks.find((t: Task) => t.id === currentPomodoroTaskId)
 
   /** 切换暂停/运行 */
   const togglePause = () => {
