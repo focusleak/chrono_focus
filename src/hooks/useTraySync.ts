@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
-import { useRuntimeStore } from '../store/runtimeStore'
-import { useSettingsStore } from '../store/settingsStore'
+import { useRuntimeStore } from '@/store/runtimeStore'
+import { useSettingsStore } from '@/store/settingsStore'
 
 /**
  * 同步当前运行状态到托盘文字和菜单

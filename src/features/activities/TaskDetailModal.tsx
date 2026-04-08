@@ -1,4 +1,4 @@
-import { useRuntimeStore } from '../../store/runtimeStore'
+import { useRuntimeStore } from '@/store/runtimeStore'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Progress } from '@/components/ui/progress'

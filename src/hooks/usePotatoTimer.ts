@@ -1,4 +1,4 @@
-import { useRuntimeStore } from '../store/runtimeStore'
+import { useRuntimeStore } from '@/store/runtimeStore'
 import { useInterval } from './useInterval'
 
 export const usePotatoTimer = () => {

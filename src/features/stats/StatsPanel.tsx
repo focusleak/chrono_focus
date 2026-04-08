@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useRuntimeStore } from '../../store/runtimeStore'
-import { useSettingsStore } from '../../store/settingsStore'
+import { useRuntimeStore } from '@/store/runtimeStore'
+import { useSettingsStore } from '@/store/settingsStore'
 import { Flame, Clock, CheckSquare, Eye, Footprints, Droplets, Target, TrendingUp, Plus, Minus, PersonStanding, Gamepad2, Timer } from 'lucide-react'
 import DailyStatsGrid from './DailyStatsGrid'
 import { Button } from '@/components/ui/button'

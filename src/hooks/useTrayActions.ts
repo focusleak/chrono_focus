@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useRuntimeStore } from '../store/runtimeStore'
+import { useRuntimeStore } from '@/store/runtimeStore'
 
 /**
  * 监听托盘动作并执行对应操作

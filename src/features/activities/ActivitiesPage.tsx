@@ -1,14 +1,14 @@
 import { useState } from 'react'
-import { useRuntimeStore } from '../../store/runtimeStore'
-import type { ActivityType, Task } from '../../types'
+import { useRuntimeStore } from '@/store/runtimeStore'
+import type { ActivityType, Task } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Plus, Briefcase, Gamepad2, Trash2 } from 'lucide-react'
 import TaskCreationModal from './TaskCreationModal'
 import TaskDetailModal from './TaskDetailModal'
 import TaskCard from './TaskCard'
 import FilterButton from './FilterButton'
-import { SortableList, type SortableItemProps } from '../../components/common/SortableList'
-import { EmptyState } from '../../components/common/EmptyState'
+import { SortableList, type SortableItemProps } from '@/components/common/SortableList'
+import { EmptyState } from '@/components/common/EmptyState'
 import { toast } from '@/components/ui/toast'
 
 const ActivitiesPage = () => {

@@ -1,4 +1,4 @@
-import { sendNotification, playSound } from '../lib/utils'
+import { sendNotification, playSound } from '@/lib/utils'
 import { useInterval } from './useInterval'
 
 /**

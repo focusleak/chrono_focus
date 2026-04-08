@@ -1,6 +1,6 @@
 import { Gamepad2 } from 'lucide-react'
-import { ItemSelector } from '../../components/common/ItemSelector'
-import { useRuntimeStore } from '../../store/runtimeStore'
+import { ItemSelector } from '@/components/common/ItemSelector'
+import { useRuntimeStore } from '@/store/runtimeStore'
 
 /**
  * 娱乐项目选择器组件

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Play, Pause } from 'lucide-react'
-import { useRuntimeStore } from '../../store/runtimeStore'
+import { useRuntimeStore } from '@/store/runtimeStore'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
-import { TimerButton } from '../../components/common/TimerButton'
+import { TimerButton } from '@/components/common/TimerButton'
 
 export const PotatoControls = () => {
   const potatoTimeLeft = useRuntimeStore.use.potatoTimeLeft()

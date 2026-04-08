@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useRuntimeStore } from '../../store/runtimeStore'
+import { useRuntimeStore } from '@/store/runtimeStore'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
 import { Segmented } from '@/components/ui/segmented'

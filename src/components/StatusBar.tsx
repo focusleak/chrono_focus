@@ -1,7 +1,7 @@
-import { useRuntimeStore } from '../store/runtimeStore'
-import { useSettingsStore } from '../store/settingsStore'
+import { useRuntimeStore } from '@/store/runtimeStore'
+import { useSettingsStore } from '@/store/settingsStore'
 import { Play, Pause, Timer, Gamepad2, Droplets, Clock } from 'lucide-react'
-import { formatDuration } from '../lib/utils'
+import { formatDuration } from '@/lib/utils'
 
 /**
  * 底部状态栏组件

@@ -1,12 +1,12 @@
-import { useSettingsStore } from '../../store/settingsStore'
-import type { ThemeMode } from '../../store/settingsStore'
-import { useSetAutoLaunch } from '../../hooks/useInitAutoLaunch'
-import { Button } from '../../components/ui/button'
-import { Switch } from '../../components/ui/switch'
+import { useSettingsStore } from '@/store/settingsStore'
+import type { ThemeMode } from '@/store/settingsStore'
+import { useSetAutoLaunch } from '@/hooks/useInitAutoLaunch'
+import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
 import { Sun, Moon, Monitor, Play, Palette, Clock, Gamepad2, Droplets, Footprints, StretchHorizontal, Eye, PersonStanding } from 'lucide-react'
-import { SettingRow } from '../../components/common/SettingRow'
-import { NumberInput } from '../../components/common/NumberInput'
-import { ReminderSettings } from '../../components/common/ReminderSettings'
+import { SettingRow } from '@/components/common/SettingRow'
+import { NumberInput } from '@/components/common/NumberInput'
+import { ReminderSettings } from '@/components/common/ReminderSettings'
 
 const SettingsPage = () => {
   const { theme, setTheme,

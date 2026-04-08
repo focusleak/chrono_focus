@@ -2,7 +2,7 @@ import { GripVertical, Briefcase, Gamepad2, Edit, Trash2, CheckCircle, Repeat } 
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import type { Task } from '../../types'
+import type { Task } from '@/types'
 
 interface TaskCardProps {
   task: Task

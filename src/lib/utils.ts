@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export { formatDuration } from '../utils/time'
+export { formatDuration } from '@/utils/time'
 
 export const sendNotification = async (title: string, body: string) => {
   try {

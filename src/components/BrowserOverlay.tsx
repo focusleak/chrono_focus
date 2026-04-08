@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useOverlay } from '../hooks/useOverlay'
+import { useOverlay } from '@/hooks/useOverlay'
 import { CheckCircle, XCircle, X } from 'lucide-react'
 
 /**

@@ -1,6 +1,6 @@
-import { useRuntimeStore } from '../../store/runtimeStore'
-import { ConfirmDialog } from '../../components/common/ConfirmDialog'
-import { formatDuration } from '../../lib/utils'
+import { useRuntimeStore } from '@/store/runtimeStore'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
+import { formatDuration } from '@/lib/utils'
 import { EntertainmentSelector } from './EntertainmentSelector'
 import { PotatoControls } from './PotatoControls'
 

@@ -1,9 +1,9 @@
-import { useRuntimeStore } from '../../store/runtimeStore'
-import { useSettingsStore } from '../../store/settingsStore'
-import { ConfirmDialog } from '../../components/common/ConfirmDialog'
+import { useRuntimeStore } from '@/store/runtimeStore'
+import { useSettingsStore } from '@/store/settingsStore'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { PomodoroControls } from './PomodoroControls'
 import { TaskSelector } from './TaskSelector'
-import { formatDuration } from '../../lib/utils'
+import { formatDuration } from '@/lib/utils'
 
 const PomodoroClock = () => {
   const {

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Play, Pause, RotateCcw, SkipForward } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { useRuntimeStore } from '../../store/runtimeStore'
-import { TimerButton } from '../../components/common/TimerButton'
+import { useRuntimeStore } from '@/store/runtimeStore'
+import { TimerButton } from '@/components/common/TimerButton'
 
 interface PomodoroControlsProps {
   onEarlyFinish: () => void

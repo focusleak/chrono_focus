@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react'
-import { useSettingsStore } from '../store/settingsStore'
+import { useSettingsStore } from '@/store/settingsStore'
 
 /**
  * 初始化开机自启动状态
