@@ -139,12 +139,6 @@ export interface RuntimeState {
   skipRestReminder: () => void
   /** 弹窗关闭后恢复计时 */
   resumeTimersAfterOverlay: () => void
-  /** 触发番茄钟完成逻辑（测试用） */
-  triggerPomodoroComplete: () => void
-  /** 触发土豆钟完成逻辑（测试用） */
-  triggerPotatoComplete: () => void
-  /** 触发休息提醒弹窗（测试用） */
-  triggerRestReminder: () => void
   /** 切换休息提醒暂停状态 */
   toggleRestReminderPause: () => void
 
@@ -523,55 +517,6 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
             restReminderTimeLeft: total,
             restReminderTotalTime: total,
           })
-        },
-
-        triggerPomodoroComplete: () => {
-          const { pomodoroStatus, completedPomodoros, totalFocusTime, currentPomodoroTaskId, tasks, waterCount, dailyStats } = get()
-          const settings = useSettingsStore.getState()
-
-          if (pomodoroStatus === PomodoroStatus.Pomodoro) {
-            const updatedTasks = tasks.map(task =>
-              task.id === currentPomodoroTaskId
-                ? { ...task, completedPomodoros: task.completedPomodoros + 1 }
-                : task
-            )
-            const today = format(new Date(), "yyyy-MM-dd")
-            const todayStats = dailyStats.find(s => s.date === today)
-            const newDailyStats = todayStats
-              ? dailyStats.map(s => s.date === today ? { ...s, pomodoros: s.pomodoros + 1, focusTime: s.focusTime + settings.pomodoroTime } : s)
-              : [...dailyStats, { date: today, pomodoros: 1, focusTime: settings.pomodoroTime, waterCount, tasksCompleted: 0, potatoTime: 0 }]
-            const newCompletedPomodoros = completedPomodoros + 1
-            const pomodoroBreakType = newCompletedPomodoros % 4 === 0 ? PomodoroStatus.LongBreak : PomodoroStatus.ShortBreak
-            const breakTime = pomodoroBreakType === PomodoroStatus.LongBreak ? settings.pomodoroLongBreakTime : settings.pomodoroShortBreakTime
-            set({
-              completedPomodoros: newCompletedPomodoros,
-              totalFocusTime: totalFocusTime + settings.pomodoroTime,
-              tasks: updatedTasks,
-              dailyStats: newDailyStats,
-              pomodoroStatus: pomodoroBreakType,
-              pomodoroTimeLeft: breakTime * 60,
-              currentPomodoroTime: breakTime * 60,
-              isPomodoroRunning: false,
-            })
-          } else {
-            set({ pomodoroStatus: PomodoroStatus.Pomodoro, pomodoroTimeLeft: settings.pomodoroTime * 60, currentPomodoroTime: settings.pomodoroTime * 60, isPomodoroRunning: false })
-          }
-        },
-
-        triggerPotatoComplete: () => {
-          const today = format(new Date(), "yyyy-MM-dd")
-          const { dailyStats } = get()
-          const todayStatsItem = dailyStats.find(s => s.date === today)
-          const newDailyStats = todayStatsItem
-            ? dailyStats.map(s => s.date === today ? { ...s, potatoTime: s.potatoTime + 1 } : s)
-            : [...dailyStats, { date: today, pomodoros: 0, focusTime: 0, waterCount: 0, tasksCompleted: 0, potatoTime: 1 }]
-          set({ dailyStats: newDailyStats, potatoTimeLeft: -1, isPotatoRunning: false })
-          sendNotification('娱乐时间已用完', '已超过限制时间，现在是正计时。建议回去专注工作！')
-        },
-
-        triggerRestReminder: () => {
-          set({ showRestReminderPrompt: true })
-          sendNotification('休息提醒', '你已经工作一段时间了，记得休息一下哦！')
         },
 
         toggleRestReminderPause: () => {

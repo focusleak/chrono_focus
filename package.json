@@ -1,9 +1,9 @@
 {
-  "name": "Chrono Focus",
+  "name": "chrono-focus",
   "version": "1.0.0",
   "description": "Chrono Focus - 跨平台番茄钟+休息提醒+喝水提醒应用",
   "type": "module",
-  "main": "electron/main.js",
+  "main": "electron/main.mjs",
   "author": "Chrono Focus Team",
   "scripts": {
     "dev": "vite",

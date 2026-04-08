@@ -10,7 +10,7 @@ import { Play, Pause } from 'lucide-react'
 
 import { TimerButton } from '@/components/common/TimerButton'
 import type { Task } from '@/types'
-const PotatoClock = () => {
+const PotatoPage = () => {
   const potatoTimeLeft = useRuntimeStore.use.potatoTimeLeft()
   const showPomodoroPotatoConflict = useRuntimeStore.use.showPomodoroPotatoConflict()
   const resolvePomodoroPotatoConflict = useRuntimeStore.use.resolvePomodoroPotatoConflict()
@@ -105,4 +105,4 @@ const PotatoClock = () => {
   )
 }
 
-export default PotatoClock
+export default PotatoPage

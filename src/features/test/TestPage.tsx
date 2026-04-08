@@ -1,16 +1,18 @@
 import { useOverlay } from '@/hooks/useOverlay'
 import { useRuntimeStore } from '@/store/runtimeStore'
 import { sendNotification } from '@/lib/utils'
+import { PomodoroStatus } from '@/types'
 
 const TestPage = () => {
   const { isOpen, error, show, hide } = useOverlay()
-  const triggerPomodoroComplete = useRuntimeStore.use.triggerPomodoroComplete()
-  const triggerPotatoComplete = useRuntimeStore.use.triggerPotatoComplete()
-  const triggerRestReminder = useRuntimeStore.use.triggerRestReminder()
+  const setPomodoroStatus = useRuntimeStore.use.setPomodoroStatus()
+  const resetRestReminder = useRuntimeStore.use.resetRestReminder()
   const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
   const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
   const showRestReminderPrompt = useRuntimeStore.use.showRestReminderPrompt()
   const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
+  const potatoTimeLeft = useRuntimeStore.use.potatoTimeLeft()
+  const restReminderTimeLeft = useRuntimeStore.use.restReminderTimeLeft()
 
   const handleTestNotification = () => {
     sendNotification('测试通知', '这是一条测试通知，如果你看到它说明通知功能正常！')
@@ -46,16 +48,16 @@ const TestPage = () => {
     await hide()
   }
 
-  const handleTriggerPomodoroComplete = () => {
-    triggerPomodoroComplete()
+  const handleSetPomodoroToBreak = () => {
+    setPomodoroStatus(PomodoroStatus.ShortBreak)
   }
 
-  const handleTriggerPotatoComplete = () => {
-    triggerPotatoComplete()
+  const handleSetPomodoroToPomodoro = () => {
+    setPomodoroStatus(PomodoroStatus.Pomodoro)
   }
 
-  const handleTriggerRestReminder = () => {
-    triggerRestReminder()
+  const handleResetRestReminder = () => {
+    resetRestReminder()
   }
 
   return (
@@ -108,27 +110,27 @@ const TestPage = () => {
         </div>
       </div>
 
-      {/* 计时器结束测试 */}
+      {/* 计时器状态测试 */}
       <div>
-        <h2 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">计时器结束测试</h2>
+        <h2 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">计时器状态测试</h2>
         <div className="space-y-3">
           <button
-            onClick={handleTriggerPomodoroComplete}
+            onClick={handleSetPomodoroToPomodoro}
             className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2c2c2e] font-medium transition-colors"
           >
-            触发番茄钟结束逻辑
+            切换到番茄钟状态
           </button>
           <button
-            onClick={handleTriggerPotatoComplete}
+            onClick={handleSetPomodoroToBreak}
             className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2c2c2e] font-medium transition-colors"
           >
-            触发土豆钟结束逻辑
+            切换到短休息状态
           </button>
           <button
-            onClick={handleTriggerRestReminder}
+            onClick={handleResetRestReminder}
             className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2c2c2e] font-medium transition-colors"
           >
-            触发休息提醒弹窗
+            重置休息提醒
           </button>
         </div>
       </div>
@@ -138,8 +140,11 @@ const TestPage = () => {
         <p className="mb-2 font-medium">状态信息：</p>
         <p>electronAPI: {typeof window !== 'undefined' && window.electronAPI ? '可用' : '不可用'}</p>
         <p>通知权限: {typeof Notification !== 'undefined' ? Notification.permission : '不支持'}</p>
-        <p>番茄钟运行: {isPomodoroRunning ? '是' : '否'} ({pomodoroStatus})</p>
+        <p>番茄钟状态: {pomodoroStatus}</p>
+        <p>番茄钟运行: {isPomodoroRunning ? '是' : '否'}</p>
         <p>土豆钟运行: {isPotatoRunning ? '是' : '否'}</p>
+        <p>土豆钟剩余: {potatoTimeLeft}秒</p>
+        <p>休息提醒剩余: {restReminderTimeLeft}秒</p>
         <p>休息提醒弹窗: {showRestReminderPrompt ? '显示中' : '未显示'}</p>
         {error && (
           <p className="mt-2 text-red-500">

@@ -14,7 +14,7 @@ import { PomodoroStatus } from '@/types'
 
 import type { Task } from '@/types'
 
-const PomodoroClock = () => {
+const PomodoroPage = () => {
   const pomodoroTimeLeft = useRuntimeStore.use.pomodoroTimeLeft()
   const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
   const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
@@ -139,4 +139,4 @@ const EarlyFinishConfirm = ({ onConfirm }: { onConfirm: () => void }) => {
 }
 
 
-export default PomodoroClock
+export default PomodoroPage

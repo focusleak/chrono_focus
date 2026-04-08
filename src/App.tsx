@@ -10,10 +10,10 @@ import { useRestReminder } from '@/hooks/useRestReminder'
 import { useTraySync } from '@/hooks/useTraySync'
 import { useTrayActions } from '@/hooks/useTrayActions'
 import { requestNotificationPermission } from '@/lib/utils'
-import PomodoroClock from '@/features/pomodoro/PomodoroClock'
+import PomodoroPage from '@/features/pomodoro/PomodoroPage'
 import SettingsPage from '@/features/settings/SettingsPage'
-import StatsPanel from '@/features/stats/StatsPanel'
-import PotatoClock from '@/features/potato/PotatoClock'
+import StatsPage from '@/features/stats/StatsPage'
+import PotatoPage from '@/features/potato/PotatoPage'
 import ActivitiesPage from '@/features/activities/ActivitiesPage'
 import TestPage from '@/features/test/TestPage'
 import StatusBar from '@/components/StatusBar'
@@ -103,11 +103,11 @@ function App() {
           <div className="flex-1 overflow-y-auto">
             <div className="max-w-4xl mx-auto py-8">
               <Routes>
-                <Route path="/" element={<PomodoroClock />} />
-                <Route path="/potato" element={<PotatoClock />} />
+                <Route path="/" element={<PomodoroPage />} />
+                <Route path="/potato" element={<PotatoPage />} />
                 <Route path="/activities" element={<ActivitiesPage />} />
                 {isDev && <Route path="/test" element={<TestPage />} />}
-                <Route path="/stats" element={<StatsPanel />} />
+                <Route path="/stats" element={<StatsPage />} />
                 <Route path="/settings/*" element={<SettingsPage />} />
               </Routes>
             </div>

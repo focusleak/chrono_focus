@@ -10,7 +10,7 @@ import type { Task } from '@/types'
 
 type StatsCategory = 'overview' | 'focus' | 'potato' | 'water' | 'stand' | 'gaze' | 'walk'
 
-const StatsPanel = () => {
+const StatsPage = () => {
   const completedPomodoros = useRuntimeStore.use.completedPomodoros()
   const totalFocusTime = useRuntimeStore.use.totalFocusTime()
   const waterCount = useRuntimeStore.use.waterCount()
@@ -391,4 +391,4 @@ const StatsPanel = () => {
   )
 }
 
-export default StatsPanel
+export default StatsPage
