@@ -1,11 +1,13 @@
-import { useStore } from '../../store/store'
+import { useRuntimeStore } from '../../store/runtimeStore'
 import { ConfirmDialog } from '../../components/common/ConfirmDialog'
 import { formatDuration } from '../../lib/utils'
 import { EntertainmentSelector } from './EntertainmentSelector'
 import { PotatoControls } from './PotatoControls'
 
 const PotatoClock = () => {
-  const { potatoTimeLeft, showPomodoroPotatoConflict, resolvePomodoroPotatoConflict } = useStore()
+  const potatoTimeLeft = useRuntimeStore.use.potatoTimeLeft()
+  const showPomodoroPotatoConflict = useRuntimeStore.use.showPomodoroPotatoConflict()
+  const resolvePomodoroPotatoConflict = useRuntimeStore.use.resolvePomodoroPotatoConflict()
   const isOvertime = potatoTimeLeft < 0
 
   return (

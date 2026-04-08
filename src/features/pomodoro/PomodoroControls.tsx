@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Play, Pause, RotateCcw, SkipForward } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { useStore } from '../../store/store'
+import { useRuntimeStore } from '../../store/runtimeStore'
 import { TimerButton } from '../../components/common/TimerButton'
 
 interface PomodoroControlsProps {
@@ -9,13 +9,11 @@ interface PomodoroControlsProps {
 }
 
 export const PomodoroControls = ({ onEarlyFinish }: PomodoroControlsProps) => {
-  const {
-    isPomodoroRunning,
-    pomodoroType,
-    startPomodoro,
-    pausePomodoro,
-    resetPomodoro,
-  } = useStore()
+  const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
+  const pomodoroType = useRuntimeStore.use.pomodoroType()
+  const startPomodoro = useRuntimeStore.use.startPomodoro()
+  const pausePomodoro = useRuntimeStore.use.pausePomodoro()
+  const resetPomodoro = useRuntimeStore.use.resetPomodoro()
 
   return (
     <div className="flex justify-center gap-3">

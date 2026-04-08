@@ -1,5 +1,5 @@
 import { useOverlay } from '../../hooks/useOverlay'
-import { useStore } from '../../store/store'
+import { useRuntimeStore } from '../../store/runtimeStore'
 import { sendNotification } from '../../lib/utils'
 
 const TestPage = () => {
@@ -12,7 +12,7 @@ const TestPage = () => {
     isPotatoRunning,
     showRestReminderPrompt,
     pomodoroType,
-  } = useStore()
+  } = useRuntimeStore()
 
   const handleTestNotification = () => {
     sendNotification('测试通知', '这是一条测试通知，如果你看到它说明通知功能正常！')

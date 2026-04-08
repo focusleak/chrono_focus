@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { useStore } from '../store/store'
+import { useRuntimeStore } from '../store/runtimeStore'
+import { useSettingsStore } from '../store/settingsStore'
 import { sendNotification, playSound } from '../lib/utils'
 
 /**
@@ -12,15 +13,17 @@ export const useRestReminder = () => {
   const {
     isPomodoroRunning,
     isPotatoRunning,
-    restReminderEnabled,
-    restReminderNotification,
     restReminderTimeLeft,
     showRestReminderPrompt,
     restReminderPaused,
     tickRestReminder,
     resetRestReminder,
     setShowRestReminderPrompt,
-  } = useStore()
+  } = useRuntimeStore()
+  const {
+    restReminderEnabled,
+    restReminderNotification,
+  } = useSettingsStore()
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const hasNotifiedRef = useRef(false)

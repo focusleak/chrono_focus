@@ -1,24 +1,26 @@
 import { useState } from 'react'
 import { Play, Pause } from 'lucide-react'
-import { useStore } from '../../store/store'
+import { useRuntimeStore } from '../../store/runtimeStore'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { TimerButton } from '../../components/common/TimerButton'
 
 export const PotatoControls = () => {
-  const { potatoTimeLeft, isPotatoRunning, pausePotato } = useStore()
+  const potatoTimeLeft = useRuntimeStore.use.potatoTimeLeft()
+  const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
+  const pausePotato = useRuntimeStore.use.pausePotato()
   const [showOvertimeWarning, setShowOvertimeWarning] = useState(false)
 
   const handleStartPotato = () => {
     if (potatoTimeLeft < 0) {
       setShowOvertimeWarning(true)
     } else {
-      const { startPotato } = useStore.getState()
+      const { startPotato } = useRuntimeStore.getState()
       startPotato()
     }
   }
 
   const confirmOvertimeStart = () => {
-    useStore.getState().startPotato()
+    useRuntimeStore.getState().startPotato()
     setShowOvertimeWarning(false)
   }
 

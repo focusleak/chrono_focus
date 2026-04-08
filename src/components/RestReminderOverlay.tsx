@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { useStore } from '../store/store'
+import { useRuntimeStore } from '../store/runtimeStore'
+import { useSettingsStore } from '../store/settingsStore'
 import { useOverlay } from '../hooks/useOverlay'
 
 /**
@@ -12,7 +13,6 @@ const RestReminderOverlay = () => {
   const {
     showRestReminderPrompt,
     showQuiz,
-    restBreakDuration,
     restReminderSkipped,
     restReminderSkipCount,
     setShowRestReminderPrompt,
@@ -20,7 +20,10 @@ const RestReminderOverlay = () => {
     nextRestBreak,
     skipRestReminder,
     resumeTimersAfterOverlay,
-  } = useStore()
+  } = useRuntimeStore()
+  const {
+    restBreakDuration,
+  } = useSettingsStore()
 
   const {
     showRestReminder,
@@ -69,17 +72,17 @@ const RestReminderOverlay = () => {
           nextRestBreak()
           resumeTimersAfterOverlay()
           setShowRestReminderPrompt(false)
-          useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
+          useRuntimeStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
           break
         case 'quizClose':
           closeOverlay()
           setShowRestReminderPrompt(false)
           resumeTimersAfterOverlay()
-          useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
+          useRuntimeStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
           break
         case 'closed':
           // 遮罩窗口被关闭（从外部关闭）
-          useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
+          useRuntimeStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
           setShowRestReminderPrompt(false)
           resumeTimersAfterOverlay()
           break
@@ -118,13 +121,13 @@ const RestReminderOverlay = () => {
             nextRestBreak()
             resumeTimersAfterOverlay()
             setShowRestReminderPrompt(false)
-            useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
+            useRuntimeStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
           },
           onQuizClose: () => {
             closeOverlay()
             setShowRestReminderPrompt(false)
             resumeTimersAfterOverlay()
-            useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
+            useRuntimeStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
           },
         }
       )
@@ -134,7 +137,7 @@ const RestReminderOverlay = () => {
   // 当 showQuiz 变为 true 时，显示答题遮罩
   useEffect(() => {
     if (showQuiz) {
-      const { quizNum1, quizNum2 } = useStore.getState()
+      const { quizNum1, quizNum2 } = useRuntimeStore.getState()
       showQuizOverlay(
         { num1: quizNum1, num2: quizNum2 },
         {
@@ -143,13 +146,13 @@ const RestReminderOverlay = () => {
             nextRestBreak()
             resumeTimersAfterOverlay()
             setShowRestReminderPrompt(false)
-            useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
+            useRuntimeStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
           },
           onQuizClose: () => {
             closeOverlay()
             setShowRestReminderPrompt(false)
             resumeTimersAfterOverlay()
-            useStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
+            useRuntimeStore.setState({ showQuiz: false, quizResult: null, userAnswer: null })
           },
         }
       )

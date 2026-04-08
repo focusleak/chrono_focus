@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { useStore } from '../store/store'
+import { useRuntimeStore } from '../store/runtimeStore'
+import { useSettingsStore } from '../store/settingsStore'
 
 /**
  * 同步当前运行状态到托盘文字和菜单
@@ -11,12 +12,14 @@ export const useTraySync = () => {
     pomodoroType,
     pomodoroTimeLeft,
     potatoTimeLeft,
-    restReminderEnabled,
-    restReminderTimeLeft,
-    restReminderTotalTime,
     showRestReminderPrompt,
     restReminderPaused,
-  } = useStore()
+    restReminderTimeLeft,
+    restReminderTotalTime,
+  } = useRuntimeStore()
+  const {
+    restReminderEnabled,
+  } = useSettingsStore()
 
   useEffect(() => {
     const updateTray = () => {

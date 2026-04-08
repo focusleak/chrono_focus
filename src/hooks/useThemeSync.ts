@@ -2,7 +2,8 @@ import { useEffect } from 'react'
 import { useSettingsStore } from '@/store/settingsStore'
 
 export const useThemeSync = () => {
-  const { theme, setTheme } = useSettingsStore()
+  const theme = useSettingsStore.use.theme()
+  const setTheme = useSettingsStore.use.setTheme()
 
   useEffect(() => {
     const root = document.documentElement

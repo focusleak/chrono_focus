@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useStore } from '../store/store'
+import { useRuntimeStore } from '../store/runtimeStore'
 
 /**
  * 监听托盘动作并执行对应操作
@@ -17,7 +17,7 @@ export const useTrayActions = () => {
     resetPotato,
     restReminderPaused,
     toggleRestReminderPause,
-  } = useStore()
+  } = useRuntimeStore()
 
   // 用 ref 存储最新的状态和方法，避免闭包捕获过期值
   const stateRef = useRef({

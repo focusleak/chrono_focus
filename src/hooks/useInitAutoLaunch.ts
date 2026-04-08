@@ -1,12 +1,12 @@
 import { useEffect, useCallback } from 'react'
-import { useStore } from '../store/store'
+import { useSettingsStore } from '../store/settingsStore'
 
 /**
  * 初始化开机自启动状态
  * 应用启动时从 Electron 获取开机自启动状态并同步到 store
  */
 export const useInitAutoLaunch = () => {
-  const { setAutoStartEnabled } = useStore()
+  const setAutoStartEnabled = useSettingsStore.use.setAutoStartEnabled()
 
   useEffect(() => {
     const initAutoLaunch = async () => {
@@ -31,7 +31,7 @@ export const useInitAutoLaunch = () => {
  * 同时更新 store 状态和 Electron 配置
  */
 export const useSetAutoLaunch = () => {
-  const { setAutoStartEnabled } = useStore()
+  const setAutoStartEnabled = useSettingsStore.use.setAutoStartEnabled()
 
   return useCallback(async (enabled: boolean) => {
     // 先更新 store 状态

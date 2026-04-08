@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { HashRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
-import { useStore } from './store/store'
+import { useRuntimeStore } from './store/runtimeStore'
 import { usePomodoroTimer } from './hooks/usePomodoroTimer'
 import { useInitAutoLaunch } from './hooks/useInitAutoLaunch'
 import { usePotatoTimer } from './hooks/usePotatoTimer'
@@ -52,7 +52,7 @@ function AppContent() {
   usePotatoTimer()
 
 
-  const { pomodoroType } = useStore()
+  const pomodoroType = useRuntimeStore.use.pomodoroType()
   const activeTab = getActiveTab(location.pathname)
   const isDev = import.meta.env.DEV
 

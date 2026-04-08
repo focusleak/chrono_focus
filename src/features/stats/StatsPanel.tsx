@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useStore } from '../../store/store'
+import { useRuntimeStore } from '../../store/runtimeStore'
+import { useSettingsStore } from '../../store/settingsStore'
 import { Flame, Clock, CheckSquare, Eye, Footprints, Droplets, Target, TrendingUp, Plus, Minus, PersonStanding, Gamepad2, Timer } from 'lucide-react'
 import DailyStatsGrid from './DailyStatsGrid'
 import { Button } from '@/components/ui/button'
@@ -12,15 +13,17 @@ const StatsPanel = () => {
     completedPomodoros,
     totalFocusTime,
     waterCount,
-    dailyWaterGoal,
     gazeReminderCount = 0,
     walkReminderCount = 0,
     standReminderCount = 0,
-    standReminderInterval = 45,
     potatoActivities = [],
-    dailyPotatoLimit = 60,
     tasks = []
-  } = useStore()
+  } = useRuntimeStore()
+  const {
+    dailyWaterGoal = 8,
+    standReminderInterval = 45,
+    dailyPotatoLimit = 60,
+  } = useSettingsStore()
 
   const [selectedCategory, setSelectedCategory] = useState<StatsCategory>('overview')
 
@@ -38,14 +41,14 @@ const StatsPanel = () => {
   ]
 
   const incrementWater = () => {
-    const { incrementWater: storeIncrementWater } = useStore.getState()
+    const { incrementWater: storeIncrementWater } = useRuntimeStore.getState()
     storeIncrementWater()
   }
 
   const decrementWater = () => {
-    const state = useStore.getState()
+    const state = useRuntimeStore.getState()
     if (state.waterCount > 0) {
-      state.updateSettings({ waterCount: state.waterCount - 1 })
+      useRuntimeStore.setState({ waterCount: state.waterCount - 1 })
     }
   }
 

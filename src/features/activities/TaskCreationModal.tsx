@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useStore } from '../../store/store'
+import { useRuntimeStore } from '../../store/runtimeStore'
 import type { SubTask, ActivityType, Task } from '../../types'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -16,7 +16,8 @@ interface TaskCreationModalProps {
 }
 
 const TaskCreationModal = ({ open, onClose, initialTask }: TaskCreationModalProps) => {
-  const { addTask, updateTask } = useStore()
+  const addTask = useRuntimeStore.use.addTask()
+  const updateTask = useRuntimeStore.use.updateTask()
   const isEditMode = !!initialTask
 
   const [currentStep, setCurrentStep] = useState<'basic' | 'subtasks'>('basic')

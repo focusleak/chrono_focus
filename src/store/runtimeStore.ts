@@ -5,7 +5,7 @@ import { format } from 'date-fns'
 import { sendNotification } from '../lib/utils'
 import type { Task, DailyStats, PotatoActivity, PomodoroType } from '../types'
 import { useSettingsStore } from './settingsStore'
-
+import { createSelectors } from './createSelectors'
 export interface RuntimeState {
   // ========== 番茄钟运行状态 ==========
   /** 番茄钟是否运行中 */
@@ -180,7 +180,7 @@ export interface RuntimeState {
   getTodayStats: () => DailyStats | null
 }
 
-export const useRuntimeStore = create<RuntimeState>()(
+export const useRuntimeStore = createSelectors(create<RuntimeState>()(
   immer(persist(
     (set, get) => {
       const settings = useSettingsStore.getState()
@@ -314,17 +314,17 @@ export const useRuntimeStore = create<RuntimeState>()(
               const todayStats = dailyStats.find(s => s.date === today)
               const newDailyStats = todayStats
                 ? dailyStats.map(s => s.date === today
-                    ? { ...s, pomodoros: s.pomodoros + 1, focusTime: s.focusTime + settings.pomodoroTime }
-                    : s
-                  )
+                  ? { ...s, pomodoros: s.pomodoros + 1, focusTime: s.focusTime + settings.pomodoroTime }
+                  : s
+                )
                 : [...dailyStats, {
-                    date: today,
-                    pomodoros: 1,
-                    focusTime: settings.pomodoroTime,
-                    waterCount,
-                    tasksCompleted: 0,
-                    potatoTime: 0
-                  }]
+                  date: today,
+                  pomodoros: 1,
+                  focusTime: settings.pomodoroTime,
+                  waterCount,
+                  tasksCompleted: 0,
+                  potatoTime: 0
+                }]
 
               const newCompletedPomodoros = completedPomodoros + 1
               const theBreakType = newCompletedPomodoros % 4 === 0 ? 'longBreak' : 'shortBreak'
@@ -441,7 +441,7 @@ export const useRuntimeStore = create<RuntimeState>()(
           })
         },
 
-        pauseRestReminder: () => {},
+        pauseRestReminder: () => { },
 
         resetRestReminder: () => {
           const settings = useSettingsStore.getState()
@@ -634,11 +634,11 @@ export const useRuntimeStore = create<RuntimeState>()(
             tasks: state.tasks.map(task =>
               task.id === taskId
                 ? {
-                    ...task,
-                    subtasks: task.subtasks.map(st =>
-                      st.id === subtaskId ? { ...st, completed: !st.completed } : st
-                    ),
-                  }
+                  ...task,
+                  subtasks: task.subtasks.map(st =>
+                    st.id === subtaskId ? { ...st, completed: !st.completed } : st
+                  ),
+                }
                 : task
             ),
           }))
@@ -667,13 +667,13 @@ export const useRuntimeStore = create<RuntimeState>()(
           const newDailyStats = todayStats
             ? dailyStats.map(s => s.date === today ? { ...s, waterCount: newWaterCount } : s)
             : [...dailyStats, {
-                date: today,
-                pomodoros: 0,
-                focusTime: 0,
-                waterCount: newWaterCount,
-                tasksCompleted: 0,
-                potatoTime: 0
-              }]
+              date: today,
+              pomodoros: 0,
+              focusTime: 0,
+              waterCount: newWaterCount,
+              tasksCompleted: 0,
+              potatoTime: 0
+            }]
 
           set({ waterCount: newWaterCount, dailyStats: newDailyStats })
         },
@@ -726,4 +726,4 @@ export const useRuntimeStore = create<RuntimeState>()(
       })
     },
   )),
-)
+))

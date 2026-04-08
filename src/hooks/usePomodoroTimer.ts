@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { useStore } from '../store/store'
+import { useRuntimeStore } from '../store/runtimeStore'
+import { useSettingsStore } from '../store/settingsStore'
 import { sendNotification, playSound } from '../lib/utils'
 import { useReminder } from './useReminder'
 import { useInterval } from './useInterval'
@@ -10,6 +11,9 @@ export const usePomodoroTimer = () => {
     pomodoroTimeLeft,
     pomodoroType,
     tickPomodoro,
+    showRestReminderPrompt,
+  } = useRuntimeStore()
+  const {
     restReminderEnabled,
     restReminderInterval,
     waterReminderEnabled,
@@ -22,8 +26,7 @@ export const usePomodoroTimer = () => {
     gazeReminderInterval,
     walkReminderEnabled,
     walkReminderInterval,
-    showRestReminderPrompt,
-  } = useStore()
+  } = useSettingsStore()
 
   // 主定时器：当休息提醒弹窗显示时暂停
   useInterval(tickPomodoro, 1000, isPomodoroRunning && !showRestReminderPrompt)

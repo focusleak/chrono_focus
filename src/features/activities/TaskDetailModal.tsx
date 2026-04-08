@@ -1,4 +1,4 @@
-import { useStore } from '../../store/store'
+import { useRuntimeStore } from '../../store/runtimeStore'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Progress } from '@/components/ui/progress'
@@ -13,7 +13,9 @@ interface TaskDetailModalProps {
 }
 
 const TaskDetailModal = ({ taskId, onClose }: TaskDetailModalProps) => {
-  const { tasks = [], toggleSubtask, completeTask } = useStore()
+  const tasks = useRuntimeStore.use.tasks()
+  const toggleSubtask = useRuntimeStore.use.toggleSubtask()
+  const completeTask = useRuntimeStore.use.completeTask()
 
   const task = tasks.find((t: any) => t.id === taskId)
   

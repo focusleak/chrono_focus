@@ -1,9 +1,12 @@
 import { Target, Coffee } from 'lucide-react'
 import { ItemSelector } from '../../components/common/ItemSelector'
-import { useStore } from '../../store/store'
+import { useRuntimeStore } from '../../store/runtimeStore'
 
 export const TaskSelector = () => {
-  const { tasks = [], currentPomodoroTaskId, setCurrentPomodoroTask, pomodoroType } = useStore()
+  const tasks = useRuntimeStore.use.tasks()
+  const currentPomodoroTaskId = useRuntimeStore.use.currentPomodoroTaskId()
+  const setCurrentPomodoroTask = useRuntimeStore.use.setCurrentPomodoroTask()
+  const pomodoroType = useRuntimeStore.use.pomodoroType()
   const isBreak = pomodoroType === 'shortBreak' || pomodoroType === 'longBreak'
 
   if (isBreak) {

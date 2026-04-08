@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { createSelectors } from './createSelectors'
 
 export type ThemeMode = 'light' | 'dark' | 'system'
 
@@ -60,7 +61,7 @@ export interface SettingsState {
 }
 
 
-export const useSettingsStore = create<SettingsState>()(
+export const useSettingsStore = createSelectors(create<SettingsState>()(
   persist(
     (set) => ({
       pomodoroTime: 25,
@@ -107,4 +108,4 @@ export const useSettingsStore = create<SettingsState>()(
       name: 'chrono-focus-settings',
     },
   ),
-)
+))

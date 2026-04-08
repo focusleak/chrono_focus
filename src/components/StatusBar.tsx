@@ -1,4 +1,5 @@
-import { useStore } from '../store/store'
+import { useRuntimeStore } from '../store/runtimeStore'
+import { useSettingsStore } from '../store/settingsStore'
 import { Play, Pause, Timer, Gamepad2, Droplets, Clock } from 'lucide-react'
 import { formatDuration } from '../lib/utils'
 
@@ -15,18 +16,20 @@ const StatusBar = () => {
     currentPomodoroTaskId,
     tasks = [],
     potatoTimeLeft,
-    dailyPotatoLimit,
     isPotatoRunning,
     waterCount,
-    dailyWaterGoal,
     restReminderTimeLeft,
     restReminderTotalTime,
-    restReminderEnabled,
     showRestReminderPrompt,
     restReminderPaused,
     toggleRestReminderPause,
     totalFocusTime,
-  } = useStore()
+  } = useRuntimeStore()
+  const {
+    dailyPotatoLimit,
+    dailyWaterGoal,
+    restReminderEnabled,
+  } = useSettingsStore()
 
   const currentTask = tasks.find((t: any) => t.id === currentPomodoroTaskId)
 

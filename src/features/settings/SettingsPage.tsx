@@ -1,4 +1,4 @@
-import { useStore } from '../../store/store'
+import { useSettingsStore } from '../../store/settingsStore'
 import type { ThemeMode } from '../../store/settingsStore'
 import { useSetAutoLaunch } from '../../hooks/useInitAutoLaunch'
 import { Button } from '../../components/ui/button'
@@ -20,7 +20,7 @@ const SettingsPage = () => {
     gazeReminderEnabled, gazeReminderInterval,
     walkReminderEnabled, walkReminderInterval,
     updateSettings
-  } = useStore()
+  } = useSettingsStore()
   const setAutoStartEnabled = useSetAutoLaunch()
 
   const themeOptions: { label: string; value: ThemeMode; icon: any }[] = [

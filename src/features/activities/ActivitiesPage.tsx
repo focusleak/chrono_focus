@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useStore } from '../../store/store'
+import { useRuntimeStore } from '../../store/runtimeStore'
 import type { ActivityType, Task } from '../../types'
 import { Button } from '@/components/ui/button'
 import { Plus, Briefcase, Gamepad2, Trash2 } from 'lucide-react'
@@ -12,7 +12,10 @@ import { EmptyState } from '../../components/common/EmptyState'
 import { toast } from '@/components/ui/toast'
 
 const ActivitiesPage = () => {
-  const { tasks = [], completeTask, deleteTask, reorderTasks } = useStore()
+  const tasks = useRuntimeStore.use.tasks()
+  const completeTask = useRuntimeStore.use.completeTask()
+  const deleteTask = useRuntimeStore.use.deleteTask()
+  const reorderTasks = useRuntimeStore.use.reorderTasks()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [viewingTask, setViewingTask] = useState<string | null>(null)

@@ -1,4 +1,5 @@
-import { useStore } from '../../store/store'
+import { useRuntimeStore } from '../../store/runtimeStore'
+import { useSettingsStore } from '../../store/settingsStore'
 import { ConfirmDialog } from '../../components/common/ConfirmDialog'
 import { PomodoroControls } from './PomodoroControls'
 import { TaskSelector } from './TaskSelector'
@@ -14,9 +15,11 @@ const PomodoroClock = () => {
     finishEarlyPomodoro,
     showPomodoroPotatoConflict,
     resolvePomodoroPotatoConflict,
+  } = useRuntimeStore()
+  const {
     pomodoroShortBreakTime,
     pomodoroLongBreakTime,
-  } = useStore()
+  } = useSettingsStore()
 
   const handleEarlyFinish = () => {
     stopPomodoro()
@@ -24,11 +27,11 @@ const PomodoroClock = () => {
   }
 
   const startBreak = () => {
-    const state = useStore.getState()
-    const { pomodoroBreakType, pomodoroShortBreakTime, pomodoroLongBreakTime } = state
+    const state = useRuntimeStore.getState()
+    const { pomodoroBreakType } = state
     if (pomodoroBreakType) {
       const breakTime = pomodoroBreakType === 'shortBreak' ? pomodoroShortBreakTime * 60 : pomodoroLongBreakTime * 60
-      useStore.setState({
+      useRuntimeStore.setState({
         pomodoroType: pomodoroBreakType,
         pomodoroTimeLeft: breakTime,
         currentPomodoroTime: breakTime,
