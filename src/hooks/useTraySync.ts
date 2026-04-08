@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useRuntimeStore } from '@/store/runtimeStore'
 import { useSettingsStore } from '@/store/settingsStore'
+import { PomodoroStatus } from '@/types'
 
 /**
  * 同步当前运行状态到托盘文字和菜单
@@ -8,7 +9,7 @@ import { useSettingsStore } from '@/store/settingsStore'
 export const useTraySync = () => {
   const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
   const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
-  const pomodoroType = useRuntimeStore.use.pomodoroType()
+  const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
   const pomodoroTimeLeft = useRuntimeStore.use.pomodoroTimeLeft()
   const potatoTimeLeft = useRuntimeStore.use.potatoTimeLeft()
   const showRestReminderPrompt = useRuntimeStore.use.showRestReminderPrompt()
@@ -25,14 +26,14 @@ export const useTraySync = () => {
       let menuState = 'idle'
 
       if (isPomodoroRunning) {
-        if (pomodoroType === 'pomodoro') {
+        if (pomodoroStatus === PomodoroStatus.Pomodoro) {
           const mins = Math.ceil(pomodoroTimeLeft / 60)
           text = `番茄钟-已专注 ${mins}分钟`
           menuState = 'pomodoro'
-        } else if (pomodoroType === 'shortBreak') {
+        } else if (pomodoroStatus === PomodoroStatus.ShortBreak) {
           text = '番茄钟-短休息中'
           menuState = 'shortBreak'
-        } else if (pomodoroType === 'longBreak') {
+        } else if (pomodoroStatus === PomodoroStatus.LongBreak) {
           text = '番茄钟-长休息中'
           menuState = 'longBreak'
         }
@@ -66,5 +67,5 @@ export const useTraySync = () => {
     }
 
     updateTray()
-  }, [isPomodoroRunning, isPotatoRunning, pomodoroType, pomodoroTimeLeft, potatoTimeLeft, restReminderEnabled, restReminderTimeLeft, restReminderTotalTime, showRestReminderPrompt, restReminderPaused])
+  }, [isPomodoroRunning, isPotatoRunning, pomodoroStatus, pomodoroTimeLeft, potatoTimeLeft, restReminderEnabled, restReminderTimeLeft, restReminderTotalTime, showRestReminderPrompt, restReminderPaused])
 }

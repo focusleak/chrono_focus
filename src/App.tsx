@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react'
-import { HashRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { useRuntimeStore } from '@/store/runtimeStore'
+import { PomodoroStatus } from '@/types'
 import { usePomodoroTimer } from '@/hooks/usePomodoroTimer'
 import { useInitAutoLaunch } from '@/hooks/useInitAutoLaunch'
 import { usePotatoTimer } from '@/hooks/usePotatoTimer'
@@ -39,7 +40,7 @@ const getActiveTab = (pathname: string): string => {
   return 'pomodoro'
 }
 
-function AppContent() {
+function App() {
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -52,7 +53,7 @@ function AppContent() {
   usePotatoTimer()
 
 
-  const pomodoroType = useRuntimeStore.use.pomodoroType()
+  const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
   const activeTab = getActiveTab(location.pathname)
   const isDev = import.meta.env.DEV
 
@@ -71,13 +72,13 @@ function AppContent() {
   const backgroundColor = useMemo(() => {
     if (activeTab === 'potato') return 'bg-[#FADFA1]'
     if (activeTab !== 'pomodoro') return 'bg-[#f5f5f7] dark:bg-[#0d0d0d]'
-    switch (pomodoroType) {
-      case 'pomodoro': return 'bg-[#ba4949]'
-      case 'shortBreak': return 'bg-[#38858a]'
-      case 'longBreak': return 'bg-[#2f6a95]'
+    switch (pomodoroStatus) {
+      case PomodoroStatus.Pomodoro: return 'bg-[#ba4949]'
+      case PomodoroStatus.ShortBreak: return 'bg-[#38858a]'
+      case PomodoroStatus.LongBreak: return 'bg-[#2f6a95]'
       default: return 'bg-[#ba4949]'
     }
-  }, [activeTab, pomodoroType])
+  }, [activeTab, pomodoroStatus])
 
   return (
     <div className={`min-h-screen transition-colors ${backgroundColor}`}>
@@ -85,17 +86,17 @@ function AppContent() {
         <div className="h-8 w-full shrink-0 absolute left-0 top-0 z-1" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties} />
 
         <div className="flex flex-1 min-h-0">
-          <div className="w-56 bg-white/20 backdrop-blur-xl shadow-lg flex flex-col pt-10">
-            <nav className="flex-1 px-3 ">
+          <div className="w-56 bg-white/20 backdrop-blur-xl  shadow-lg flex flex-col pt-10">
+            <nav className="flex-1 px-3 space-y-0.5">
               <NavItem label="番茄钟" isActive={activeTab === 'pomodoro'} onClick={() => handleNav('pomodoro')} />
               <NavItem label="土豆钟" isActive={activeTab === 'potato'} onClick={() => handleNav('potato')} />
             </nav>
 
             <nav className="px-3 space-y-0.5">
               <NavItem label="活动" isActive={activeTab === 'activities'} onClick={() => handleNav('activities')} />
-              {isDev && <NavItem label="测试" isActive={activeTab === 'test'} onClick={() => handleNav('test')} />}
               <NavItem label="统计" isActive={activeTab === 'stats'} onClick={() => handleNav('stats')} />
               <NavItem label="设置" isActive={activeTab === 'settings'} onClick={() => handleNav('settings')} />
+              {isDev && <NavItem label="测试" isActive={activeTab === 'test'} onClick={() => handleNav('test')} />}
             </nav>
           </div>
 
@@ -122,12 +123,6 @@ function AppContent() {
   )
 }
 
-function App() {
-  return (
-    <HashRouter>
-      <AppContent />
-    </HashRouter>
-  )
-}
+
 
 export default App

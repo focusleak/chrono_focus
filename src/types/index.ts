@@ -37,4 +37,8 @@ export interface PotatoActivity {
   createdAt: string
 }
 
-export type PomodoroType = 'pomodoro' | 'shortBreak' | 'longBreak'
+export enum PomodoroStatus {
+  Pomodoro = 'pomodoro',
+  ShortBreak = 'shortBreak',
+  LongBreak = 'longBreak',
+}

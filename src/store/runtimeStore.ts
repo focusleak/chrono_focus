@@ -3,7 +3,8 @@ import { persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { format } from 'date-fns'
 import { sendNotification } from '@/lib/utils'
-import type { Task, DailyStats, PotatoActivity, PomodoroType } from '@/types'
+import type { Task, DailyStats, PotatoActivity } from '@/types'
+import { PomodoroStatus } from '@/types'
 import { useSettingsStore } from '@/store/settingsStore'
 import { createSelectors } from '@/store/createSelectors'
 export interface RuntimeState {
@@ -14,12 +15,10 @@ export interface RuntimeState {
   pomodoroTimeLeft: number
   /** 番茄钟总时间（秒） */
   currentPomodoroTime: number
-  /** 当前番茄钟类型 */
-  pomodoroType: PomodoroType
+  /** 番茄钟当前状态 */
+  pomodoroStatus: PomodoroStatus
   /** 番茄钟休息已用时间（秒，正计时） */
   pomodoroBreakTimeLeft: number
-  /** 番茄钟当前休息类型 */
-  pomodoroBreakType: 'shortBreak' | 'longBreak' | null
   /** 番茄钟/土豆钟冲突提示 */
   showPomodoroPotatoConflict: 'pomodoro' | 'potato' | null
 
@@ -96,8 +95,8 @@ export interface RuntimeState {
   stopPomodoro: () => void
   /** 提前结束番茄钟 */
   finishEarlyPomodoro: () => void
-  /** 设置番茄钟类型 */
-  setPomodoroType: (type: PomodoroType) => void
+  /** 设置番茄钟状态 */
+  setPomodoroStatus: (status: PomodoroStatus) => void
   /** 番茄钟每秒滴答 */
   tickPomodoro: () => void
   /** 解决番茄钟/土豆钟冲突 */
@@ -194,9 +193,8 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
         isPomodoroRunning: false,
         pomodoroTimeLeft: initialPomodoroTime * 60,
         currentPomodoroTime: initialPomodoroTime * 60,
-        pomodoroType: 'pomodoro',
+        pomodoroStatus: PomodoroStatus.Pomodoro,
         pomodoroBreakTimeLeft: 0,
-        pomodoroBreakType: null,
         showPomodoroPotatoConflict: null,
 
         // ========== 土豆钟运行状态 ==========
@@ -249,11 +247,11 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
         pausePomodoro: () => set({ isPomodoroRunning: false }),
 
         resetPomodoro: () => {
-          const { pomodoroType } = get()
+          const { pomodoroStatus } = get()
           const settings = useSettingsStore.getState()
           let time = settings.pomodoroTime * 60
-          if (pomodoroType === 'shortBreak') time = settings.pomodoroShortBreakTime * 60
-          if (pomodoroType === 'longBreak') time = settings.pomodoroLongBreakTime * 60
+          if (pomodoroStatus === PomodoroStatus.ShortBreak) time = settings.pomodoroShortBreakTime * 60
+          if (pomodoroStatus === PomodoroStatus.LongBreak) time = settings.pomodoroLongBreakTime * 60
 
           const restTotal = settings.restReminderInterval * 60
           set({
@@ -270,9 +268,9 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
         },
 
         finishEarlyPomodoro: () => {
-          const { pomodoroType, currentPomodoroTaskId, tasks } = get()
+          const { pomodoroStatus, currentPomodoroTaskId, tasks } = get()
 
-          if (pomodoroType === 'pomodoro' && currentPomodoroTaskId) {
+          if (pomodoroStatus === PomodoroStatus.Pomodoro && currentPomodoroTaskId) {
             const updatedTasks = tasks.map(task =>
               task.id === currentPomodoroTaskId
                 ? { ...task, completedPomodoros: task.completedPomodoros + 1 }
@@ -284,14 +282,14 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
           }
         },
 
-        setPomodoroType: (type: PomodoroType) => {
+        setPomodoroStatus: (status: PomodoroStatus) => {
           const settings = useSettingsStore.getState()
           let time = settings.pomodoroTime * 60
-          if (type === 'shortBreak') time = settings.pomodoroShortBreakTime * 60
-          if (type === 'longBreak') time = settings.pomodoroLongBreakTime * 60
+          if (status === PomodoroStatus.ShortBreak) time = settings.pomodoroShortBreakTime * 60
+          if (status === PomodoroStatus.LongBreak) time = settings.pomodoroLongBreakTime * 60
 
           set({
-            pomodoroType: type,
+            pomodoroStatus: status,
             pomodoroTimeLeft: time,
             currentPomodoroTime: time,
             isPomodoroRunning: false
@@ -299,11 +297,11 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
         },
 
         tickPomodoro: () => {
-          const { pomodoroTimeLeft, pomodoroType, completedPomodoros, totalFocusTime, currentPomodoroTaskId, tasks, waterCount, dailyStats } = get()
+          const { pomodoroTimeLeft, pomodoroStatus, completedPomodoros, totalFocusTime, currentPomodoroTaskId, tasks, waterCount, dailyStats } = get()
           const settings = useSettingsStore.getState()
 
           if (pomodoroTimeLeft <= 0) {
-            if (pomodoroType === 'pomodoro') {
+            if (pomodoroStatus === PomodoroStatus.Pomodoro) {
               const updatedTasks = tasks.map(task =>
                 task.id === currentPomodoroTaskId
                   ? { ...task, completedPomodoros: task.completedPomodoros + 1 }
@@ -327,28 +325,26 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
                 }]
 
               const newCompletedPomodoros = completedPomodoros + 1
-              const theBreakType = newCompletedPomodoros % 4 === 0 ? 'longBreak' : 'shortBreak'
-              const breakTime = theBreakType === 'longBreak' ? settings.pomodoroLongBreakTime : settings.pomodoroShortBreakTime
+              const theBreakType = newCompletedPomodoros % 4 === 0 ? PomodoroStatus.LongBreak : PomodoroStatus.ShortBreak
+              const breakTime = theBreakType === PomodoroStatus.LongBreak ? settings.pomodoroLongBreakTime : settings.pomodoroShortBreakTime
 
               set({
                 completedPomodoros: newCompletedPomodoros,
                 totalFocusTime: totalFocusTime + settings.pomodoroTime,
                 tasks: updatedTasks,
                 dailyStats: newDailyStats,
-                pomodoroType: theBreakType,
+                pomodoroStatus: theBreakType,
                 pomodoroTimeLeft: breakTime * 60,
                 currentPomodoroTime: breakTime * 60,
                 isPomodoroRunning: false,
-                pomodoroBreakType: theBreakType,
               })
-            } else if (pomodoroType === 'shortBreak' || pomodoroType === 'longBreak') {
+            } else if (pomodoroStatus === PomodoroStatus.ShortBreak || pomodoroStatus === PomodoroStatus.LongBreak) {
               const pomTime = settings.pomodoroTime * 60
               set({
-                pomodoroType: 'pomodoro',
+                pomodoroStatus: PomodoroStatus.Pomodoro,
                 pomodoroTimeLeft: pomTime,
                 currentPomodoroTime: pomTime,
                 isPomodoroRunning: false,
-                pomodoroBreakType: null,
               })
             }
             return
@@ -530,10 +526,10 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
         },
 
         triggerPomodoroComplete: () => {
-          const { pomodoroType, completedPomodoros, totalFocusTime, currentPomodoroTaskId, tasks, waterCount, dailyStats } = get()
+          const { pomodoroStatus, completedPomodoros, totalFocusTime, currentPomodoroTaskId, tasks, waterCount, dailyStats } = get()
           const settings = useSettingsStore.getState()
 
-          if (pomodoroType === 'pomodoro') {
+          if (pomodoroStatus === PomodoroStatus.Pomodoro) {
             const updatedTasks = tasks.map(task =>
               task.id === currentPomodoroTaskId
                 ? { ...task, completedPomodoros: task.completedPomodoros + 1 }
@@ -545,20 +541,20 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
               ? dailyStats.map(s => s.date === today ? { ...s, pomodoros: s.pomodoros + 1, focusTime: s.focusTime + settings.pomodoroTime } : s)
               : [...dailyStats, { date: today, pomodoros: 1, focusTime: settings.pomodoroTime, waterCount, tasksCompleted: 0, potatoTime: 0 }]
             const newCompletedPomodoros = completedPomodoros + 1
-            const pomodoroBreakType = newCompletedPomodoros % 4 === 0 ? 'longBreak' : 'shortBreak'
-            const breakTime = pomodoroBreakType === 'longBreak' ? settings.pomodoroLongBreakTime : settings.pomodoroShortBreakTime
+            const pomodoroBreakType = newCompletedPomodoros % 4 === 0 ? PomodoroStatus.LongBreak : PomodoroStatus.ShortBreak
+            const breakTime = pomodoroBreakType === PomodoroStatus.LongBreak ? settings.pomodoroLongBreakTime : settings.pomodoroShortBreakTime
             set({
               completedPomodoros: newCompletedPomodoros,
               totalFocusTime: totalFocusTime + settings.pomodoroTime,
               tasks: updatedTasks,
               dailyStats: newDailyStats,
-              pomodoroType: pomodoroBreakType,
+              pomodoroStatus: pomodoroBreakType,
               pomodoroTimeLeft: breakTime * 60,
               currentPomodoroTime: breakTime * 60,
               isPomodoroRunning: false,
             })
           } else {
-            set({ pomodoroType: 'pomodoro', pomodoroTimeLeft: settings.pomodoroTime * 60, currentPomodoroTime: settings.pomodoroTime * 60, isPomodoroRunning: false })
+            set({ pomodoroStatus: PomodoroStatus.Pomodoro, pomodoroTimeLeft: settings.pomodoroTime * 60, currentPomodoroTime: settings.pomodoroTime * 60, isPomodoroRunning: false })
           }
         },
 

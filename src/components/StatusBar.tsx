@@ -4,6 +4,7 @@ import { Play, Pause, Timer, Gamepad2, Droplets, Clock } from 'lucide-react'
 import { formatDuration } from '@/lib/utils'
 
 import type { Task } from '@/types'
+import { PomodoroStatus } from '@/types'
 
 /**
  * 底部状态栏组件
@@ -13,7 +14,7 @@ const StatusBar = () => {
   const pomodoroTimeLeft = useRuntimeStore.use.pomodoroTimeLeft()
   const currentPomodoroTime = useRuntimeStore.use.currentPomodoroTime()
   const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
-  const pomodoroType = useRuntimeStore.use.pomodoroType()
+  const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
   const currentPomodoroTaskId = useRuntimeStore.use.currentPomodoroTaskId()
   const tasks = useRuntimeStore.use.tasks()
   const potatoTimeLeft = useRuntimeStore.use.potatoTimeLeft()
@@ -41,10 +42,10 @@ const StatusBar = () => {
     if (showRestReminderPrompt) return '休息提醒'
     if (isPotatoRunning) return '娱乐'
     if (isPomodoroRunning) {
-      switch (pomodoroType) {
-        case 'pomodoro': return '专注'
-        case 'shortBreak': return '短休息'
-        case 'longBreak': return '长休息'
+      switch (pomodoroStatus) {
+        case PomodoroStatus.Pomodoro: return '专注'
+        case PomodoroStatus.ShortBreak: return '短休息'
+        case PomodoroStatus.LongBreak: return '长休息'
       }
     }
     if (restReminderEnabled) return '休息提醒'
@@ -57,10 +58,10 @@ const StatusBar = () => {
     if (showRestReminderPrompt) return 'bg-orange-500'
     if (isPotatoRunning) return 'bg-yellow-500'
     if (isPomodoroRunning) {
-      switch (pomodoroType) {
-        case 'pomodoro': return 'bg-green-500'
-        case 'shortBreak': return 'bg-teal-500'
-        case 'longBreak': return 'bg-blue-500'
+      switch (pomodoroStatus) {
+        case PomodoroStatus.Pomodoro: return 'bg-green-500'
+        case PomodoroStatus.ShortBreak: return 'bg-teal-500'
+        case PomodoroStatus.LongBreak: return 'bg-blue-500'
       }
     }
     if (restReminderEnabled) return 'bg-blue-400'
@@ -135,7 +136,7 @@ const StatusBar = () => {
         )}
 
         {/* 当前任务 */}
-        {currentTask && isPomodoroRunning && pomodoroType === 'pomodoro' && (
+        {currentTask && isPomodoroRunning && pomodoroStatus === PomodoroStatus.Pomodoro && (
           <div className="flex items-center gap-1.5 min-w-0 truncate">
             <span className="text-white/40 shrink-0">|</span>
             <span className="text-white/80 truncate">{currentTask.title}</span>

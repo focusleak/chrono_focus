@@ -52,7 +52,7 @@ export const ItemSelector = ({
   activeClassName,
   placeholderClassName = 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300',
   selectedClassName = 'text-white/80 hover:text-white',
-  className,
+
   renderBadges,
 }: ItemSelectorProps) => {
   const [open, setOpen] = useState(false)
@@ -81,7 +81,7 @@ export const ItemSelector = ({
     }))
 
   return (
-    <div className={`relative ${className ?? ''}`}>
+    <>
       {currentItem ? (
         <button
           className={`inline-flex items-center gap-1.5 cursor-pointer transition-colors text-sm font-medium ${selectedClassName}`}
@@ -112,6 +112,6 @@ export const ItemSelector = ({
         emptyMessage={emptyMessage}
         activeClassName={activeClassName}
       />
-    </div>
+    </>
   )
 }

@@ -7,7 +7,7 @@ import { useRuntimeStore } from '@/store/runtimeStore'
 export const useTrayActions = () => {
   const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
   const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
-  const pomodoroType = useRuntimeStore.use.pomodoroType()
+  const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
   const pausePomodoro = useRuntimeStore.use.pausePomodoro()
   const startPomodoro = useRuntimeStore.use.startPomodoro()
   const resetPomodoro = useRuntimeStore.use.resetPomodoro()
@@ -21,7 +21,7 @@ export const useTrayActions = () => {
   const stateRef = useRef({
     isPomodoroRunning,
     isPotatoRunning,
-    pomodoroType,
+    pomodoroStatus,
     restReminderPaused,
     pausePomodoro,
     startPomodoro,
@@ -36,7 +36,7 @@ export const useTrayActions = () => {
     stateRef.current = {
       isPomodoroRunning,
       isPotatoRunning,
-      pomodoroType,
+      pomodoroStatus,
       restReminderPaused,
       pausePomodoro,
       startPomodoro,
@@ -46,7 +46,7 @@ export const useTrayActions = () => {
       resetPotato,
       toggleRestReminderPause,
     }
-  }, [isPomodoroRunning, isPotatoRunning, pomodoroType, restReminderPaused,
+  }, [isPomodoroRunning, isPotatoRunning, pomodoroStatus, restReminderPaused,
     pausePomodoro, startPomodoro, resetPomodoro,
     pausePotato, startPotato, resetPotato,
     toggleRestReminderPause])

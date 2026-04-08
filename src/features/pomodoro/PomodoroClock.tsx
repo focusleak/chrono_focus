@@ -1,74 +1,93 @@
-import { useRuntimeStore } from '@/store/runtimeStore'
-import { useSettingsStore } from '@/store/settingsStore'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
-import { PomodoroControls } from './PomodoroControls'
-import { TaskSelector } from './TaskSelector'
+
 import { formatDuration } from '@/lib/utils'
+
+import { Target, Coffee } from 'lucide-react'
+import { ItemSelector } from '@/components/common/ItemSelector'
+import { useState } from 'react'
+import { Play, Pause, RotateCcw, SkipForward } from 'lucide-react'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { useRuntimeStore } from '@/store/runtimeStore'
+import { TimerButton } from '@/components/common/TimerButton'
+import { PomodoroStatus } from '@/types'
+
+
+import type { Task } from '@/types'
 
 const PomodoroClock = () => {
   const pomodoroTimeLeft = useRuntimeStore.use.pomodoroTimeLeft()
-  const pomodoroBreakType = useRuntimeStore.use.pomodoroBreakType()
   const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
-  const pomodoroType = useRuntimeStore.use.pomodoroType()
+  const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
+
+
   const stopPomodoro = useRuntimeStore.use.stopPomodoro()
   const finishEarlyPomodoro = useRuntimeStore.use.finishEarlyPomodoro()
   const showPomodoroPotatoConflict = useRuntimeStore.use.showPomodoroPotatoConflict()
   const resolvePomodoroPotatoConflict = useRuntimeStore.use.resolvePomodoroPotatoConflict()
-  const pomodoroShortBreakTime = useSettingsStore.use.pomodoroShortBreakTime()
-  const pomodoroLongBreakTime = useSettingsStore.use.pomodoroLongBreakTime()
+
+  const startPomodoro = useRuntimeStore.use.startPomodoro()
+  const pausePomodoro = useRuntimeStore.use.pausePomodoro()
+  const resetPomodoro = useRuntimeStore.use.resetPomodoro()
+
+  const tasks = useRuntimeStore.use.tasks()
+  const currentPomodoroTaskId = useRuntimeStore.use.currentPomodoroTaskId()
+  const setCurrentPomodoroTask = useRuntimeStore.use.setCurrentPomodoroTask()
+
+  const isBreak = pomodoroStatus === PomodoroStatus.ShortBreak || pomodoroStatus === PomodoroStatus.LongBreak
 
   const handleEarlyFinish = () => {
     stopPomodoro()
     finishEarlyPomodoro()
   }
 
-  const startBreak = () => {
-    const state = useRuntimeStore.getState()
-    const { pomodoroBreakType } = state
-    if (pomodoroBreakType) {
-      const breakTime = pomodoroBreakType === 'shortBreak' ? pomodoroShortBreakTime * 60 : pomodoroLongBreakTime * 60
-      useRuntimeStore.setState({
-        pomodoroType: pomodoroBreakType,
-        pomodoroTimeLeft: breakTime,
-        currentPomodoroTime: breakTime,
-        pomodoroBreakType: pomodoroBreakType,
-        isPomodoroRunning: true,
-      })
-    }
-  }
 
-  const showBreakButton = pomodoroTimeLeft === 0 && pomodoroType === 'pomodoro' && pomodoroBreakType !== null
-  const displayTime = pomodoroTimeLeft
-  const breakLabel = pomodoroBreakType === 'longBreak' ? '长休息' : '短休息'
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
-      <div className="mb-10">
-        {showBreakButton && (
-          <div className="text-sm font-medium text-white/60 mb-4">
-            {breakLabel} 建议 {pomodoroBreakType === 'longBreak' ? pomodoroLongBreakTime : pomodoroShortBreakTime} 分钟
-          </div>
-        )}
-        <div
-          className="text-8xl font-semibold tracking-tight mb-6 font-mono text-white"
-          style={{ fontVariantNumeric: 'tabular-nums', textShadow: '0 2px 8px rgba(0,0,0,0.2)' }}
-        >
-          {formatDuration(displayTime)}
-        </div>
+      {/* 番茄钟时间 */}
+      <div
+        className="text-8xl font-semibold tracking-tight mb-6 font-mono text-white"
+        style={{ fontVariantNumeric: 'tabular-nums', textShadow: '0 2px 8px rgba(0,0,0,0.2)' }}
+      >
+        {formatDuration(pomodoroTimeLeft)}
       </div>
 
-      <TaskSelector />
+      {/* 中间 */}
+      {isBreak ?
+        <div className="flex items-center justify-center gap-2 text-white/70 text-sm">
+          <Coffee className="w-4 h-4" />
+          <span>休息一下</span>
+        </div> :
+        <ItemSelector
+          selectedId={currentPomodoroTaskId}
+          items={tasks.filter((t: Task) => t.type === 'task')}
+          onSelect={setCurrentPomodoroTask}
+          icon={Target}
+          dialogTitle="选择任务"
+          placeholder="选择任务"
+          emptyMessage="暂无可用任务"
+          activeClassName="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+          selectedClassName="text-white/80 hover:text-white"
+          placeholderClassName="text-white/60 hover:text-white/80"
+        />}
 
-      {showBreakButton && (
-        <div className="flex justify-center gap-3 mb-6">
-          <button onClick={startBreak} className="px-10 h-11 text-base font-medium rounded-xl border border-white/30 text-white hover:bg-white/10 transition-all duration-200 flex items-center backdrop-blur-sm">
-            开始休息
-          </button>
-        </div>
-      )}
+      {/* 按钮 */}
+      <div className='flex justify-center gap-3 mt-10'>
+        {!isPomodoroRunning ? (
+          <TimerButton icon={Play} label="开始" onClick={startPomodoro} />
+        ) : (
+          <TimerButton icon={Pause} label="暂停" onClick={pausePomodoro} />
+        )}
+        <TimerButton icon={RotateCcw} label="重置" onClick={resetPomodoro} />
 
-      {!isPomodoroRunning && !showBreakButton && <PomodoroControls onEarlyFinish={handleEarlyFinish} />}
 
+        {isPomodoroRunning && pomodoroStatus === PomodoroStatus.Pomodoro && (
+          <EarlyFinishConfirm onConfirm={handleEarlyFinish} />
+        )}
+      </div>
+
+
+      {/* 弹窗 */}
       <ConfirmDialog
         open={showPomodoroPotatoConflict === 'pomodoro'}
         onClose={() => resolvePomodoroPotatoConflict('potato')}
@@ -82,5 +101,42 @@ const PomodoroClock = () => {
     </div>
   )
 }
+
+
+const EarlyFinishConfirm = ({ onConfirm }: { onConfirm: () => void }) => {
+  const [showConfirm, setShowConfirm] = useState(false)
+
+  return (
+    <Popover open={showConfirm} onOpenChange={setShowConfirm}>
+      <PopoverTrigger asChild>
+        <TimerButton icon={SkipForward} label="提前结束" onClick={() => setShowConfirm(true)} />
+      </PopoverTrigger>
+      <PopoverContent className="w-80 rounded-xl border-gray-200 dark:border-gray-700 shadow-xl">
+        <div className="space-y-3">
+          <h4 className="font-semibold text-base">提前结束番茄钟</h4>
+          <p className="text-sm text-gray-600 dark:text-gray-400">确定要提前结束当前的番茄钟吗？</p>
+          <div className="flex gap-2 justify-end">
+            <button
+              onClick={() => setShowConfirm(false)}
+              className="px-4 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              取消
+            </button>
+            <button
+              onClick={() => {
+                setShowConfirm(false)
+                onConfirm()
+              }}
+              className="px-4 py-2 text-sm rounded-lg bg-gray-700 text-white hover:bg-gray-800 transition-colors"
+            >
+              确定
+            </button>
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 
 export default PomodoroClock
