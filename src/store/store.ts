@@ -3,7 +3,7 @@ import { useSettingsStore } from './settingsStore'
 
 export { useSettingsStore, useRuntimeStore }
 
-export type { SettingsState } from './settingsStore'
+export type { SettingsState, ThemeMode } from './settingsStore'
 export type { RuntimeState } from './runtimeStore'
 
 export type { ActivityType, SubTask, Task, DailyStats, PotatoActivity, PomodoroType } from '../types'
@@ -18,7 +18,7 @@ const createUnifiedStore = () => {
       }
       return runtimeResult
     }
-    
+
     const runtimeState = useRuntimeStore()
     const settingsState = useSettingsStore()
     return { ...runtimeState, ...settingsState }

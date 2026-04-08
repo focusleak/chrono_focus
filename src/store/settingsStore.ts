@@ -1,5 +1,7 @@
 import { create } from 'zustand'
-import { storage } from '../lib/storage'
+import { persist } from 'zustand/middleware'
+
+export type ThemeMode = 'light' | 'dark' | 'system'
 
 export interface SettingsState {
   /** 番茄钟时长（分钟） */
@@ -44,6 +46,8 @@ export interface SettingsState {
   dailyPotatoLimit: number
   /** 是否启用开机自启动 */
   autoStartEnabled: boolean
+  /** 主题模式 */
+  theme: ThemeMode
 
   /** 批量更新设置 */
   updateSettings: (settings: Partial<SettingsState>) => void
@@ -51,68 +55,56 @@ export interface SettingsState {
   setDailyPotatoLimit: (minutes: number) => void
   /** 设置开机自启动状态 */
   setAutoStartEnabled: (enabled: boolean) => void
+  /** 设置主题 */
+  setTheme: (theme: ThemeMode) => void
 }
 
-const SETTINGS_KEY = 'pomodoro-settings'
 
-const getInitialSettings = (): Partial<SettingsState> => {
-  const saved = storage.get<Partial<SettingsState>>(SETTINGS_KEY)
-  return saved || {}
-}
+export const useSettingsStore = create<SettingsState>()(
+  persist(
+    (set) => ({
+      pomodoroTime: 25,
+      pomodoroShortBreakTime: 5,
+      pomodoroLongBreakTime: 15,
+      restReminderEnabled: true,
+      restReminderInterval: 30,
+      restReminderNotification: true,
+      restBreakDuration: 5,
+      restReminderSkipInterval: 1,
+      waterReminderEnabled: true,
+      waterReminderInterval: 60,
+      dailyWaterGoal: 8,
+      standReminderEnabled: true,
+      standReminderInterval: 45,
+      stretchReminderEnabled: true,
+      stretchReminderInterval: 30,
+      gazeReminderEnabled: true,
+      gazeReminderInterval: 20,
+      walkReminderEnabled: true,
+      walkReminderInterval: 60,
+      dailyPotatoLimit: 60,
+      autoStartEnabled: false,
+      theme: 'system',
 
-const defaultSettings: SettingsState = {
-  pomodoroTime: 25,
-  pomodoroShortBreakTime: 5,
-  pomodoroLongBreakTime: 15,
-  restReminderEnabled: true,
-  restReminderInterval: 30,
-  restReminderNotification: true,
-  restBreakDuration: 5,
-  restReminderSkipInterval: 1,
-  waterReminderEnabled: true,
-  waterReminderInterval: 60,
-  dailyWaterGoal: 8,
-  standReminderEnabled: true,
-  standReminderInterval: 45,
-  stretchReminderEnabled: true,
-  stretchReminderInterval: 30,
-  gazeReminderEnabled: true,
-  gazeReminderInterval: 20,
-  walkReminderEnabled: true,
-  walkReminderInterval: 60,
-  dailyPotatoLimit: 60,
-  autoStartEnabled: false,
 
-  updateSettings: () => {},
-  setDailyPotatoLimit: () => {},
-  setAutoStartEnabled: () => {},
-}
+      updateSettings: (settings: Partial<SettingsState>) => {
+        set((state) => ({ ...state, ...settings }))
+      },
 
-export const useSettingsStore = create<SettingsState>((set, get) => {
-  const saved = getInitialSettings()
+      setDailyPotatoLimit: (minutes: number) => {
+        set({ dailyPotatoLimit: minutes })
+      },
 
-  return {
-    ...defaultSettings,
-    ...saved,
+      setAutoStartEnabled: (enabled: boolean) => {
+        set({ autoStartEnabled: enabled })
+      },
 
-    updateSettings: (settings: Partial<SettingsState>) => {
-      set((state) => {
-        const newState = { ...state, ...settings }
-        storage.set(SETTINGS_KEY, newState)
-        return newState
-      })
+      setTheme: (theme: ThemeMode) => {
+        set({ theme })
+      },
+    }),
+    {
+      name: 'pomodoro-settings',
     },
-
-    setDailyPotatoLimit: (minutes: number) => {
-      set({ dailyPotatoLimit: minutes })
-      const state = get()
-      storage.set(SETTINGS_KEY, state)
-    },
-
-    setAutoStartEnabled: (enabled: boolean) => {
-      set({ autoStartEnabled: enabled })
-      const state = get()
-      storage.set(SETTINGS_KEY, state)
-    },
-  }
-})
+  ),
+)

@@ -1,5 +1,5 @@
 import { useStore } from '../../store/store'
-import { useThemeStore, type ThemeMode } from '../../hooks/useThemeStore'
+import type { ThemeMode } from '../../store/settingsStore'
 import { useSetAutoLaunch } from '../../hooks/useInitAutoLaunch'
 import { Button } from '../../components/ui/button'
 import { Switch } from '../../components/ui/switch'
@@ -9,8 +9,7 @@ import { NumberInput } from '../../components/common/NumberInput'
 import { ReminderSettings } from '../../components/common/ReminderSettings'
 
 const SettingsPage = () => {
-  const { theme, setTheme } = useThemeStore()
-  const {
+  const { theme, setTheme,
     pomodoroTime, pomodoroShortBreakTime, pomodoroLongBreakTime,
     autoStartEnabled,
     dailyPotatoLimit, setDailyPotatoLimit,

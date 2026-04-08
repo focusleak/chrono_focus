@@ -1,7 +1,7 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { format } from 'date-fns'
 import { sendNotification } from '../lib/utils'
-import { storage } from '../lib/storage'
 import type { Task, DailyStats, PotatoActivity, PomodoroType } from '../types'
 import { useSettingsStore } from './settingsStore'
 
@@ -179,588 +179,597 @@ export interface RuntimeState {
   getTodayStats: () => DailyStats | null
 }
 
-const STORAGE_KEY = 'pomodoro-runtime'
-
-const getInitialRuntime = (): Partial<RuntimeState> => {
-  const saved = storage.get<Partial<RuntimeState>>(STORAGE_KEY)
-  if (!saved) return {}
-
-  const migratedTasks = (saved.tasks || []).map((t: any) => ({
-    type: 'task',
-    ...t
-  }))
-
-  return {
-    ...saved,
-    tasks: migratedTasks,
-  }
+/** 需要从 localStorage 持久化的字段 */
+interface PersistedRuntimeState {
+  tasks: Task[]
+  currentPomodoroTaskId: string | null
+  currentPotatoTaskId: string | null
+  dailyStats: DailyStats[]
+  potatoActivities: PotatoActivity[]
+  potatoTimeLeft: number
+  isPotatoRunning: boolean
+  completedPomodoros: number
+  totalFocusTime: number
+  waterCount: number
+  standReminderCount: number
+  gazeReminderCount: number
+  walkReminderCount: number
 }
 
-const saveRuntime = (state: RuntimeState) => {
-  storage.set(STORAGE_KEY, {
-    tasks: state.tasks,
-    currentPomodoroTaskId: state.currentPomodoroTaskId,
-    currentPotatoTaskId: state.currentPotatoTaskId,
-    dailyStats: state.dailyStats,
-    potatoActivities: state.potatoActivities,
-    potatoTimeLeft: state.potatoTimeLeft,
-    isPotatoRunning: state.isPotatoRunning,
-    completedPomodoros: state.completedPomodoros,
-    totalFocusTime: state.totalFocusTime,
-    waterCount: state.waterCount,
-    standReminderCount: state.standReminderCount,
-    gazeReminderCount: state.gazeReminderCount,
-    walkReminderCount: state.walkReminderCount,
-  })
+/** 持久化字段的默认初始值 */
+const defaultPersistedState: PersistedRuntimeState = {
+  tasks: [],
+  currentPomodoroTaskId: null,
+  currentPotatoTaskId: null,
+  dailyStats: [],
+  potatoActivities: [],
+  potatoTimeLeft: 0,
+  isPotatoRunning: false,
+  completedPomodoros: 0,
+  totalFocusTime: 0,
+  waterCount: 0,
+  standReminderCount: 0,
+  gazeReminderCount: 0,
+  walkReminderCount: 0,
 }
 
-export const useRuntimeStore = create<RuntimeState>((set, get) => {
-  const saved = getInitialRuntime()
-  const settings = useSettingsStore.getState()
-
-  const initialPomodoroTime = settings.pomodoroTime || 25
-  const initialPotatoLimit = settings.dailyPotatoLimit || 60
-  const initialRestInterval = settings.restReminderInterval || 30
-
-  return {
-    isPomodoroRunning: false,
-    pomodoroTimeLeft: initialPomodoroTime * 60,
-    currentPomodoroTime: initialPomodoroTime * 60,
-    pomodoroType: 'pomodoro',
-    pomodoroBreakTimeLeft: 0,
-    pomodoroBreakType: null,
-    showPomodoroPotatoConflict: null,
-
-    isPotatoRunning: false,
-    potatoTimeLeft: initialPotatoLimit * 60,
-
-    restReminderTimeLeft: initialRestInterval * 60,
-    restReminderTotalTime: initialRestInterval * 60,
-    showRestReminderPrompt: false,
-    restReminderSkipped: false,
-    restReminderSkipCount: 0,
-    restReminderPaused: false,
-    quizNum1: 0,
-    quizNum2: 0,
-    userAnswer: null,
-    showQuiz: false,
-    quizResult: null,
-    restBreakCount: 0,
-
-    waterCount: saved.waterCount ?? 0,
-    standReminderCount: saved.standReminderCount ?? 0,
-    gazeReminderCount: saved.gazeReminderCount ?? 0,
-    walkReminderCount: saved.walkReminderCount ?? 0,
-
-    completedPomodoros: saved.completedPomodoros ?? 0,
-    totalFocusTime: saved.totalFocusTime ?? 0,
-
-    tasks: saved.tasks || [],
-    currentPomodoroTaskId: saved.currentPomodoroTaskId || null,
-    currentPotatoTaskId: saved.currentPotatoTaskId || null,
-    dailyStats: saved.dailyStats || [],
-    potatoActivities: saved.potatoActivities || [],
-
-    startPomodoro: () => {
-      const { isPotatoRunning } = get()
-      if (isPotatoRunning) {
-        set({ showPomodoroPotatoConflict: 'pomodoro' })
-      } else {
-        set({ isPomodoroRunning: true })
-      }
-    },
-
-    pausePomodoro: () => set({ isPomodoroRunning: false }),
-
-    resetPomodoro: () => {
-      const { pomodoroType } = get()
+export const useRuntimeStore = create<RuntimeState>()(
+  persist(
+    (set, get) => {
       const settings = useSettingsStore.getState()
-      let time = settings.pomodoroTime * 60
-      if (pomodoroType === 'shortBreak') time = settings.pomodoroShortBreakTime * 60
-      if (pomodoroType === 'longBreak') time = settings.pomodoroLongBreakTime * 60
 
-      const restTotal = settings.restReminderInterval * 60
-      set({
+      const initialPomodoroTime = settings.pomodoroTime || 25
+      const initialPotatoLimit = settings.dailyPotatoLimit || 60
+      const initialRestInterval = settings.restReminderInterval || 30
+
+      return {
+        // ========== 番茄钟运行状态 ==========
         isPomodoroRunning: false,
-        pomodoroTimeLeft: time,
-        currentPomodoroTime: time,
-        restReminderTimeLeft: restTotal,
-        restReminderTotalTime: restTotal,
-      })
-    },
+        pomodoroTimeLeft: initialPomodoroTime * 60,
+        currentPomodoroTime: initialPomodoroTime * 60,
+        pomodoroType: 'pomodoro',
+        pomodoroBreakTimeLeft: 0,
+        pomodoroBreakType: null,
+        showPomodoroPotatoConflict: null,
 
-    stopPomodoro: () => {
-      set({ isPomodoroRunning: false })
-    },
+        // ========== 土豆钟运行状态 ==========
+        isPotatoRunning: false,
+        potatoTimeLeft: initialPotatoLimit * 60,
 
-    finishEarlyPomodoro: () => {
-      const { pomodoroType, currentPomodoroTaskId, tasks } = get()
+        // ========== 休息提醒运行状态 ==========
+        restReminderTimeLeft: initialRestInterval * 60,
+        restReminderTotalTime: initialRestInterval * 60,
+        showRestReminderPrompt: false,
+        restReminderSkipped: false,
+        restReminderSkipCount: 0,
+        restReminderPaused: false,
 
-      if (pomodoroType === 'pomodoro' && currentPomodoroTaskId) {
-        const updatedTasks = tasks.map(task =>
-          task.id === currentPomodoroTaskId
-            ? { ...task, completedPomodoros: task.completedPomodoros + 1 }
-            : task
-        )
-        set({ tasks: updatedTasks, isPomodoroRunning: false })
-        saveRuntime(get())
-      } else {
-        set({ isPomodoroRunning: false })
-      }
-    },
+        // ========== 乘法答题状态 ==========
+        quizNum1: 0,
+        quizNum2: 0,
+        userAnswer: null,
+        showQuiz: false,
+        quizResult: null,
+        restBreakCount: 0,
 
-    setPomodoroType: (type: PomodoroType) => {
-      const settings = useSettingsStore.getState()
-      let time = settings.pomodoroTime * 60
-      if (type === 'shortBreak') time = settings.pomodoroShortBreakTime * 60
-      if (type === 'longBreak') time = settings.pomodoroLongBreakTime * 60
+        // ========== 提醒计数 ==========
+        waterCount: 0,
+        standReminderCount: 0,
+        gazeReminderCount: 0,
+        walkReminderCount: 0,
 
-      set({
-        pomodoroType: type,
-        pomodoroTimeLeft: time,
-        currentPomodoroTime: time,
-        isPomodoroRunning: false
-      })
-    },
+        // ========== 统计数据 ==========
+        completedPomodoros: 0,
+        totalFocusTime: 0,
 
-    tickPomodoro: () => {
-      const { pomodoroTimeLeft, pomodoroType, completedPomodoros, totalFocusTime, currentPomodoroTaskId, tasks, waterCount, dailyStats } = get()
-      const settings = useSettingsStore.getState()
+        // ========== 任务管理 ==========
+        tasks: [],
+        currentPomodoroTaskId: null,
+        currentPotatoTaskId: null,
+        dailyStats: [],
+        potatoActivities: [],
 
-      if (pomodoroTimeLeft <= 0) {
-        if (pomodoroType === 'pomodoro') {
-          const updatedTasks = tasks.map(task =>
-            task.id === currentPomodoroTaskId
-              ? { ...task, completedPomodoros: task.completedPomodoros + 1 }
-              : task
-          )
+        // ========== 番茄钟方法 ==========
+        startPomodoro: () => {
+          const { isPotatoRunning } = get()
+          if (isPotatoRunning) {
+            set({ showPomodoroPotatoConflict: 'pomodoro' })
+          } else {
+            set({ isPomodoroRunning: true })
+          }
+        },
 
+        pausePomodoro: () => set({ isPomodoroRunning: false }),
+
+        resetPomodoro: () => {
+          const { pomodoroType } = get()
+          const settings = useSettingsStore.getState()
+          let time = settings.pomodoroTime * 60
+          if (pomodoroType === 'shortBreak') time = settings.pomodoroShortBreakTime * 60
+          if (pomodoroType === 'longBreak') time = settings.pomodoroLongBreakTime * 60
+
+          const restTotal = settings.restReminderInterval * 60
+          set({
+            isPomodoroRunning: false,
+            pomodoroTimeLeft: time,
+            currentPomodoroTime: time,
+            restReminderTimeLeft: restTotal,
+            restReminderTotalTime: restTotal,
+          })
+        },
+
+        stopPomodoro: () => {
+          set({ isPomodoroRunning: false })
+        },
+
+        finishEarlyPomodoro: () => {
+          const { pomodoroType, currentPomodoroTaskId, tasks } = get()
+
+          if (pomodoroType === 'pomodoro' && currentPomodoroTaskId) {
+            const updatedTasks = tasks.map(task =>
+              task.id === currentPomodoroTaskId
+                ? { ...task, completedPomodoros: task.completedPomodoros + 1 }
+                : task
+            )
+            set({ tasks: updatedTasks, isPomodoroRunning: false })
+          } else {
+            set({ isPomodoroRunning: false })
+          }
+        },
+
+        setPomodoroType: (type: PomodoroType) => {
+          const settings = useSettingsStore.getState()
+          let time = settings.pomodoroTime * 60
+          if (type === 'shortBreak') time = settings.pomodoroShortBreakTime * 60
+          if (type === 'longBreak') time = settings.pomodoroLongBreakTime * 60
+
+          set({
+            pomodoroType: type,
+            pomodoroTimeLeft: time,
+            currentPomodoroTime: time,
+            isPomodoroRunning: false
+          })
+        },
+
+        tickPomodoro: () => {
+          const { pomodoroTimeLeft, pomodoroType, completedPomodoros, totalFocusTime, currentPomodoroTaskId, tasks, waterCount, dailyStats } = get()
+          const settings = useSettingsStore.getState()
+
+          if (pomodoroTimeLeft <= 0) {
+            if (pomodoroType === 'pomodoro') {
+              const updatedTasks = tasks.map(task =>
+                task.id === currentPomodoroTaskId
+                  ? { ...task, completedPomodoros: task.completedPomodoros + 1 }
+                  : task
+              )
+
+              const today = format(new Date(), "yyyy-MM-dd")
+              const todayStats = dailyStats.find(s => s.date === today)
+              const newDailyStats = todayStats
+                ? dailyStats.map(s => s.date === today
+                    ? { ...s, pomodoros: s.pomodoros + 1, focusTime: s.focusTime + settings.pomodoroTime }
+                    : s
+                  )
+                : [...dailyStats, {
+                    date: today,
+                    pomodoros: 1,
+                    focusTime: settings.pomodoroTime,
+                    waterCount,
+                    tasksCompleted: 0,
+                    potatoTime: 0
+                  }]
+
+              const newCompletedPomodoros = completedPomodoros + 1
+              const theBreakType = newCompletedPomodoros % 4 === 0 ? 'longBreak' : 'shortBreak'
+              const breakTime = theBreakType === 'longBreak' ? settings.pomodoroLongBreakTime : settings.pomodoroShortBreakTime
+
+              set({
+                completedPomodoros: newCompletedPomodoros,
+                totalFocusTime: totalFocusTime + settings.pomodoroTime,
+                tasks: updatedTasks,
+                dailyStats: newDailyStats,
+                pomodoroType: theBreakType,
+                pomodoroTimeLeft: breakTime * 60,
+                currentPomodoroTime: breakTime * 60,
+                isPomodoroRunning: false,
+                pomodoroBreakType: theBreakType,
+              })
+            } else if (pomodoroType === 'shortBreak' || pomodoroType === 'longBreak') {
+              const pomTime = settings.pomodoroTime * 60
+              set({
+                pomodoroType: 'pomodoro',
+                pomodoroTimeLeft: pomTime,
+                currentPomodoroTime: pomTime,
+                isPomodoroRunning: false,
+                pomodoroBreakType: null,
+              })
+            }
+            return
+          }
+
+          set({ pomodoroTimeLeft: pomodoroTimeLeft - 1 })
+        },
+
+        resolvePomodoroPotatoConflict: (target: 'pomodoro' | 'potato') => {
+          const settings = useSettingsStore.getState()
+          const restTotal = settings.restReminderInterval * 60
+          set({ showPomodoroPotatoConflict: null })
+          if (target === 'pomodoro') {
+            set({ isPotatoRunning: false, isPomodoroRunning: true, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
+          } else {
+            set({ isPomodoroRunning: false, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
+            get().startPotato()
+          }
+        },
+
+        // ========== 土豆钟方法 ==========
+        startPotato: () => {
+          const settings = useSettingsStore.getState()
+          const { potatoTimeLeft } = get()
+          const startTime = potatoTimeLeft > 0 ? potatoTimeLeft : settings.dailyPotatoLimit * 60
+          const restTotal = settings.restReminderInterval * 60
+          set({ isPotatoRunning: true, potatoTimeLeft: startTime, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
+        },
+
+        pausePotato: () => set({ isPotatoRunning: false }),
+
+        resetPotato: () => {
+          const settings = useSettingsStore.getState()
+          set({ isPotatoRunning: false, potatoTimeLeft: settings.dailyPotatoLimit * 60 })
+        },
+
+        tickPotato: () => {
+          const { potatoTimeLeft, isPotatoRunning, dailyStats } = get()
+          if (!isPotatoRunning) return
+
+          const newTimeLeft = potatoTimeLeft - 1
+          set({ potatoTimeLeft: newTimeLeft })
+
+          if (newTimeLeft === 0) {
+            const today = format(new Date(), "yyyy-MM-dd")
+            const todayStats = dailyStats.find(s => s.date === today)
+            const newDailyStats = todayStats
+              ? dailyStats.map(s => s.date === today ? { ...s, potatoTime: s.potatoTime + 1 } : s)
+              : [...dailyStats, { date: today, pomodoros: 0, focusTime: 0, waterCount: 0, tasksCompleted: 0, potatoTime: 1 }]
+            set({ dailyStats: newDailyStats })
+            sendNotification('娱乐时间已用完', '已超过限制时间，现在是正计时。建议回去专注工作！')
+          }
+
+          if (newTimeLeft <= -1) {
+            const today = format(new Date(), "yyyy-MM-dd")
+            const todayStats = dailyStats.find(s => s.date === today)
+            const newDailyStats = todayStats
+              ? dailyStats.map(s => s.date === today ? { ...s, potatoTime: s.potatoTime + 1 } : s)
+              : [...dailyStats, { date: today, pomodoros: 0, focusTime: 0, waterCount: 0, tasksCompleted: 0, potatoTime: 1 }]
+            set({ dailyStats: newDailyStats })
+          }
+        },
+
+        addPotatoActivity: (activity) => {
+          const newActivity = {
+            ...activity,
+            id: Date.now().toString(),
+            createdAt: new Date().toISOString(),
+          }
+          set((state) => ({
+            potatoActivities: [...state.potatoActivities, newActivity],
+          }))
+        },
+
+        deletePotatoActivity: (id) => {
+          set((state) => ({
+            potatoActivities: state.potatoActivities.filter(a => a.id !== id),
+          }))
+        },
+
+        // ========== 休息提醒方法 ==========
+        startRestReminder: () => {
+          set((state) => {
+            if (state.restReminderTimeLeft <= 0) {
+              const settings = useSettingsStore.getState()
+              const total = settings.restReminderInterval * 60
+              return { restReminderTimeLeft: total, restReminderTotalTime: total }
+            }
+            return state
+          })
+        },
+
+        pauseRestReminder: () => {},
+
+        resetRestReminder: () => {
+          const settings = useSettingsStore.getState()
+          const total = settings.restReminderInterval * 60
+          set({ restReminderTimeLeft: total, restReminderTotalTime: total })
+        },
+
+        tickRestReminder: () => {
+          set((state) => {
+            if (state.restReminderTimeLeft > 0) {
+              return { restReminderTimeLeft: state.restReminderTimeLeft - 1 }
+            }
+            return { showRestReminderPrompt: true, restReminderTimeLeft: 0 }
+          })
+        },
+
+        setShowRestReminderPrompt: (show) => {
+          set({ showRestReminderPrompt: show })
+        },
+
+        generateQuiz: () => {
+          const num1 = Math.floor(Math.random() * 90) + 10
+          const num2 = Math.floor(Math.random() * 90) + 10
+          set({
+            showQuiz: true,
+            quizNum1: num1,
+            quizNum2: num2,
+            userAnswer: null,
+            quizResult: null,
+          })
+        },
+
+        checkQuizAnswer: (answer: string) => {
+          const { quizNum1, quizNum2 } = get()
+          const correct = quizNum1 * quizNum2
+          const userNum = parseInt(answer, 10)
+          const isCorrect = userNum === correct
+          set({
+            userAnswer: userNum,
+            quizResult: isCorrect ? 'correct' : 'wrong',
+          })
+          return isCorrect
+        },
+
+        nextRestBreak: () => {
+          const { restBreakCount } = get()
+          const newCount = restBreakCount >= 3 ? 0 : restBreakCount + 1
+          set({ restBreakCount: newCount })
+        },
+
+        closeQuizAndRestReminder: () => {
+          set({
+            showQuiz: false,
+            showRestReminderPrompt: false,
+            quizResult: null,
+            userAnswer: null,
+          })
+          get().resetRestReminder()
+        },
+
+        skipRestReminder: () => {
+          const settings = useSettingsStore.getState()
+          set({
+            restReminderSkipped: true,
+            restReminderSkipCount: (get().restReminderSkipCount || 0) + 1,
+            restReminderTimeLeft: settings.restReminderSkipInterval * 60,
+            restReminderTotalTime: settings.restReminderSkipInterval * 60,
+          })
+        },
+
+        resumeTimersAfterOverlay: () => {
+          const settings = useSettingsStore.getState()
+          const total = settings.restReminderInterval * 60
+          set({
+            showRestReminderPrompt: false,
+            restReminderSkipped: false,
+            restReminderPaused: false,
+            restReminderTimeLeft: total,
+            restReminderTotalTime: total,
+          })
+        },
+
+        triggerPomodoroComplete: () => {
+          const { pomodoroType, completedPomodoros, totalFocusTime, currentPomodoroTaskId, tasks, waterCount, dailyStats } = get()
+          const settings = useSettingsStore.getState()
+
+          if (pomodoroType === 'pomodoro') {
+            const updatedTasks = tasks.map(task =>
+              task.id === currentPomodoroTaskId
+                ? { ...task, completedPomodoros: task.completedPomodoros + 1 }
+                : task
+            )
+            const today = format(new Date(), "yyyy-MM-dd")
+            const todayStats = dailyStats.find(s => s.date === today)
+            const newDailyStats = todayStats
+              ? dailyStats.map(s => s.date === today ? { ...s, pomodoros: s.pomodoros + 1, focusTime: s.focusTime + settings.pomodoroTime } : s)
+              : [...dailyStats, { date: today, pomodoros: 1, focusTime: settings.pomodoroTime, waterCount, tasksCompleted: 0, potatoTime: 0 }]
+            const newCompletedPomodoros = completedPomodoros + 1
+            const pomodoroBreakType = newCompletedPomodoros % 4 === 0 ? 'longBreak' : 'shortBreak'
+            const breakTime = pomodoroBreakType === 'longBreak' ? settings.pomodoroLongBreakTime : settings.pomodoroShortBreakTime
+            set({
+              completedPomodoros: newCompletedPomodoros,
+              totalFocusTime: totalFocusTime + settings.pomodoroTime,
+              tasks: updatedTasks,
+              dailyStats: newDailyStats,
+              pomodoroType: pomodoroBreakType,
+              pomodoroTimeLeft: breakTime * 60,
+              currentPomodoroTime: breakTime * 60,
+              isPomodoroRunning: false,
+            })
+          } else {
+            set({ pomodoroType: 'pomodoro', pomodoroTimeLeft: settings.pomodoroTime * 60, currentPomodoroTime: settings.pomodoroTime * 60, isPomodoroRunning: false })
+          }
+        },
+
+        triggerPotatoComplete: () => {
           const today = format(new Date(), "yyyy-MM-dd")
+          const { dailyStats } = get()
+          const todayStatsItem = dailyStats.find(s => s.date === today)
+          const newDailyStats = todayStatsItem
+            ? dailyStats.map(s => s.date === today ? { ...s, potatoTime: s.potatoTime + 1 } : s)
+            : [...dailyStats, { date: today, pomodoros: 0, focusTime: 0, waterCount: 0, tasksCompleted: 0, potatoTime: 1 }]
+          set({ dailyStats: newDailyStats, potatoTimeLeft: -1, isPotatoRunning: false })
+          sendNotification('娱乐时间已用完', '已超过限制时间，现在是正计时。建议回去专注工作！')
+        },
+
+        triggerRestReminder: () => {
+          set({ showRestReminderPrompt: true })
+          sendNotification('休息提醒', '你已经工作一段时间了，记得休息一下哦！')
+        },
+
+        toggleRestReminderPause: () => {
+          set((state) => ({
+            restReminderPaused: !state.restReminderPaused,
+          }))
+        },
+
+        // ========== 任务管理方法 ==========
+        addTask: (task) => {
+          const newTask = {
+            ...task,
+            id: Date.now().toString(),
+            createdAt: new Date().toISOString(),
+            completedPomodoros: 0,
+            isCompleted: false,
+            isRecurring: task.isRecurring ?? false,
+            isSimple: task.isSimple ?? false,
+            order: Date.now(),
+          }
+          set((state) => ({
+            tasks: [...state.tasks, newTask],
+            currentPomodoroTaskId: newTask.id,
+          }))
+        },
+
+        updateTask: (id, updates) => {
+          set((state) => ({
+            tasks: state.tasks.map(task =>
+              task.id === id ? { ...task, ...updates } : task
+            ),
+          }))
+        },
+
+        reorderTasks: (orderedIds) => {
+          set((state) => ({
+            tasks: state.tasks.map(task => ({
+              ...task,
+              order: orderedIds.indexOf(task.id),
+            })),
+          }))
+        },
+
+        deleteTask: (id) => {
+          set((state) => ({
+            tasks: state.tasks.filter(task => task.id !== id),
+            currentPomodoroTaskId: state.currentPomodoroTaskId === id ? null : state.currentPomodoroTaskId,
+          }))
+        },
+
+        setCurrentPomodoroTask: (id) => {
+          set({ currentPomodoroTaskId: id })
+        },
+
+        setCurrentPotatoTask: (id) => {
+          set({ currentPotatoTaskId: id })
+        },
+
+        toggleSubtask: (taskId, subtaskId) => {
+          set((state) => ({
+            tasks: state.tasks.map(task =>
+              task.id === taskId
+                ? {
+                    ...task,
+                    subtasks: task.subtasks.map(st =>
+                      st.id === subtaskId ? { ...st, completed: !st.completed } : st
+                    ),
+                  }
+                : task
+            ),
+          }))
+        },
+
+        completeTask: (id) => {
+          set((state) => {
+            const task = state.tasks.find(t => t.id === id)
+            if (!task) return state
+
+            return {
+              tasks: task.isRecurring
+                ? state.tasks.map(t => t.id === id ? { ...t, subtasks: t.subtasks.map(st => ({ ...st, completed: false })) } : t)
+                : state.tasks.map(t => t.id === id ? { ...t, isCompleted: true } : t),
+            }
+          })
+        },
+
+        // ========== 统计方法 ==========
+        incrementWater: () => {
+          const { waterCount, dailyStats } = get()
+          const newWaterCount = waterCount + 1
+          const today = format(new Date(), "yyyy-MM-dd")
+
           const todayStats = dailyStats.find(s => s.date === today)
           const newDailyStats = todayStats
-            ? dailyStats.map(s => s.date === today
-                ? { ...s, pomodoros: s.pomodoros + 1, focusTime: s.focusTime + settings.pomodoroTime }
-                : s
-              )
+            ? dailyStats.map(s => s.date === today ? { ...s, waterCount: newWaterCount } : s)
             : [...dailyStats, {
                 date: today,
-                pomodoros: 1,
-                focusTime: settings.pomodoroTime,
-                waterCount,
+                pomodoros: 0,
+                focusTime: 0,
+                waterCount: newWaterCount,
                 tasksCompleted: 0,
                 potatoTime: 0
               }]
 
-          const newCompletedPomodoros = completedPomodoros + 1
-          const theBreakType = newCompletedPomodoros % 4 === 0 ? 'longBreak' : 'shortBreak'
-          const breakTime = theBreakType === 'longBreak' ? settings.pomodoroLongBreakTime : settings.pomodoroShortBreakTime
+          set({ waterCount: newWaterCount, dailyStats: newDailyStats })
+        },
 
+        resetDailyStats: () => {
           set({
-            completedPomodoros: newCompletedPomodoros,
-            totalFocusTime: totalFocusTime + settings.pomodoroTime,
-            tasks: updatedTasks,
-            dailyStats: newDailyStats,
-            pomodoroType: theBreakType,
-            pomodoroTimeLeft: breakTime * 60,
-            currentPomodoroTime: breakTime * 60,
-            isPomodoroRunning: false,
-            pomodoroBreakType: theBreakType,
+            waterCount: 0,
+            completedPomodoros: 0,
+            totalFocusTime: 0,
           })
-          saveRuntime(get())
-        } else if (pomodoroType === 'shortBreak' || pomodoroType === 'longBreak') {
-          const pomTime = settings.pomodoroTime * 60
-          set({
-            pomodoroType: 'pomodoro',
-            pomodoroTimeLeft: pomTime,
-            currentPomodoroTime: pomTime,
-            isPomodoroRunning: false,
-            pomodoroBreakType: null,
-          })
-        }
-        return
-      }
+        },
 
-      set({ pomodoroTimeLeft: pomodoroTimeLeft - 1 })
-    },
-
-    resolvePomodoroPotatoConflict: (target: 'pomodoro' | 'potato') => {
-      const settings = useSettingsStore.getState()
-      const restTotal = settings.restReminderInterval * 60
-      set({ showPomodoroPotatoConflict: null })
-      if (target === 'pomodoro') {
-        set({ isPotatoRunning: false, isPomodoroRunning: true, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
-      } else {
-        set({ isPomodoroRunning: false, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
-        get().startPotato()
-      }
-    },
-
-    startPotato: () => {
-      const settings = useSettingsStore.getState()
-      const { potatoTimeLeft } = get()
-      const startTime = potatoTimeLeft > 0 ? potatoTimeLeft : settings.dailyPotatoLimit * 60
-      const restTotal = settings.restReminderInterval * 60
-      set({ isPotatoRunning: true, potatoTimeLeft: startTime, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
-    },
-
-    pausePotato: () => set({ isPotatoRunning: false }),
-
-    resetPotato: () => {
-      const settings = useSettingsStore.getState()
-      set({ isPotatoRunning: false, potatoTimeLeft: settings.dailyPotatoLimit * 60 })
-    },
-
-    tickPotato: () => {
-      const { potatoTimeLeft, isPotatoRunning, dailyStats } = get()
-      if (!isPotatoRunning) return
-
-      const newTimeLeft = potatoTimeLeft - 1
-      set({ potatoTimeLeft: newTimeLeft })
-
-      if (newTimeLeft === 0) {
-        const today = format(new Date(), "yyyy-MM-dd")
-        const todayStats = dailyStats.find(s => s.date === today)
-        const newDailyStats = todayStats
-          ? dailyStats.map(s => s.date === today ? { ...s, potatoTime: s.potatoTime + 1 } : s)
-          : [...dailyStats, { date: today, pomodoros: 0, focusTime: 0, waterCount: 0, tasksCompleted: 0, potatoTime: 1 }]
-        set({ dailyStats: newDailyStats })
-        sendNotification('娱乐时间已用完', '已超过限制时间，现在是正计时。建议回去专注工作！')
-      }
-
-      if (newTimeLeft <= -1) {
-        const today = format(new Date(), "yyyy-MM-dd")
-        const todayStats = dailyStats.find(s => s.date === today)
-        const newDailyStats = todayStats
-          ? dailyStats.map(s => s.date === today ? { ...s, potatoTime: s.potatoTime + 1 } : s)
-          : [...dailyStats, { date: today, pomodoros: 0, focusTime: 0, waterCount: 0, tasksCompleted: 0, potatoTime: 1 }]
-        set({ dailyStats: newDailyStats })
-      }
-
-      saveRuntime(get())
-    },
-
-    addPotatoActivity: (activity) => {
-      const newActivity = {
-        ...activity,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString(),
-      }
-      set((state) => {
-        const newState = { potatoActivities: [...state.potatoActivities, newActivity] }
-        saveRuntime({ ...state, ...newState })
-        return newState
-      })
-    },
-
-    deletePotatoActivity: (id) => {
-      set((state) => {
-        const newState = { potatoActivities: state.potatoActivities.filter(a => a.id !== id) }
-        saveRuntime({ ...state, ...newState })
-        return newState
-      })
-    },
-
-    startRestReminder: () => {
-      set((state) => {
-        if (state.restReminderTimeLeft <= 0) {
-          const settings = useSettingsStore.getState()
-          const total = settings.restReminderInterval * 60
-          return { restReminderTimeLeft: total, restReminderTotalTime: total }
-        }
-        return state
-      })
-    },
-
-    pauseRestReminder: () => {},
-
-    resetRestReminder: () => {
-      const settings = useSettingsStore.getState()
-      const total = settings.restReminderInterval * 60
-      set({ restReminderTimeLeft: total, restReminderTotalTime: total })
-    },
-
-    tickRestReminder: () => {
-      set((state) => {
-        if (state.restReminderTimeLeft > 0) {
-          return { restReminderTimeLeft: state.restReminderTimeLeft - 1 }
-        }
-        return { showRestReminderPrompt: true, restReminderTimeLeft: 0 }
-      })
-    },
-
-    setShowRestReminderPrompt: (show) => {
-      set({ showRestReminderPrompt: show })
-    },
-
-    generateQuiz: () => {
-      const num1 = Math.floor(Math.random() * 90) + 10
-      const num2 = Math.floor(Math.random() * 90) + 10
-      set({
-        showQuiz: true,
-        quizNum1: num1,
-        quizNum2: num2,
-        userAnswer: null,
-        quizResult: null,
-      })
-    },
-
-    checkQuizAnswer: (answer: string) => {
-      const { quizNum1, quizNum2 } = get()
-      const correct = quizNum1 * quizNum2
-      const userNum = parseInt(answer, 10)
-      const isCorrect = userNum === correct
-      set({
-        userAnswer: userNum,
-        quizResult: isCorrect ? 'correct' : 'wrong',
-      })
-      return isCorrect
-    },
-
-    nextRestBreak: () => {
-      const { restBreakCount } = get()
-      const newCount = restBreakCount >= 3 ? 0 : restBreakCount + 1
-      set({ restBreakCount: newCount })
-    },
-
-    closeQuizAndRestReminder: () => {
-      set({
-        showQuiz: false,
-        showRestReminderPrompt: false,
-        quizResult: null,
-        userAnswer: null,
-      })
-      get().resetRestReminder()
-    },
-
-    skipRestReminder: () => {
-      const settings = useSettingsStore.getState()
-      set({
-        restReminderSkipped: true,
-        restReminderSkipCount: (get().restReminderSkipCount || 0) + 1,
-        restReminderTimeLeft: settings.restReminderSkipInterval * 60,
-        restReminderTotalTime: settings.restReminderSkipInterval * 60,
-      })
-    },
-
-    resumeTimersAfterOverlay: () => {
-      const settings = useSettingsStore.getState()
-      const total = settings.restReminderInterval * 60
-      set({
-        showRestReminderPrompt: false,
-        restReminderSkipped: false,
-        restReminderPaused: false,
-        restReminderTimeLeft: total,
-        restReminderTotalTime: total,
-      })
-    },
-
-    triggerPomodoroComplete: () => {
-      const { pomodoroType, completedPomodoros, totalFocusTime, currentPomodoroTaskId, tasks, waterCount, dailyStats } = get()
-      const settings = useSettingsStore.getState()
-
-      if (pomodoroType === 'pomodoro') {
-        const updatedTasks = tasks.map(task =>
-          task.id === currentPomodoroTaskId
-            ? { ...task, completedPomodoros: task.completedPomodoros + 1 }
-            : task
-        )
-        const today = format(new Date(), "yyyy-MM-dd")
-        const todayStats = dailyStats.find(s => s.date === today)
-        const newDailyStats = todayStats
-          ? dailyStats.map(s => s.date === today ? { ...s, pomodoros: s.pomodoros + 1, focusTime: s.focusTime + settings.pomodoroTime } : s)
-          : [...dailyStats, { date: today, pomodoros: 1, focusTime: settings.pomodoroTime, waterCount, tasksCompleted: 0, potatoTime: 0 }]
-        const newCompletedPomodoros = completedPomodoros + 1
-        const pomodoroBreakType = newCompletedPomodoros % 4 === 0 ? 'longBreak' : 'shortBreak'
-        const breakTime = pomodoroBreakType === 'longBreak' ? settings.pomodoroLongBreakTime : settings.pomodoroShortBreakTime
-        set({
-          completedPomodoros: newCompletedPomodoros,
-          totalFocusTime: totalFocusTime + settings.pomodoroTime,
-          tasks: updatedTasks,
-          dailyStats: newDailyStats,
-          pomodoroType: pomodoroBreakType,
-          pomodoroTimeLeft: breakTime * 60,
-          currentPomodoroTime: breakTime * 60,
-          isPomodoroRunning: false,
-        })
-        saveRuntime(get())
-      } else {
-        set({ pomodoroType: 'pomodoro', pomodoroTimeLeft: settings.pomodoroTime * 60, currentPomodoroTime: settings.pomodoroTime * 60, isPomodoroRunning: false })
-      }
-    },
-
-    triggerPotatoComplete: () => {
-      const today = format(new Date(), "yyyy-MM-dd")
-      const { dailyStats } = get()
-      const todayStatsItem = dailyStats.find(s => s.date === today)
-      const newDailyStats = todayStatsItem
-        ? dailyStats.map(s => s.date === today ? { ...s, potatoTime: s.potatoTime + 1 } : s)
-        : [...dailyStats, { date: today, pomodoros: 0, focusTime: 0, waterCount: 0, tasksCompleted: 0, potatoTime: 1 }]
-      set({ dailyStats: newDailyStats, potatoTimeLeft: -1, isPotatoRunning: false })
-      sendNotification('娱乐时间已用完', '已超过限制时间，现在是正计时。建议回去专注工作！')
-    },
-
-    triggerRestReminder: () => {
-      set({ showRestReminderPrompt: true })
-      sendNotification('休息提醒', '你已经工作一段时间了，记得休息一下哦！')
-    },
-
-    toggleRestReminderPause: () => {
-      set((state) => {
-        const newState = { restReminderPaused: !state.restReminderPaused }
-        saveRuntime({ ...state, ...newState })
-        return newState
-      })
-    },
-
-    addTask: (task) => {
-      const newTask = {
-        ...task,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString(),
-        completedPomodoros: 0,
-        isCompleted: false,
-        isRecurring: task.isRecurring ?? false,
-        isSimple: task.isSimple ?? false,
-        order: Date.now(),
-      }
-      set((state) => {
-        const newState = {
-          tasks: [...state.tasks, newTask],
-          currentPomodoroTaskId: newTask.id
-        }
-        saveRuntime({ ...state, ...newState })
-        return newState
-      })
-    },
-
-    updateTask: (id, updates) => {
-      set((state) => {
-        const newState = {
-          tasks: state.tasks.map(task =>
-            task.id === id ? { ...task, ...updates } : task
-          )
-        }
-        saveRuntime({ ...state, ...newState })
-        return newState
-      })
-    },
-
-    reorderTasks: (orderedIds) => {
-      set((state) => {
-        const newState = {
-          tasks: state.tasks.map(task => ({
-            ...task,
-            order: orderedIds.indexOf(task.id),
+        addDailyStats: (stats) => {
+          set((state) => ({
+            dailyStats: [...state.dailyStats, stats],
           }))
+        },
+
+        getDailyStats: (days) => {
+          const { dailyStats } = get()
+          const cutoffDate = new Date()
+          cutoffDate.setDate(cutoffDate.getDate() - days)
+          return dailyStats.filter(s => new Date(s.date) >= cutoffDate)
+        },
+
+        getTodayStats: () => {
+          const { dailyStats } = get()
+          const today = format(new Date(), "yyyy-MM-dd")
+          return dailyStats.find(s => s.date === today) || null
+        },
+      }
+    },
+    {
+      name: 'pomodoro-runtime',
+      /** 只持久化需要保存的字段 */
+      partialize: (state) => ({
+        tasks: state.tasks,
+        currentPomodoroTaskId: state.currentPomodoroTaskId,
+        currentPotatoTaskId: state.currentPotatoTaskId,
+        dailyStats: state.dailyStats,
+        potatoActivities: state.potatoActivities,
+        potatoTimeLeft: state.potatoTimeLeft,
+        isPotatoRunning: state.isPotatoRunning,
+        completedPomodoros: state.completedPomodoros,
+        totalFocusTime: state.totalFocusTime,
+        waterCount: state.waterCount,
+        standReminderCount: state.standReminderCount,
+        gazeReminderCount: state.gazeReminderCount,
+        walkReminderCount: state.walkReminderCount,
+      }),
+      /** 数据迁移：确保旧数据中的任务都有 type: 'task' */
+      migrate: (persistedState: any): PersistedRuntimeState => {
+        const migratedTasks = (persistedState?.tasks || []).map((t: any) => ({
+          type: 'task',
+          ...t,
+        }))
+
+        return {
+          ...defaultPersistedState,
+          ...persistedState,
+          tasks: migratedTasks,
         }
-        saveRuntime({ ...state, ...newState })
-        return newState
-      })
+      },
     },
-
-    deleteTask: (id) => {
-      set((state) => {
-        const newState = {
-          tasks: state.tasks.filter(task => task.id !== id),
-          currentPomodoroTaskId: state.currentPomodoroTaskId === id ? null : state.currentPomodoroTaskId
-        }
-        saveRuntime({ ...state, ...newState })
-        return newState
-      })
-    },
-
-    setCurrentPomodoroTask: (id) => {
-      set({ currentPomodoroTaskId: id })
-    },
-
-    setCurrentPotatoTask: (id) => {
-      set((state) => {
-        const newState = { ...state, currentPotatoTaskId: id }
-        saveRuntime(newState)
-        return newState
-      })
-    },
-
-    toggleSubtask: (taskId, subtaskId) => {
-      set((state) => {
-        const newState = {
-          tasks: state.tasks.map(task =>
-            task.id === taskId
-              ? {
-                  ...task,
-                  subtasks: task.subtasks.map(st =>
-                    st.id === subtaskId ? { ...st, completed: !st.completed } : st
-                  )
-                }
-              : task
-          )
-        }
-        saveRuntime({ ...state, ...newState })
-        return newState
-      })
-    },
-
-    completeTask: (id) => {
-      set((state) => {
-        const task = state.tasks.find(t => t.id === id)
-        if (!task) return state
-
-        const newState = {
-          tasks: task.isRecurring
-            ? state.tasks.map(t => t.id === id ? { ...t, subtasks: t.subtasks.map(st => ({ ...st, completed: false })) } : t)
-            : state.tasks.map(t => t.id === id ? { ...t, isCompleted: true } : t)
-        }
-        saveRuntime({ ...state, ...newState })
-        return newState
-      })
-    },
-
-    incrementWater: () => {
-      const { waterCount, dailyStats } = get()
-      const newWaterCount = waterCount + 1
-      const today = format(new Date(), "yyyy-MM-dd")
-
-      const todayStats = dailyStats.find(s => s.date === today)
-      const newDailyStats = todayStats
-        ? dailyStats.map(s => s.date === today ? { ...s, waterCount: newWaterCount } : s)
-        : [...dailyStats, {
-            date: today,
-            pomodoros: 0,
-            focusTime: 0,
-            waterCount: newWaterCount,
-            tasksCompleted: 0,
-            potatoTime: 0
-          }]
-
-      set({ waterCount: newWaterCount, dailyStats: newDailyStats })
-      saveRuntime(get())
-    },
-
-    resetDailyStats: () => {
-      set({
-        waterCount: 0,
-        completedPomodoros: 0,
-        totalFocusTime: 0
-      })
-    },
-
-    addDailyStats: (stats) => {
-      set((state) => ({
-        dailyStats: [...state.dailyStats, stats]
-      }))
-    },
-
-    getDailyStats: (days) => {
-      const { dailyStats } = get()
-      const cutoffDate = new Date()
-      cutoffDate.setDate(cutoffDate.getDate() - days)
-      return dailyStats.filter(s => new Date(s.date) >= cutoffDate)
-    },
-
-    getTodayStats: () => {
-      const { dailyStats } = get()
-      const today = format(new Date(), "yyyy-MM-dd")
-      return dailyStats.find(s => s.date === today) || null
-    },
-  }
-})
+  ),
+)

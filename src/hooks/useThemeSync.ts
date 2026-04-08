@@ -1,9 +1,8 @@
 import { useEffect } from 'react'
-import { useThemeStore } from '@/hooks/useThemeStore'
-import { storage } from '../lib/storage'
+import { useSettingsStore } from '@/store/settingsStore'
 
 export const useThemeSync = () => {
-  const { theme, setTheme } = useThemeStore()
+  const { theme, setTheme } = useSettingsStore()
 
   useEffect(() => {
     const root = document.documentElement
@@ -36,9 +35,7 @@ export const useThemeSync = () => {
       mediaQuery.addEventListener('change', handleChange)
       return () => mediaQuery.removeEventListener('change', handleChange)
     }
-
-    storage.set('theme-mode', theme)
-  }, [theme])
+  }, [theme, setTheme])
 
   return { theme, setTheme }
 }
