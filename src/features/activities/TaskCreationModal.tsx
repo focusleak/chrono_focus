@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Plus, Trash2, Lightbulb, Briefcase, Gamepad2 } from 'lucide-react'
 
+import { cn } from '@/lib/utils'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -156,11 +157,12 @@ const TaskCreationModal = ({ open, onClose, initialTask }: TaskCreationModalProp
                 <button
                   type="button"
                   onClick={() => setActivityType('task')}
-                  className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                  className={cn(
+                    'flex-1 flex items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all',
                     activityType === 'task'
                       ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
                       : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2c2c2e]'
-                  }`}
+                  )}
                 >
                   <Briefcase className="w-5 h-5" />
                   <div className="text-left">
@@ -171,11 +173,12 @@ const TaskCreationModal = ({ open, onClose, initialTask }: TaskCreationModalProp
                 <button
                   type="button"
                   onClick={() => setActivityType('entertainment')}
-                  className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                  className={cn(
+                    'flex-1 flex items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all',
                     activityType === 'entertainment'
                       ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400'
                       : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2c2c2e]'
-                  }`}
+                  )}
                 >
                   <Gamepad2 className="w-5 h-5" />
                   <div className="text-left">

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Gamepad2, Play, Pause, RotateCcw } from 'lucide-react'
 
-import { formatDuration } from '@/lib/utils'
+import { cn, formatDuration } from '@/lib/utils'
 
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { ItemSelector } from '@/components/ItemSelector'
@@ -44,11 +44,12 @@ const PatataPage = () => {
 
       {/* 土豆钟时间 - 正计时显示 */}
       <div
-        className={`text-8xl font-mono font-semibold mb-6 transition-colors duration-300 ${
+        className={cn(
+          'text-8xl font-mono font-semibold mb-6 transition-colors duration-300',
           isOvertime
             ? 'text-red-500 dark:text-red-400'
             : 'text-gray-900 dark:text-gray-100'
-        }`}
+        )}
         style={{ fontVariantNumeric: 'tabular-nums', textShadow: '0 2px 8px rgba(0,0,0,0.2)' }}
       >
         {formatDuration(patataElapsedTime)}

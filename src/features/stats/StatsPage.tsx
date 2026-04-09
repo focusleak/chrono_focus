@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Flame, Clock, CheckSquare, Eye, Footprints, Droplets, Target, TrendingUp, Plus, Minus, PersonStanding, Gamepad2, Timer } from 'lucide-react'
 
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
 import { useRuntimeStore } from '@/store/runtimeStore'
@@ -365,13 +366,14 @@ const StatsPage = () => {
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+              className={cn(
+                'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap',
                 selectedCategory === cat.id
                   ? 'bg-black/10 dark:bg-white/10 text-gray-900 dark:text-gray-100 shadow-sm'
                   : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2c2c2e]'
-              }`}
+              )}
             >
-              <Icon className={`w-4 h-4 ${cat.color}`} />
+              <Icon className={cn('w-4 h-4', cat.color)} />
               {cat.label}
             </button>
           )

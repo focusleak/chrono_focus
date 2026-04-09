@@ -17,6 +17,8 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
+import { cn } from '@/lib/utils'
+
 /** 拖拽手柄 Props，合并到可拖拽元素的 attributes 和 listeners */
 export interface DragHandleProps {
   /** 拖拽属性（无障碍访问） */
@@ -151,7 +153,7 @@ export function SortableList<T extends { id: string }>({
         items={items.map(t => t.id)}
         strategy={verticalListSortingStrategy}
       >
-        <div className={gapClassName}>
+        <div className={cn(gapClassName)}>
           {items.map((item, index) => (
             <SortableItem
               key={item.id}

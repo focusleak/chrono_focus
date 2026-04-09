@@ -1,5 +1,6 @@
 import { Sun, Moon, Monitor, Play, Palette, Clock, Gamepad2, Droplets, Footprints, StretchHorizontal, Eye, PersonStanding, RotateCcw } from 'lucide-react'
 
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { SettingRow } from '@/components/SettingRow'
@@ -95,11 +96,12 @@ const SettingsPage = () => {
                   key={option.value}
                   variant={theme === option.value ? 'default' : 'ghost'}
                   size="sm"
-                  className={`h-8 px-3 text-xs rounded-md transition-all ${
+                  className={cn(
+                    'h-8 px-3 text-xs rounded-md transition-all',
                     theme === option.value
                       ? 'bg-black/10 text-gray-900 dark:bg-white/10 dark:text-gray-100 shadow-sm hover:bg-black/15 dark:hover:bg-white/15'
                       : 'hover:bg-gray-100 dark:hover:bg-[#404042] text-gray-700 dark:text-gray-300'
-                  }`}
+                  )}
                   onClick={() => setTheme(option.value)}
                 >
                   <Icon className="w-3.5 h-3.5 mr-1.5" />

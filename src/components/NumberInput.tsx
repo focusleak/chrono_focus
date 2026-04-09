@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 
+import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 
 interface NumberInputProps {
@@ -66,7 +67,7 @@ export const NumberInput = ({
         onChange={(e) => setInputValue(e.target.value)}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
-        className={className}
+        className={cn(className)}
       />
       {showSeconds && (
         <span className="text-xs text-gray-400 dark:text-gray-500 w-16 shrink-0">

@@ -1,6 +1,8 @@
 import { useState, ReactNode } from 'react'
 import { ChevronRight, Repeat } from 'lucide-react'
 
+import { cn } from '@/lib/utils'
+
 import { ItemSelectorDialog } from './ItemSelectorDialog'
 
 interface SelectorItem {
@@ -85,7 +87,7 @@ export const ItemSelector = ({
     <>
       {currentItem ? (
         <button
-          className={`inline-flex items-center gap-1.5 cursor-pointer transition-colors text-sm font-medium ${selectedClassName}`}
+          className={cn('inline-flex items-center gap-1.5 cursor-pointer transition-colors text-sm font-medium', selectedClassName)}
           onClick={() => setOpen(true)}
         >
           <Icon className="w-4 h-4" />
@@ -94,7 +96,7 @@ export const ItemSelector = ({
         </button>
       ) : (
         <button
-          className={`inline-flex items-center gap-1.5 cursor-pointer transition-colors text-sm font-medium ${placeholderClassName}`}
+          className={cn('inline-flex items-center gap-1.5 cursor-pointer transition-colors text-sm font-medium', placeholderClassName)}
           onClick={() => setOpen(true)}
         >
           <Icon className="w-4 h-4" />

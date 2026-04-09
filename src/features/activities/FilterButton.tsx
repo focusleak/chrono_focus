@@ -1,5 +1,7 @@
 import type { ActivityType } from '@/types'
 
+import { cn } from '@/lib/utils'
+
 interface FilterButtonProps {
   label: string
   type: ActivityType | 'all'
@@ -23,7 +25,7 @@ const BASE_CLASS = 'px-3 py-1.5 rounded-lg text-sm font-medium transition-all'
 
 const FilterButton = ({ label, type, activeType, onClick, icon: IconComponent }: FilterButtonProps) => {
   const isActive = activeType === type
-  const className = `${BASE_CLASS} ${isActive ? getActiveClassName(type) : INACTIVE_CLASS}`
+  const className = cn(BASE_CLASS, isActive ? getActiveClassName(type) : INACTIVE_CLASS)
 
   return (
     <button onClick={() => onClick(type)} className={className}>

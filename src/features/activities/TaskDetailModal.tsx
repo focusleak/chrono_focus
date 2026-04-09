@@ -1,5 +1,6 @@
 import { CheckCircle } from 'lucide-react'
 
+import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -71,11 +72,12 @@ const TaskDetailModal = ({ taskId, onClose }: TaskDetailModalProps) => {
             {task.subtasks.map((subtask: SubTask) => (
               <div
                 key={subtask.id}
-                className={`p-3 rounded-xl transition-all ${
+                className={cn(
+                  'p-3 rounded-xl transition-all',
                   subtask.completed
                     ? 'bg-green-50 dark:bg-green-900/20'
                     : 'bg-gray-50 dark:bg-[#2c2c2e] hover:bg-gray-100 dark:hover:bg-[#3a3a3c]'
-                }`}
+                )}
               >
                 <div className="flex items-center gap-3">
                   <Checkbox

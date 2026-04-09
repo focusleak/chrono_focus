@@ -1,6 +1,6 @@
 import { Play, Pause, Timer, Gamepad2, Droplets, Clock } from 'lucide-react'
 
-import { formatDuration } from '@/lib/utils'
+import { cn, formatDuration } from '@/lib/utils'
 
 import { PomodoroStatus } from '@/types'
 
@@ -119,7 +119,11 @@ const StatusBar = () => {
           <div className="flex shrink-0 items-center gap-1.5">
             <Clock className="h-4 w-4 text-white" />
             <span
-              className={`inline-block h-1.5 w-1.5 rounded-full ${getDotColor()} ${isActive ? 'animate-pulse' : ''}`}
+              className={cn(
+                'inline-block h-1.5 w-1.5 rounded-full',
+                getDotColor(),
+                isActive && 'animate-pulse'
+              )}
             />
             <span className="font-medium text-white/90">{getActiveLabel()}</span>
           </div>

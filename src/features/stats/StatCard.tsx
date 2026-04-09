@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 
+import { cn } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 
 interface StatCardProps {
@@ -26,8 +27,8 @@ export const StatCard = ({
       <CardContent className="pt-5 pb-4">
         <div className="text-center">
           <div className="flex justify-center mb-3">
-            <div className={`w-10 h-10 rounded-full ${bgColor} flex items-center justify-center`}>
-              <Icon className={`w-5 h-5 ${iconColor}`} />
+            <div className={cn('w-10 h-10 rounded-full', bgColor, 'flex items-center justify-center')}>
+              <Icon className={cn('w-5 h-5', iconColor)} />
             </div>
           </div>
           <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{value}</div>
@@ -66,10 +67,10 @@ export const StatSection = ({
   children,
 }: StatSectionProps) => {
   return (
-    <div className={`rounded-xl p-6 border ${bgColor} ${borderColor}`}>
+    <div className={cn('rounded-xl p-6 border', bgColor, borderColor)}>
       <div className="flex items-center gap-3 mb-4">
-        <div className={`w-10 h-10 rounded-full ${bgColor} flex items-center justify-center`}>
-          <Icon className={`w-5 h-5 ${iconColor}`} />
+        <div className={cn('w-10 h-10 rounded-full', bgColor, 'flex items-center justify-center')}>
+          <Icon className={cn('w-5 h-5', iconColor)} />
         </div>
         <div>
           <h4 className="font-semibold text-gray-900 dark:text-gray-100">{title}</h4>

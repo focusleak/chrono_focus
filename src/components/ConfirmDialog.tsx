@@ -1,6 +1,8 @@
 import { AlertTriangle } from 'lucide-react'
 import type { ReactNode } from 'react'
 
+import { cn } from '@/lib/utils'
+
 interface ConfirmDialogProps {
   open: boolean
   onClose: () => void
@@ -43,7 +45,7 @@ export const ConfirmDialog = ({
           </button>
           <button
             onClick={onConfirm}
-            className={`flex-1 px-4 py-2 rounded-xl font-medium transition-colors ${confirmClassName}`}
+            className={cn('flex-1 px-4 py-2 rounded-xl font-medium transition-colors', confirmClassName)}
           >
             {confirmLabel}
           </button>

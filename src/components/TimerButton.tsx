@@ -1,6 +1,8 @@
 import { forwardRef } from 'react'
 import type { LucideIcon } from 'lucide-react'
 
+import { cn } from '@/lib/utils'
+
 interface TimerButtonProps {
   icon: LucideIcon
   label: string
@@ -19,7 +21,7 @@ export const TimerButton = forwardRef<HTMLButtonElement, TimerButtonProps>(
     const variantStyle = variantStyles[variant]
 
     return (
-      <button ref={ref} onClick={onClick} className={`${baseStyle} ${variantStyle}`}>
+      <button ref={ref} onClick={onClick} className={cn(baseStyle, variantStyle)}>
         <Icon className="w-4 h-4 mr-2" />
         {label}
       </button>

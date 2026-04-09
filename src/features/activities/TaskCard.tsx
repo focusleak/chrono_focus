@@ -1,5 +1,6 @@
 import { GripVertical, Briefcase, Gamepad2, Edit, Trash2, CheckCircle, Repeat } from 'lucide-react'
 
+import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
@@ -25,7 +26,7 @@ const TaskCard = ({ task, drag, onEdit, onComplete, onView, onDelete }: TaskCard
   const progress = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0
 
   return (
-    <div className={`p-4 rounded-xl bg-gray-50 dark:bg-[#2c2c2e] border border-gray-200 dark:border-gray-700 transition-opacity ${drag.isDragging ? 'opacity-50' : 'opacity-100'}`}>
+    <div className={cn('p-4 rounded-xl bg-gray-50 dark:bg-[#2c2c2e] border border-gray-200 dark:border-gray-700 transition-opacity', drag.isDragging ? 'opacity-50' : 'opacity-100')}>
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
@@ -42,7 +43,10 @@ const TaskCard = ({ task, drag, onEdit, onComplete, onView, onDelete }: TaskCard
               <Gamepad2 className="w-4 h-4 text-purple-500 flex-shrink-0" />
             )}
             <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">{task.title}</h4>
-            <Badge className={`${task.type === 'task' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'} text-xs font-medium px-2 py-0.5 border-0`}>
+            <Badge className={cn(
+              task.type === 'task' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+              'text-xs font-medium px-2 py-0.5 border-0'
+            )}>
               {task.type === 'task' ? '任务' : '娱乐'}
             </Badge>
             {task.isRecurring && (

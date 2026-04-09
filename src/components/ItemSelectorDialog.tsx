@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 
+import { cn } from '@/lib/utils'
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 interface ItemSelectorDialogProps {
@@ -46,9 +48,10 @@ export const ItemSelectorDialog = ({
                 <button
                   key={item.id}
                   onClick={() => onSelect(item.id)}
-                  className={`w-full text-left p-3 rounded-lg transition-colors ${
+                  className={cn(
+                    'w-full text-left p-3 rounded-lg transition-colors',
                     item.id === selectedId ? activeClassName : inactiveClassName
-                  }`}
+                  )}
                 >
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-medium">{item.label}</span>

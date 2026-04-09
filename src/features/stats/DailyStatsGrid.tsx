@@ -16,6 +16,7 @@ import {
 } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Segmented } from '@/components/ui/segmented'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -230,9 +231,13 @@ const DailyStatsGrid = ({ title = '每日统计' }: DailyStatsGridProps) => {
                     <Tooltip key={date}>
                       <TooltipTrigger asChild>
                         <div
-                          className={`${cellSize} rounded-sm ${colorClass} cursor-pointer hover:ring-2 hover:ring-gray-400 transition-all ${
-                            isCurrentDay ? 'ring-2 ring-blue-500' : ''
-                          }`}
+                          className={cn(
+                            cellSize,
+                            'rounded-sm',
+                            colorClass,
+                            'cursor-pointer hover:ring-2 hover:ring-gray-400 transition-all',
+                            isCurrentDay && 'ring-2 ring-blue-500'
+                          )}
                         />
                       </TooltipTrigger>
                       <TooltipContent>
@@ -253,12 +258,12 @@ const DailyStatsGrid = ({ title = '每日统计' }: DailyStatsGridProps) => {
 
           <div className="flex items-center gap-2 mt-4 text-xs text-gray-600 dark:text-gray-400">
             <span>少</span>
-            <div className={`${cellSize} bg-gray-100 dark:bg-gray-800 rounded-sm`} />
-            <div className={`${cellSize} bg-red-200 dark:bg-red-900/40 rounded-sm`} />
-            <div className={`${cellSize} bg-red-300 dark:bg-red-800/50 rounded-sm`} />
-            <div className={`${cellSize} bg-red-400 dark:bg-red-700/60 rounded-sm`} />
-            <div className={`${cellSize} bg-red-500 dark:bg-red-600/70 rounded-sm`} />
-            <div className={`${cellSize} bg-red-600 dark:bg-red-500/80 rounded-sm`} />
+            <div className={cn(cellSize, 'bg-gray-100 dark:bg-gray-800 rounded-sm')} />
+            <div className={cn(cellSize, 'bg-red-200 dark:bg-red-900/40 rounded-sm')} />
+            <div className={cn(cellSize, 'bg-red-300 dark:bg-red-800/50 rounded-sm')} />
+            <div className={cn(cellSize, 'bg-red-400 dark:bg-red-700/60 rounded-sm')} />
+            <div className={cn(cellSize, 'bg-red-500 dark:bg-red-600/70 rounded-sm')} />
+            <div className={cn(cellSize, 'bg-red-600 dark:bg-red-500/80 rounded-sm')} />
             <span>多</span>
           </div>
         </div>

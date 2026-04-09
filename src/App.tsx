@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 
-import { requestNotificationPermission } from '@/lib/utils'
+import { cn, requestNotificationPermission } from '@/lib/utils'
 
 import StatusBar from '@/features/statusbar/StatusBar'
 import Sidebar from '@/features/sidebar/Sidebar'
@@ -122,7 +122,7 @@ function App() {
   }, [activeTab, pomodoroStatus])
 
   return (
-    <div className={`min-h-screen transition-colors ${backgroundColor}`}>
+    <div className={cn('min-h-screen transition-colors', backgroundColor)}>
       <div className="flex flex-col h-screen">
         <div className="h-8 w-full shrink-0 absolute left-0 top-0 z-1" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties} />
 
