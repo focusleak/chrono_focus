@@ -3,8 +3,13 @@ import { persist } from 'zustand/middleware'
 
 import { createSelectors } from '@/store/createSelectors'
 
+/** 主题模式类型 */
 export type ThemeMode = 'light' | 'dark' | 'system'
 
+/**
+ * 设置状态接口
+ * 管理应用的所有用户配置和偏好设置
+ */
 export interface SettingsState {
   /** 番茄钟时长（分钟） */
   pomodoroTime: number
@@ -53,11 +58,9 @@ export interface SettingsState {
 
   /** 批量更新设置 */
   updateSettings: (settings: Partial<SettingsState>) => void
-  /** 设置每日娱乐时间限制 */
-  setDailyPotatoLimit: (minutes: number) => void
   /** 设置开机自启动状态 */
   setAutoStartEnabled: (enabled: boolean) => void
-  /** 设置主题 */
+  /** 设置主题模式 */
   setTheme: (theme: ThemeMode) => void
 }
 
@@ -91,10 +94,6 @@ export const useSettingsStore = createSelectors(create<SettingsState>()(
 
       updateSettings: (settings: Partial<SettingsState>) => {
         set((state) => ({ ...state, ...settings }))
-      },
-
-      setDailyPotatoLimit: (minutes: number) => {
-        set({ dailyPotatoLimit: minutes })
       },
 
       setAutoStartEnabled: (enabled: boolean) => {

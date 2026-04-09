@@ -2,7 +2,21 @@ import { useEffect, useRef } from 'react'
 import { useRuntimeStore } from '@/store/runtimeStore'
 
 /**
- * 监听托盘动作并执行对应操作
+ * 系统托盘动作监听 Hook
+ * 
+ * 监听来自系统托盘的交互动作（点击、暂停、重置等）
+ * 并执行对应的番茄钟/土豆钟/休息提醒操作
+ * 使用 ref 避免闭包捕获过期状态值
+ * 
+ * @returns void
+ * 
+ * @example
+ * ```tsx
+ * function App() {
+ *   useTrayActions()
+ *   // ... 其他组件
+ * }
+ * ```
  */
 export const useTrayActions = () => {
   const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()

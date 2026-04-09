@@ -19,7 +19,7 @@ const SettingsPage = () => {
   const pomodoroLongBreakTime = useSettingsStore.use.pomodoroLongBreakTime()
   const autoStartEnabled = useSettingsStore.use.autoStartEnabled()
   const dailyPotatoLimit = useSettingsStore.use.dailyPotatoLimit()
-  const setDailyPotatoLimit = useSettingsStore.use.setDailyPotatoLimit()
+  const updateSettings = useSettingsStore.use.updateSettings()
   const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
   const restReminderInterval = useSettingsStore.use.restReminderInterval()
   const restReminderNotification = useSettingsStore.use.restReminderNotification()
@@ -36,7 +36,6 @@ const SettingsPage = () => {
   const gazeReminderInterval = useSettingsStore.use.gazeReminderInterval()
   const walkReminderEnabled = useSettingsStore.use.walkReminderEnabled()
   const walkReminderInterval = useSettingsStore.use.walkReminderInterval()
-  const updateSettings = useSettingsStore.use.updateSettings()
   const setAutoStartEnabled = useSetAutoLaunch()
   const resetPotato = useRuntimeStore.use.resetPotato()
   const resetRestReminder = useRuntimeStore.use.resetRestReminder()
@@ -165,7 +164,7 @@ const SettingsPage = () => {
               min={0.1}
               max={240}
               showSeconds
-              onSave={setDailyPotatoLimit}
+              onSave={(value) => updateSettings({ dailyPotatoLimit: value })}
               className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
             />
           </SettingRow>

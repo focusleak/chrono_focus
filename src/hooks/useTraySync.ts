@@ -6,7 +6,20 @@ import { useSettingsStore } from '@/store/settingsStore'
 import { PomodoroStatus } from '@/types'
 
 /**
- * 同步当前运行状态到托盘文字和菜单
+ * 系统托盘状态同步 Hook
+ * 
+ * 将应用当前运行状态同步到系统托盘的显示文字和菜单
+ * 包括番茄钟/土豆钟进度、休息提醒状态等
+ * 
+ * @returns void
+ * 
+ * @example
+ * ```tsx
+ * function App() {
+ *   useTraySync()
+ *   // ... 其他组件
+ * }
+ * ```
  */
 export const useTraySync = () => {
   const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()

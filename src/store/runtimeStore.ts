@@ -10,6 +10,12 @@ import { createSelectors } from '@/store/createSelectors'
 
 import type { Task, DailyStats, PotatoActivity } from '@/types'
 import { PomodoroStatus } from '@/types'
+
+/**
+ * 运行时状态接口
+ * 管理应用的所有运行时状态，包括计时器、任务、统计数据等
+ * 使用 Zustand + Immer + Persist 进行状态管理
+ */
 export interface RuntimeState {
   // ========== 番茄钟运行状态 ==========
   /** 番茄钟是否运行中 */

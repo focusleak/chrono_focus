@@ -1,6 +1,6 @@
 import { useInterval } from './useInterval'
 
-import { sendNotification, playSound } from '@/lib/utils'
+import { sendNotification } from '@/lib/utils'
 
 /**
  * 通用提醒 Hook
@@ -20,7 +20,7 @@ export const useReminder = (
   useInterval(
     () => {
       sendNotification(title, body)
-      playSound('remind')
+      // playSound('remind')
     },
     intervalMinutes * 60 * 1000,
     enabled && condition,

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { sendNotification, playSound } from '@/lib/utils'
+import { sendNotification } from '@/lib/utils'
 
 import { useRuntimeStore } from '@/store/runtimeStore'
 import { useSettingsStore } from '@/store/settingsStore'
@@ -69,7 +69,7 @@ export const useRestReminder = () => {
       setShowRestReminderPrompt(true)
       if (restReminderNotification) {
         sendNotification('休息提醒', '你已经工作一段时间了，记得休息一下哦！')
-        playSound('remind')
+        // playSound('remind')
       }
     }
   }, [restReminderTimeLeft, shouldRun, showRestReminderPrompt, restReminderNotification, setShowRestReminderPrompt])
