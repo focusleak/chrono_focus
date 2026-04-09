@@ -15,16 +15,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getAutoLaunchStatus: () =>
     ipcRenderer.invoke('get-auto-launch'),
 
-  // 遮罩管理
-  showRestReminderOverlay: (config) =>
-    ipcRenderer.invoke('show-rest-reminder-overlay', config),
-
-  showQuizOverlay: (config) =>
-    ipcRenderer.invoke('show-quiz-overlay', config),
-
-  closeOverlay: () =>
-    ipcRenderer.invoke('close-overlay'),
-
   // 系统托盘
   updateTrayText: (text) =>
     ipcRenderer.invoke('update-tray-text', { text }),
@@ -39,9 +29,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return () => ipcRenderer.removeListener('tray-action', handler)
   },
 
-  onOverlayAction: (callback) =>
-    ipcRenderer.on('overlay-action', (_event, action) => callback(action)),
+  // FullScreenOverlay
+  fullscreenOverlay: {
+    show: (config) =>
+      ipcRenderer.invoke('fullscreen-overlay:show', config),
 
-  onOverlayClosed: (callback) =>
-    ipcRenderer.on('overlay-closed', () => callback()),
+    close: () =>
+      ipcRenderer.invoke('fullscreen-overlay:close'),
+
+    onAction: (callback) => {
+      const handler = (_event, action) => callback(action)
+      ipcRenderer.on('fullscreen-overlay:action', handler)
+      return () => ipcRenderer.removeListener('fullscreen-overlay:action', handler)
+    },
+  },
 })

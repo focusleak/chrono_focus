@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 
 import { requestNotificationPermission } from '@/lib/utils'
 
-import { BrowserOverlay } from '@/components/BrowserOverlay'
+import FullScreenOverlay from '@/components/FullScreenOverlay'
 import RestReminderOverlay from '@/components/RestReminderOverlay'
 import StatusBar from '@/components/StatusBar'
 import { NavItem } from '@/components/common/NavItem'
@@ -178,7 +178,7 @@ function App() {
         <StatusBar />
       </div>
       <RestReminderOverlay />
-      <BrowserOverlay />
+      <FullScreenOverlay />
       <ToastContainer />
     </div>
   )

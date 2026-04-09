@@ -1,12 +1,12 @@
 import { sendNotification } from '@/lib/utils'
 
-import { useOverlay } from '@/hooks/common/useOverlay'
+import { useFullScreenOverlay } from '@/hooks/useFullScreenOverlay'
 import { useRuntimeStore } from '@/store/runtimeStore'
 
 import { PomodoroStatus } from '@/types'
 
 const TestPage = () => {
-  const { isOpen, error, show, hide } = useOverlay()
+  const { show, onAction } = useFullScreenOverlay()
   const setPomodoroStatus = useRuntimeStore.use.setPomodoroStatus()
   const resetRestReminder = useRuntimeStore.use.resetRestReminder()
   const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
@@ -15,6 +15,106 @@ const TestPage = () => {
   const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
   const potatoTimeLeft = useRuntimeStore.use.potatoTimeLeft()
   const restReminderTimeLeft = useRuntimeStore.use.restReminderTimeLeft()
+
+  const handleTestFullScreenOverlay = () => {
+    show({
+      content: `
+        <div style="text-align: center; padding: 40px; background: rgba(255,255,255,0.95); border-radius: 16px; max-width: 400px;">
+          <h1 style="font-size: 24px; margin-bottom: 16px; color: #111827;">测试全屏遮罩</h1>
+          <p style="color: #6b7280; margin-bottom: 24px;">这是一个通用的全屏遮罩测试</p>
+          <button id="closeBtn" style="padding: 12px 32px; border: none; border-radius: 8px; background: #3b82f6; color: white; cursor: pointer; font-size: 14px;">
+            关闭遮罩
+          </button>
+        </div>
+        <script>
+          document.getElementById('closeBtn').addEventListener('click', () => {
+            window.overlayAPI?.close()
+            window.overlayAPI?.notify('closed')
+          })
+        </script>
+      `,
+    })
+  }
+
+  const handleTestRestOverlay = () => {
+    show({
+      content: `
+        <div style="text-align: center; max-width: 448px; padding: 40px; background: rgba(255,255,255,0.95); border-radius: 16px;">
+          <h2 style="font-size: 20px; font-weight: 600; color: #111827; margin-bottom: 16px;">休息提醒测试</h2>
+          <p style="color: #6b7280; margin-bottom: 24px;">你已经工作了一段时间，记得休息一下哦</p>
+          <button id="skipBtn" style="width: 100%; padding: 12px; border: none; border-radius: 8px; background: #f3f4f6; color: #374151; cursor: pointer;">
+            跳过
+          </button>
+        </div>
+        <script>
+          document.getElementById('skipBtn').addEventListener('click', () => {
+            window.overlayAPI?.close()
+            window.overlayAPI?.notify('skip')
+          })
+        </script>
+      `,
+    })
+  }
+
+  const handleTestQuizOverlay = () => {
+    show({
+      content: `
+        <div style="text-align: center; max-width: 384px; padding: 40px; background: rgba(255,255,255,0.95); border-radius: 16px;">
+          <h2 style="font-size: 20px; font-weight: 600; color: #111827; margin-bottom: 24px;">答题测试</h2>
+          <div style="font-size: 36px; font-weight: bold; font-family: monospace; color: #111827; margin-bottom: 24px;">
+            12 × 34 = ?
+          </div>
+          <input id="answerInput" type="number" style="width: 100%; padding: 12px; font-size: 24px; text-align: center; border: 2px solid #d1d5db; border-radius: 8px; margin-bottom: 16px;" placeholder="输入答案" />
+          <div id="resultArea" style="margin-bottom: 16px; min-height: 24px;"></div>
+          <button id="submitBtn" style="width: 100%; padding: 12px; border: none; border-radius: 8px; background: #3b82f6; color: white; cursor: pointer;">
+            提交答案
+          </button>
+        </div>
+        <script>
+          const correctAnswer = 408
+          const inputEl = document.getElementById('answerInput')
+          const submitBtn = document.getElementById('submitBtn')
+          const resultArea = document.getElementById('resultArea')
+          
+          inputEl.focus()
+          
+          function submitAnswer() {
+            const val = inputEl.value.trim()
+            if (!val) return
+            const userAnswer = parseInt(val, 10)
+            const isCorrect = userAnswer === correctAnswer
+            
+            inputEl.disabled = true
+            submitBtn.disabled = true
+            
+            if (isCorrect) {
+              resultArea.innerHTML = '<div style="color: #16a34a;">✓ 回答正确！</div>'
+              setTimeout(() => window.overlayAPI?.notify('quizCorrect'), 1000)
+            } else {
+              resultArea.innerHTML = '<div style="color: #dc2626;">✗ 回答错误</div>'
+              inputEl.disabled = false
+              inputEl.value = ''
+              inputEl.focus()
+              submitBtn.disabled = false
+            }
+          }
+          
+          submitBtn.addEventListener('click', submitAnswer)
+          inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              submitAnswer()
+            }
+          })
+        </script>
+      `,
+    })
+  }
+
+  // 监听遮罩动作
+  onAction((action) => {
+    console.log('遮罩动作:', action)
+  })
 
   const handleTestNotification = () => {
     sendNotification('测试通知', '这是一条测试通知，如果你看到它说明通知功能正常！')
@@ -42,14 +142,6 @@ const TestPage = () => {
     }
   }
 
-  const handleShowOverlay = async () => {
-    await show()
-  }
-
-  const handleCloseOverlay = async () => {
-    await hide()
-  }
-
   const handleSetPomodoroToBreak = () => {
     setPomodoroStatus(PomodoroStatus.ShortBreak)
   }
@@ -65,6 +157,31 @@ const TestPage = () => {
   return (
     <div className="max-w-md mx-auto space-y-6">
       <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">测试面板</h1>
+
+      {/* 遮罩测试 */}
+      <div>
+        <h2 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">全屏遮罩测试</h2>
+        <div className="space-y-3">
+          <button
+            onClick={handleTestFullScreenOverlay}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2c2c2e] font-medium transition-colors"
+          >
+            通用全屏遮罩
+          </button>
+          <button
+            onClick={handleTestRestOverlay}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2c2c2e] font-medium transition-colors"
+          >
+            休息提醒遮罩
+          </button>
+          <button
+            onClick={handleTestQuizOverlay}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2c2c2e] font-medium transition-colors"
+          >
+            答题遮罩
+          </button>
+        </div>
+      </div>
 
       {/* 通知测试 */}
       <div>
@@ -88,27 +205,6 @@ const TestPage = () => {
           >
             浏览器通知
           </button>
-        </div>
-      </div>
-
-      {/* 遮罩测试 */}
-      <div>
-        <h2 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">遮罩测试</h2>
-        <div className="space-y-3">
-          <button
-            onClick={handleShowOverlay}
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2c2c2e] font-medium transition-colors"
-          >
-            默认全屏遮罩{isOpen ? '（已打开）' : ''}
-          </button>
-          {isOpen && (
-            <button
-              onClick={handleCloseOverlay}
-              className="w-full px-4 py-3 rounded-xl border border-red-300 dark:border-red-600 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium transition-colors"
-            >
-              关闭遮罩
-            </button>
-          )}
         </div>
       </div>
 
@@ -148,11 +244,6 @@ const TestPage = () => {
         <p>土豆钟剩余: {potatoTimeLeft}秒</p>
         <p>休息提醒剩余: {restReminderTimeLeft}秒</p>
         <p>休息提醒弹窗: {showRestReminderPrompt ? '显示中' : '未显示'}</p>
-        {error && (
-          <p className="mt-2 text-red-500">
-            错误: {error}
-          </p>
-        )}
       </div>
     </div>
   )

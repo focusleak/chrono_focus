@@ -28,6 +28,10 @@
 - 可记录娱乐活动类型和时长
 - 与番茄钟互斥，切换时弹出确认对话框
 
+### 黑莓钟
+
+- 预留功能模块（当前为占位页面）
+
 ### 活动管理
 
 - 创建任务或娱乐活动，支持子任务
@@ -83,49 +87,62 @@
 chrono-focus/
 ├── electron/                    # Electron 主进程代码
 │   ├── main.mjs               # 主进程入口，创建主窗口、注册 IPC 处理
-│   ├── preload.mjs            # 预加载脚本，暴露 electronAPI 到渲染进程
+│   ├── preload.cjs            # 预加载脚本，暴露 electronAPI 到渲染进程
 │   ├── tray.mjs               # 系统托盘管理（菜单、文字、状态同步）
 │   ├── overlay.mjs            # 全屏遮罩窗口管理器（OverlayManager 类）
-│   ├── overlay-preload.mjs    # 遮罩窗口预加载脚本，暴露 overlayAPI
+│   ├── overlay-preload.cjs    # 遮罩窗口预加载脚本，暴露 overlayAPI
 │   ├── overlay-content.mjs    # 遮罩 HTML 内容生成（休息提醒、乘法答题）
 │   └── assets/tray-icon.png   # 托盘图标
 ├── src/                        # React 前端代码
 │   ├── main.tsx               # React 入口
 │   ├── App.tsx                # 根组件，路由 + 全局 hooks + 布局
 │   ├── index.css              # Tailwind CSS + shadcn/ui 主题变量
+│   ├── router/                # 路由配置
+│   │   ├── index.ts           # 统一导出
+│   │   ├── routes.ts          # 路由路径定义
+│   │   ├── navigation.ts      # 导航配置（主/次导航栏）
+│   │   ├── matchers.ts        # 路由匹配器（activeTab 映射）
+│   │   └── AppRoutes.tsx      # 路由组件渲染
 │   ├── features/              # 功能模块（按业务划分）
 │   │   ├── pomodoro/          # 番茄钟（计时器、控制、任务选择）
 │   │   ├── potato/            # 土豆钟（娱乐计时器、娱乐项目选择）
+│   │   ├── blueberry/         # 黑莓钟（预留功能，占位页面）
 │   │   ├── activities/        # 活动管理（任务 CRUD、拖拽排序、筛选）
 │   │   ├── settings/          # 设置页面（所有配置项）
-│   │   ├── stats/             # 统计面板（多维度数据统计）
-│   │   └── test/              # 测试页面（仅开发环境可见）
+│   │   └── stats/             # 统计面板（多维度数据统计）
 │   ├── components/
 │   │   ├── ui/                # shadcn/ui 基础组件
 │   │   ├── common/            # 通用业务组件（导航、对话框、排序列表等）
 │   │   ├── StatusBar.tsx      # 底部状态栏
-│   │   ├── RestReminderOverlay.tsx    # 休息提醒遮罩（React 侧协调器）
-│   │   └── BrowserOverlay.tsx # 浏览器降级遮罩（纯 React 实现）
+│   │   ├── RestReminderOverlay.tsx    # 休息提醒遮罩（Electron 模式）
+│   │   ├── BrowserOverlay.tsx # 浏览器降级遮罩（纯 React 实现）
+│   │   └── ErrorBoundary.tsx  # 错误边界
 │   ├── store/
-│   │   ├── store.ts           # 统一 store（合并 runtime + settings）
-│   │   ├── runtimeStore.ts    # 运行时状态（计时、任务、统计）
-│   │   └── settingsStore.ts   # 设置状态（时长、开关、间隔等）
+│   │   ├── settingsStore.ts   # 设置状态（持久化，包含主题）
+│   │   ├── runtimeStore.ts    # 运行时状态（计时、任务、统计，使用 immer）
+│   │   └── createSelectors.ts # Zustand selectors 自动生成工具
 │   ├── hooks/
 │   │   ├── usePomodoroTimer.ts    # 番茄钟计时逻辑
 │   │   ├── usePotatoTimer.ts      # 土豆钟计时逻辑
 │   │   ├── useRestReminder.ts     # 休息提醒倒计时
-│   │   ├── useReminder.ts         # 通用提醒 Hook
-│   │   ├── useOverlay.ts          # 遮罩管理 Hook（Electron/浏览器双模式）
 │   │   ├── useThemeSync.ts        # 主题同步
 │   │   ├── useTrayActions.ts      # 托盘动作监听
 │   │   ├── useTraySync.ts         # 托盘状态同步
-│   │   └── ...
-│   ├── types/                 # TypeScript 类型定义
-│   ├── lib/
-│   │   ├── storage.ts         # localStorage 封装
-│   │   └── utils.ts           # 工具函数（通知、音效、类名合并）
-│   └── utils/
-│       └── time.ts            # 时间格式化
+│   │   └── common/
+│   │       ├── useInterval.ts         # 通用定时器 Hook
+│   │       ├── useInitAutoLaunch.ts   # 开机自启动初始化
+│   │       ├── useReminder.ts         # 通用提醒 Hook
+│   │       └── useOverlay.ts          # 遮罩管理 Hook（Electron/浏览器双模式）
+│   ├── types/
+│   │   ├── index.ts             # 核心类型定义
+│   │   └── electron.d.ts        # Electron API 类型声明
+│   ├── utils/
+│   │   ├── index.ts             # 统一导出
+│   │   ├── time.ts              # 时间格式化
+│   │   ├── notification.ts      # 通知工具
+│   │   └── stats.ts             # 统计工具
+│   └── lib/
+│       └── utils.ts             # cn() 类名合并 + 工具函数重新导出
 ├── electron.ts                # Electron 开发启动脚本
 ├── package.json
 ├── vite.config.ts
@@ -151,7 +168,7 @@ chrono-focus/
 
 ### 统一 Store
 
-`useStore` 是 `useRuntimeStore`（运行时状态）和 `useSettingsStore`（配置状态）的代理，支持分别访问和合并访问。
+`useSettingsStore` 和 `useRuntimeStore` 分别管理设置和运行时状态,均通过 `createSelectors` 工具生成便捷的 hooks selectors。
 
 ### 数据持久化
 
@@ -161,15 +178,28 @@ chrono-focus/
 
 | Store | 存储 Key | 持久化范围 |
 |-------|----------|------------|
-| `useSettingsStore` | `pomodoro-settings` | 全部设置项（时长、间隔、开关等） |
-| `useRuntimeStore` | `pomodoro-runtime` | 通过 `partialize` 配置选择性保存：任务列表、统计数据、番茄/土豆计数、提醒计数等。运行时状态（计时器运行与否、剩余时间等）不持久化 |
-| `useThemeStore` | `theme-mode` | 用户主题偏好（light/dark/system） |
+| `useSettingsStore` | `chrono-focus-settings` | 全部设置项（时长、间隔、开关等）,包含主题 `theme` |
+| `useRuntimeStore` | `chrono-focus-runtime` | 通过 `partialize` 配置选择性保存:任务列表、统计数据、番茄/土豆计数、提醒计数等。运行时状态(计时器运行与否、剩余时间等)不持久化 |
 
 **数据迁移：** `runtimeStore` 配置了 `migrate` 函数，在加载旧数据时自动为任务添加 `type: 'task'` 字段，确保向后兼容。
 
 ### 计时器架构
 
 每个计时器（番茄钟、土豆钟、休息提醒、各类提醒）独立 tick，通过 `useInterval` Hook 驱动。休息提醒弹窗显示时暂停所有计时，关闭后恢复。
+
+### 路由配置
+
+使用 React Router DOM v7 的 HashRouter 模式，路由定义集中在 `src/router/` 目录:
+
+| 路由 | 路径 | 说明 |
+|------|------|------|
+| `POMODORO` | `/` | 番茄钟（首页） |
+| `POTATO` | `/potato` | 土豆钟 |
+| `BLUEBERRY` | `/blueberry` | 黑莓钟（占位） |
+| `ACTIVITIES` | `/activities` | 活动管理 |
+| `STATS` | `/stats` | 统计面板 |
+| `SETTINGS` | `/settings` | 设置 |
+| `TEST` | `/test` | 测试（仅开发环境） |
 
 ### 托盘集成
 
@@ -251,8 +281,10 @@ import { Button } from '@/components/ui/button';
 - 所有业务逻辑按功能模块划分在 `src/features/` 下
 - 可复用 UI 组件放在 `src/components/ui/` 下
 - 通用业务组件放在 `src/components/common/` 下
-- 自定义 Hook 统一放在 `src/hooks/` 下
+- 自定义 Hook 统一放在 `src/hooks/` 下，通用 hooks 放在 `src/hooks/common/` 下
 - TypeScript 类型定义统一放在 `src/types/` 下
+- 工具函数放在 `src/utils/` 下，通过 `index.ts` 统一导出
+- 路由配置集中在 `src/router/` 下
 
 ## License
 

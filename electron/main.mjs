@@ -3,12 +3,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fs from "node:fs";
 import AutoLaunch from "auto-launch";
-import { createOverlayManager } from "./overlay.mjs";
+import { createFullScreenOverlayManager } from "./fullscreen-overlay.mjs";
 import { initTray } from "./tray.mjs";
-import {
-  createRestReminderHTML,
-  createQuizHTML,
-} from "./overlay-content.mjs";
+import { createFullScreenHTML } from "./fullscreen-overlay-content.mjs";
 
 // ========== 常量 ==========
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -17,7 +14,7 @@ const ICON_PATH = path.join(__dirname, "../build/icon.png");
 
 // ========== 状态 ==========
 let mainWindow = null;
-let overlayManager = null;
+let fullscreenOverlayManager = null;
 let isQuitting = false;
 
 // ========== 开机自启 ==========
@@ -96,8 +93,8 @@ function createWindow() {
 
   mainWindow.on("closed", () => {
     mainWindow = null;
-    overlayManager?.close();
-    overlayManager = null;
+    fullscreenOverlayManager?.close();
+    fullscreenOverlayManager = null;
   });
 
   // 点击关闭按钮时隐藏到系统托盘，而非退出应用
@@ -109,7 +106,7 @@ function createWindow() {
   });
 
   // 初始化子模块（托盘 + 遮罩），同步 mainWindow 引用
-  overlayManager = createOverlayManager(mainWindow);
+  fullscreenOverlayManager = createFullScreenOverlayManager(mainWindow);
   initTray(mainWindow);
   registerIpcHandlers();
 }
@@ -117,7 +114,7 @@ function createWindow() {
 /** 当主窗口被重建时更新引用 */
 function updateMainWindowReference(window) {
   mainWindow = window;
-  overlayManager?.setMainWindow(window);
+  fullscreenOverlayManager?.setMainWindow(window);
 }
 
 // ========== IPC Handlers ==========
@@ -169,30 +166,27 @@ function registerIpcHandlers() {
     }
   });
 
-  // 休息提醒遮罩
-  ipcMain.handle("show-rest-reminder-overlay", async (_event, config) => {
-    if (!overlayManager) return false;
-    return overlayManager.show({ content: createRestReminderHTML(config) });
+  // ========== FullScreenOverlay IPC Handlers ==========
+
+  // 显示 FullScreenOverlay 遮罩
+  ipcMain.handle("fullscreen-overlay:show", async (_event, config) => {
+    if (!fullscreenOverlayManager) return false;
+    return fullscreenOverlayManager.show(createFullScreenHTML(config));
   });
 
-  ipcMain.handle("show-quiz-overlay", async (_event, config) => {
-    if (!overlayManager) return false;
-    return overlayManager.show({ content: createQuizHTML(config) });
+  // 关闭 FullScreenOverlay 遮罩
+  ipcMain.handle("fullscreen-overlay:close", async () => {
+    if (!fullscreenOverlayManager) return false;
+    return fullscreenOverlayManager.close();
   });
 
-  // 关闭遮罩
-  ipcMain.handle("close-overlay", async () => {
-    if (!overlayManager) return false;
-    return overlayManager.close();
-  });
-
-  // 遮罩动作转发（从遮罩窗口 → 主窗口 React）
-  ipcMain.handle("overlay-action", async (_event, { action }) => {
+  // FullScreenOverlay 遮罩动作转发
+  ipcMain.handle("fullscreen-overlay:action", async (_event, { action }) => {
     if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send("overlay-action", action);
+      mainWindow.webContents.send("fullscreen-overlay:action", action);
     }
     if (action === "closed") {
-      overlayManager?.close();
+      fullscreenOverlayManager?.close();
     }
     return true;
   });
