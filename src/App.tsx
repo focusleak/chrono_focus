@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom'
 
 import { requestNotificationPermission } from '@/lib/utils'
 
-import FullScreenOverlay from '@/components/FullScreenOverlay'
-import RestReminderOverlay from '@/components/RestReminderOverlay'
 import StatusBar from '@/features/statusbar/StatusBar'
 import Sidebar from '@/features/sidebar/Sidebar'
 import { ToastContainer } from '@/components/ui/toast'
@@ -16,6 +14,7 @@ import { useRestReminder } from '@/hooks/useRestReminder'
 import { useThemeSync } from '@/hooks/useThemeSync'
 import { useTrayActions } from '@/hooks/useTrayActions'
 import { useTraySync } from '@/hooks/useTraySync'
+import { useRestReminderOverlay } from '@/hooks/useRestReminderOverlay'
 import { useReminder } from '@/hooks/common/useReminder'
 
 import { useSettingsStore } from '@/store/settingsStore'
@@ -35,6 +34,7 @@ function App() {
   useRestReminder()
   usePomodoroTimer()
   usePotatoTimer()
+  useRestReminderOverlay()
 
   const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
   const restReminderInterval = useSettingsStore.use.restReminderInterval()
@@ -137,8 +137,6 @@ function App() {
 
         <StatusBar />
       </div>
-      <RestReminderOverlay />
-      <FullScreenOverlay />
       <ToastContainer />
     </div>
   )

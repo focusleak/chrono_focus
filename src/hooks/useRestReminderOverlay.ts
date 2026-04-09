@@ -6,12 +6,12 @@ import { useRuntimeStore } from '@/store/runtimeStore'
 import { useSettingsStore } from '@/store/settingsStore'
 
 /**
- * 休息提醒全屏遮罩组件
+ * 休息提醒全屏遮罩 Hook
  * 使用通用 FullScreenOverlay 组件
  * 休息提醒倒计时到 0 后显示
  * 弹出后暂停所有计时，关闭后恢复
  */
-const RestReminderOverlay = () => {
+export function useRestReminderOverlay() {
   const showRestReminderPrompt = useRuntimeStore.use.showRestReminderPrompt()
   const restReminderSkipped = useRuntimeStore.use.restReminderSkipped()
   const restReminderSkipCount = useRuntimeStore.use.restReminderSkipCount()
@@ -288,9 +288,4 @@ const RestReminderOverlay = () => {
       resumeTimersAfterOverlay()
     }
   }, [showRestReminderPrompt, showQuiz, timeLeft, close, nextRestBreak, resumeTimersAfterOverlay])
-
-  // 不渲染任何 UI
-  return null
 }
-
-export default RestReminderOverlay

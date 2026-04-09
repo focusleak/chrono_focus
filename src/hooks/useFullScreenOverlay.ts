@@ -1,9 +1,12 @@
 /**
  * useFullScreenOverlay - 通用 Electron 全屏遮罩 Hook
- * 
+ *
  * 仅支持 Electron 模式
  * 提供统一的接口来显示自定义内容的全屏遮罩
+ * 自动处理 'closed' 动作
  */
+
+import { useEffect } from 'react'
 
 interface FullScreenConfig {
   /** HTML 内容 */
@@ -57,6 +60,16 @@ export function useFullScreenOverlay(): UseFullScreenOverlayReturn {
 
     return window.electronAPI.fullscreenOverlay.onAction(callback)
   }
+
+  // 自动处理 'closed' 动作
+  useEffect(() => {
+    const cleanup = onAction((action: string) => {
+      if (action === 'closed') {
+        close()
+      }
+    })
+    return cleanup
+  }, [close, onAction])
 
   return {
     show,

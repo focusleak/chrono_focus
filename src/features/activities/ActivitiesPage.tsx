@@ -3,8 +3,8 @@ import { Plus, Briefcase, Gamepad2, Trash2 } from 'lucide-react'
 
 import { toast } from '@/components/ui/toast'
 import { Button } from '@/components/ui/button'
-import { SortableList, type SortableItemProps } from '@/components/common/SortableList'
-import { EmptyState } from '@/components/common/EmptyState'
+import { SortableList, type SortableItemProps } from '@/components/SortableList'
+import { EmptyState } from '@/components/EmptyState'
 
 import { useRuntimeStore } from '@/store/runtimeStore'
 import TaskCreationModal from './TaskCreationModal'

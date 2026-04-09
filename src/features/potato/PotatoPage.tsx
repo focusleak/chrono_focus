@@ -3,9 +3,9 @@ import { Gamepad2, Play, Pause } from 'lucide-react'
 
 import { formatDuration } from '@/lib/utils'
 
-import { ConfirmDialog } from '@/components/common/ConfirmDialog'
-import { ItemSelector } from '@/components/common/ItemSelector'
-import { TimerButton } from '@/components/common/TimerButton'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { ItemSelector } from '@/components/ItemSelector'
+import { TimerButton } from '@/components/TimerButton'
 
 import { useRuntimeStore } from '@/store/runtimeStore'
 

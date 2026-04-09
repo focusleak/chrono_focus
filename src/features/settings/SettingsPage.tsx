@@ -2,9 +2,9 @@ import { Sun, Moon, Monitor, Play, Palette, Clock, Gamepad2, Droplets, Footprint
 
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { SettingRow } from '@/components/common/SettingRow'
-import { NumberInput } from '@/components/common/NumberInput'
-import { ReminderSettings } from '@/components/common/ReminderSettings'
+import { SettingRow } from '@/components/SettingRow'
+import { NumberInput } from '@/components/NumberInput'
+import { ReminderSettings } from '@/components/ReminderSettings'
 
 import { useSettingsStore } from '@/store/settingsStore'
 import { useRuntimeStore } from '@/store/runtimeStore'
