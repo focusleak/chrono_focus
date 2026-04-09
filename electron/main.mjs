@@ -3,12 +3,13 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fs from "node:fs";
 import AutoLaunch from "auto-launch";
-import { createFullScreenOverlayManager } from "./fullscreen-overlay.mjs";
 import { initTray } from "./tray.mjs";
+import { createFullScreenOverlayManager } from "./fullscreen-overlay.mjs";
 import { createFullScreenHTML } from "./fullscreen-overlay-content.mjs";
 
 // ========== 常量 ==========
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 const VITE_DEV_PORT = Number(process.env.VITE_PORT) || 5173;
 const ICON_PATH = path.join(__dirname, "../build/icon.png");
 

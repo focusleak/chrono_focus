@@ -110,7 +110,7 @@ function App() {
   const backgroundColor = useMemo(() => {
 
     if (activeTab === '/potato') return 'bg-[#FADFA1]'
-    if (activeTab === '/blueberry') return 'bg-[#2D1B69]'
+    if (activeTab === '/blueberry') return 'bg-[#5D1451]'
     if (activeTab !== '/') return 'bg-[#f5f5f7] dark:bg-[#0d0d0d]'
     switch (pomodoroStatus) {
       case PomodoroStatus.Pomodoro: return 'bg-[#ba4949]'
