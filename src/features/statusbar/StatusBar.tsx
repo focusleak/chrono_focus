@@ -19,7 +19,7 @@ const StatusBar = () => {
   const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
   const currentPomodoroTaskId = useRuntimeStore.use.currentPomodoroTaskId()
   const tasks = useRuntimeStore.use.tasks()
-  const potatoTimeLeft = useRuntimeStore.use.potatoTimeLeft()
+  const potatoElapsedTime = useRuntimeStore.use.potatoElapsedTime()
   const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
   const waterCount = useRuntimeStore.use.waterCount()
   const restReminderTimeLeft = useRuntimeStore.use.restReminderTimeLeft()
@@ -28,6 +28,8 @@ const StatusBar = () => {
   const restReminderPaused = useRuntimeStore.use.restReminderPaused()
   const toggleRestReminderPause = useRuntimeStore.use.toggleRestReminderPause()
   const totalFocusTime = useRuntimeStore.use.totalFocusTime()
+  const restBreakCount = useRuntimeStore.use.restBreakCount()
+  const restReminderSkipCount = useRuntimeStore.use.restReminderSkipCount()
   const dailyPotatoLimit = useSettingsStore.use.dailyPotatoLimit()
   const dailyWaterGoal = useSettingsStore.use.dailyWaterGoal()
   const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
@@ -91,8 +93,7 @@ const StatusBar = () => {
       }
     }
     if (isPotatoRunning) {
-      const elapsed = Math.max(0, dailyPotatoLimit * 60 - potatoTimeLeft)
-      return { elapsed, total: dailyPotatoLimit * 60 }
+      return { elapsed: potatoElapsedTime, total: dailyPotatoLimit * 60 }
     }
     if (isPomodoroRunning) {
       return {
@@ -168,19 +169,22 @@ const StatusBar = () => {
 
       {/* 右侧信息 */}
       <div className="flex shrink-0 items-center gap-4">
+        {/* 休息次数 / 跳过次数 */}
+        <div className="flex items-center gap-3">
+          <span className="text-white">休息 {restBreakCount}次</span>
+          <span className="text-white">跳过 {restReminderSkipCount}次</span>
+        </div>
         {/* 专注分钟 */}
         <div className="flex items-center gap-1.5">
           <Clock className="h-3.5 w-3.5 text-white/60" />
           <span className="text-white/80">专注 {Math.round(totalFocusTime)}分钟</span>
         </div>
-
         {/* 土豆钟已用 */}
-        {!isPotatoRunning && dailyPotatoLimit > 0 && (
+        {!isPotatoRunning && potatoElapsedTime > 0 && (
           <div className="flex items-center gap-1.5">
             <Gamepad2 className="h-3.5 w-3.5 text-white/60" />
             <span className="text-white/80">
-              娱乐 {Math.max(0, Math.floor((dailyPotatoLimit * 60 - potatoTimeLeft) / 60))}
-              分钟
+              娱乐 {Math.floor(potatoElapsedTime / 60)}分钟
             </span>
           </div>
         )}

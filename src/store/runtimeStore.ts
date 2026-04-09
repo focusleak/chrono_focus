@@ -34,8 +34,8 @@ export interface RuntimeState {
   // ========== 土豆钟运行状态 ==========
   /** 土豆钟是否运行中 */
   isPotatoRunning: boolean
-  /** 土豆钟剩余时间（秒） */
-  potatoTimeLeft: number
+  /** 土豆钟已用时间（秒，正计时） */
+  potatoElapsedTime: number
 
   // ========== 休息提醒运行状态 ==========
   /** 休息提醒倒计时剩余时间（秒） */
@@ -170,7 +170,6 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
       const settings = useSettingsStore.getState()
 
       const initialPomodoroTime = settings.pomodoroTime || 25
-      const initialPotatoLimit = settings.dailyPotatoLimit || 60
       const initialRestInterval = settings.restReminderInterval || 30
 
       return {
@@ -184,7 +183,7 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
 
         // ========== 土豆钟运行状态 ==========
         isPotatoRunning: false,
-        potatoTimeLeft: initialPotatoLimit * 60,
+        potatoElapsedTime: 0,
 
         // ========== 休息提醒运行状态 ==========
         restReminderTimeLeft: initialRestInterval * 60,
@@ -350,44 +349,40 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
             set({ showPomodoroPotatoConflict: 'potato' })
           } else {
             const settings = useSettingsStore.getState()
-            const { potatoTimeLeft } = get()
-            const startTime = potatoTimeLeft > 0 ? potatoTimeLeft : settings.dailyPotatoLimit * 60
+            const { potatoElapsedTime } = get()
             const restTotal = settings.restReminderInterval * 60
-            set({ isPotatoRunning: true, potatoTimeLeft: startTime, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
+            set({ isPotatoRunning: true, potatoElapsedTime, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
           }
         },
 
         pausePotato: () => set({ isPotatoRunning: false }),
 
         resetPotato: () => {
-          const settings = useSettingsStore.getState()
-          set({ isPotatoRunning: false, potatoTimeLeft: settings.dailyPotatoLimit * 60 })
+          set({ isPotatoRunning: false, potatoElapsedTime: 0 })
         },
 
         tickPotato: () => {
-          const { potatoTimeLeft, isPotatoRunning, dailyStats } = get()
+          const { potatoElapsedTime, isPotatoRunning, dailyStats } = get()
+          const settings = useSettingsStore.getState()
           if (!isPotatoRunning) return
 
-          const newTimeLeft = potatoTimeLeft - 1
-          set({ potatoTimeLeft: newTimeLeft })
+          const newElapsedTime = potatoElapsedTime + 1
+          const dailyPotatoLimit = settings.dailyPotatoLimit * 60
 
-          if (newTimeLeft === 0) {
+          // 当超出限制时，每秒累加 dailyStats 中的 potatoTime
+          if (newElapsedTime > dailyPotatoLimit) {
             const today = format(new Date(), "yyyy-MM-dd")
             const todayStats = dailyStats.find(s => s.date === today)
             const newDailyStats = todayStats
               ? dailyStats.map(s => s.date === today ? { ...s, potatoTime: s.potatoTime + 1 } : s)
               : [...dailyStats, { date: today, pomodoros: 0, focusTime: 0, waterCount: 0, tasksCompleted: 0, potatoTime: 1 }]
-            set({ dailyStats: newDailyStats })
-            sendNotification('娱乐时间已用完', '已超过限制时间，现在是正计时。建议回去专注工作！')
-          }
-
-          if (newTimeLeft <= -1) {
-            const today = format(new Date(), "yyyy-MM-dd")
-            const todayStats = dailyStats.find(s => s.date === today)
-            const newDailyStats = todayStats
-              ? dailyStats.map(s => s.date === today ? { ...s, potatoTime: s.potatoTime + 1 } : s)
-              : [...dailyStats, { date: today, pomodoros: 0, focusTime: 0, waterCount: 0, tasksCompleted: 0, potatoTime: 1 }]
-            set({ dailyStats: newDailyStats })
+            set({ potatoElapsedTime: newElapsedTime, dailyStats: newDailyStats })
+          } else {
+            // 刚好到达限制时发送通知
+            if (newElapsedTime === dailyPotatoLimit) {
+              sendNotification('娱乐时间已用完', '已达到每日娱乐时间限制。建议休息一下，然后回去专注工作！')
+            }
+            set({ potatoElapsedTime: newElapsedTime })
           }
         },
 
@@ -611,7 +606,7 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
         currentPotatoTaskId: state.currentPotatoTaskId,
         dailyStats: state.dailyStats,
         potatoActivities: state.potatoActivities,
-        potatoTimeLeft: state.potatoTimeLeft,
+        potatoElapsedTime: state.potatoElapsedTime,
         isPotatoRunning: state.isPotatoRunning,
         completedPomodoros: state.completedPomodoros,
         totalFocusTime: state.totalFocusTime,

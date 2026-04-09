@@ -12,6 +12,7 @@ export const sendNotification = async (title: string, body: string) => {
     } else {
       if (Notification.permission === 'granted') {
         new Notification(title, { body })
+        playSound('remind')
       } else if (Notification.permission !== 'denied') {
         const permission = await Notification.requestPermission()
         if (permission === 'granted') {

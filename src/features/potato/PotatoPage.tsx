@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Gamepad2, Play, Pause } from 'lucide-react'
+import { Gamepad2, Play, Pause, RotateCcw } from 'lucide-react'
 
 import { formatDuration } from '@/lib/utils'
 
@@ -8,42 +8,51 @@ import { ItemSelector } from '@/components/ItemSelector'
 import { TimerButton } from '@/components/TimerButton'
 
 import { useRuntimeStore } from '@/store/runtimeStore'
+import { useSettingsStore } from '@/store/settingsStore'
 
 import type { Task } from '@/types'
 const PotatoPage = () => {
-  const potatoTimeLeft = useRuntimeStore.use.potatoTimeLeft()
+  const potatoElapsedTime = useRuntimeStore.use.potatoElapsedTime()
   const showPomodoroPotatoConflict = useRuntimeStore.use.showPomodoroPotatoConflict()
   const resolvePomodoroPotatoConflict = useRuntimeStore.use.resolvePomodoroPotatoConflict()
-  const isOvertime = potatoTimeLeft < 0
+  const dailyPotatoLimit = useSettingsStore.use.dailyPotatoLimit()
+  const isOvertime = potatoElapsedTime > dailyPotatoLimit * 60
   const tasks = useRuntimeStore.use.tasks()
   const currentPotatoTaskId = useRuntimeStore.use.currentPotatoTaskId()
   const setCurrentPotatoTask = useRuntimeStore.use.setCurrentPotatoTask()
 
   const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
+  const startPotato = useRuntimeStore.use.startPotato()
   const pausePotato = useRuntimeStore.use.pausePotato()
+  const resetPotato = useRuntimeStore.use.resetPotato()
   const [showOvertimeWarning, setShowOvertimeWarning] = useState(false)
 
   const handleStartPotato = () => {
-    if (potatoTimeLeft < 0) {
+    if (isOvertime) {
       setShowOvertimeWarning(true)
     } else {
-      const { startPotato } = useRuntimeStore.getState()
       startPotato()
     }
   }
 
   const confirmOvertimeStart = () => {
-    useRuntimeStore.getState().startPotato()
+    startPotato()
     setShowOvertimeWarning(false)
   }
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
 
-      {/* 土豆钟时间 */}
+      {/* 土豆钟时间 - 正计时显示 */}
       <div
-        className={`text-8xl font-mono font-semibold mb-6 ${isOvertime ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'}`}
-        style={{ fontVariantNumeric: 'tabular-nums', textShadow: '0 2px 8px rgba(0,0,0,0.2)' }} >
-        {formatDuration(potatoTimeLeft)}
+        className={`text-8xl font-mono font-semibold mb-6 transition-colors duration-300 ${
+          isOvertime
+            ? 'text-red-500 dark:text-red-400'
+            : 'text-gray-900 dark:text-gray-100'
+        }`}
+        style={{ fontVariantNumeric: 'tabular-nums', textShadow: '0 2px 8px rgba(0,0,0,0.2)' }}
+      >
+        {formatDuration(potatoElapsedTime)}
       </div>
 
       {/* 中间 */}
@@ -78,7 +87,14 @@ const PotatoPage = () => {
             variant="dark"
           />
         )}
-
+        {potatoElapsedTime > 0 && (
+          <TimerButton
+            icon={RotateCcw}
+            label="重置"
+            onClick={resetPotato}
+            variant="dark"
+          />
+        )}
       </div>
       {/* 弹窗 */}
       <ConfirmDialog

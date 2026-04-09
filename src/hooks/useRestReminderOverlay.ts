@@ -25,9 +25,8 @@ export function useRestReminderOverlay() {
 
   const breakDuration = restBreakDuration * 60
 
-  const [timeLeft, setTimeLeft] = useState(breakDuration)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const initializedRef = useRef(false)
+  // 仅用于初始化 HTML 模板的初始值，实际倒计时由内嵌 <script> 管理
+  const initialTimeLeft = breakDuration
   const overlayShownRef = useRef(false)
 
   // Quiz 内部状态
@@ -44,25 +43,16 @@ export function useRestReminderOverlay() {
     setShowQuiz(true)
   }, [])
 
-  // 弹窗首次显示时初始化倒计时
-  useEffect(() => {
-    if (showRestReminderPrompt && !showQuiz && !initializedRef.current) {
-      initializedRef.current = true
-      overlayShownRef.current = false
-      setTimeLeft(breakDuration)
-    }
-  }, [showRestReminderPrompt, showQuiz, breakDuration])
-
-  // 重置初始化标记
+  // 重置状态标记
   useEffect(() => {
     if (!showRestReminderPrompt) {
-      initializedRef.current = false
       overlayShownRef.current = false
       setShowQuiz(false)
     }
   }, [showRestReminderPrompt])
 
   // 生成休息提醒 HTML 内容
+  // 注意：倒计时完全由内嵌 <script> 管理，此处只生成初始 HTML
   const restOverlayContent = useMemo(() => {
     const formatTime = (seconds: number) => {
       const m = Math.floor(seconds / 60)
@@ -88,7 +78,7 @@ export function useRestReminderOverlay() {
         <p style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">${isLongBreak ? '已经连续短休多次，本次为长休息' : '你已经工作了一段时间，记得休息一下哦'}</p>
         ${skipInfo}
         <div id="timerDisplay" style="font-size: 48px; font-weight: 600; font-family: monospace; color: #111827; margin-bottom: 8px; font-variant-numeric: tabular-nums;">
-          ${formatTime(timeLeft)}
+          ${formatTime(initialTimeLeft)}
         </div>
         <p style="font-size: 12px; color: #9ca3af; margin-bottom: 32px;">倒计时结束后自动关闭</p>
         <button id="skipBtn" style="width: 100%; padding: 12px 16px; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: #f3f4f6; color: #374151;">
@@ -96,39 +86,45 @@ export function useRestReminderOverlay() {
         </button>
       </div>
       <script>
-        window.__intervals = window.__intervals || []
-        let currentTime = ${timeLeft}
-
-        const timerEl = document.getElementById('timerDisplay')
-        const skipBtn = document.getElementById('skipBtn')
-
-        function formatTimeStr(seconds) {
-          const m = Math.floor(seconds / 60)
-          const s = seconds % 60
-          return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0')
-        }
-
-        const interval = setInterval(() => {
-          if (currentTime > 0) {
-            currentTime--
-            timerEl.textContent = formatTimeStr(currentTime)
-          } else {
-            clearInterval(interval)
-            window.overlayAPI?.close()
-            window.overlayAPI?.notify('closed')
+        (function() {
+          // 清理可能残留的旧 interval
+          if (window.__restOverlayInterval) {
+            clearInterval(window.__restOverlayInterval)
           }
-        }, 1000)
 
-        window.__intervals.push(interval)
+          let currentTime = ${initialTimeLeft}
+          const timerEl = document.getElementById('timerDisplay')
+          const skipBtn = document.getElementById('skipBtn')
 
-        skipBtn.addEventListener('click', () => {
-          skipBtn.disabled = true
-          window.overlayAPI?.close()
-          window.overlayAPI?.notify('skip')
-        })
+          function formatTimeStr(seconds) {
+            const m = Math.floor(seconds / 60)
+            const s = seconds % 60
+            return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0')
+          }
+
+          window.__restOverlayInterval = setInterval(() => {
+            if (currentTime > 0) {
+              currentTime--
+              if (timerEl) {
+                timerEl.textContent = formatTimeStr(currentTime)
+              }
+            } else {
+              clearInterval(window.__restOverlayInterval)
+              window.overlayAPI?.close()
+              window.overlayAPI?.notify('closed')
+            }
+          }, 1000)
+
+          skipBtn.addEventListener('click', () => {
+            skipBtn.disabled = true
+            window.overlayAPI?.close()
+            window.overlayAPI?.notify('skip')
+          })
+        })()
       </script>
     `
-  }, [timeLeft, restReminderSkipped, restReminderSkipCount])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restReminderSkipped, restReminderSkipCount, breakDuration])
 
   // 生成答题 HTML 内容
   const quizOverlayContent = useMemo(() => {
@@ -202,7 +198,7 @@ export function useRestReminderOverlay() {
         })
       </script>
     `
-  }, [quizNum1, quizNum2, showQuiz])
+  }, [quizNum1, quizNum2])
 
   // 监听 FullScreenOverlay 动作事件
   useEffect(() => {
@@ -261,31 +257,4 @@ export function useRestReminderOverlay() {
       })
     }
   }, [showQuiz, quizOverlayContent, show])
-
-  // 倒计时更新
-  useEffect(() => {
-    if (showRestReminderPrompt && !showQuiz && timeLeft > 0) {
-      intervalRef.current = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            if (intervalRef.current) clearInterval(intervalRef.current)
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
-    }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-    }
-  }, [showRestReminderPrompt, showQuiz, timeLeft > 0])
-
-  // 倒计时结束，自动关闭遮罩并恢复计时
-  useEffect(() => {
-    if (showRestReminderPrompt && !showQuiz && timeLeft <= 0) {
-      close()
-      nextRestBreak()
-      resumeTimersAfterOverlay()
-    }
-  }, [showRestReminderPrompt, showQuiz, timeLeft, close, nextRestBreak, resumeTimersAfterOverlay])
 }

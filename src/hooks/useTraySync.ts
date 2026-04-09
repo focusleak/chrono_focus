@@ -26,12 +26,13 @@ export const useTraySync = () => {
   const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
   const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
   const pomodoroTimeLeft = useRuntimeStore.use.pomodoroTimeLeft()
-  const potatoTimeLeft = useRuntimeStore.use.potatoTimeLeft()
+  const potatoElapsedTime = useRuntimeStore.use.potatoElapsedTime()
   const showRestReminderPrompt = useRuntimeStore.use.showRestReminderPrompt()
   const restReminderPaused = useRuntimeStore.use.restReminderPaused()
   const restReminderTimeLeft = useRuntimeStore.use.restReminderTimeLeft()
   const restReminderTotalTime = useRuntimeStore.use.restReminderTotalTime()
   const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
+  const dailyPotatoLimit = useSettingsStore.use.dailyPotatoLimit()
 
   useEffect(() => {
     const updateTray = () => {
@@ -53,11 +54,12 @@ export const useTraySync = () => {
           menuState = 'longBreak'
         }
       } else if (isPotatoRunning) {
-        if (potatoTimeLeft > 0) {
-          const mins = Math.ceil(potatoTimeLeft / 60)
+        if (potatoElapsedTime <= dailyPotatoLimit * 60) {
+          const mins = Math.floor(potatoElapsedTime / 60)
           text = `土豆钟-娱乐 ${mins}分钟`
         } else {
-          text = '土豆钟-娱乐中'
+          const mins = Math.floor(potatoElapsedTime / 60)
+          text = `土豆钟-超时 ${mins}分钟`
         }
         menuState = 'potato'
       } else if (showRestReminderPrompt) {
@@ -82,5 +84,5 @@ export const useTraySync = () => {
     }
 
     updateTray()
-  }, [isPomodoroRunning, isPotatoRunning, pomodoroStatus, pomodoroTimeLeft, potatoTimeLeft, restReminderEnabled, restReminderTimeLeft, restReminderTotalTime, showRestReminderPrompt, restReminderPaused])
+  }, [isPomodoroRunning, isPotatoRunning, pomodoroStatus, pomodoroTimeLeft, potatoElapsedTime, restReminderEnabled, restReminderTimeLeft, restReminderTotalTime, showRestReminderPrompt, restReminderPaused, dailyPotatoLimit])
 }

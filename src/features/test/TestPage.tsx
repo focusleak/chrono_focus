@@ -27,7 +27,7 @@ const TestPage = () => {
   const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
   const pomodoroTimeLeft = useRuntimeStore.use.pomodoroTimeLeft()
   const currentPomodoroTime = useRuntimeStore.use.currentPomodoroTime()
-  const potatoTimeLeft = useRuntimeStore.use.potatoTimeLeft()
+  const potatoElapsedTime = useRuntimeStore.use.potatoElapsedTime()
   const restReminderTimeLeft = useRuntimeStore.use.restReminderTimeLeft()
   const restBreakCount = useRuntimeStore.use.restBreakCount()
   const restReminderSkipCount = useRuntimeStore.use.restReminderSkipCount()
@@ -248,7 +248,7 @@ const TestPage = () => {
           <div className="p-4 rounded-xl border border-yellow-200 dark:border-yellow-900 bg-yellow-50 dark:bg-yellow-950/20">
             <h3 className="font-medium text-yellow-900 dark:text-yellow-200 mb-2">🥔 土豆钟</h3>
             <div className="space-y-1 text-sm text-yellow-800 dark:text-yellow-300">
-              <p>• 剩余时间: {formatTime(potatoTimeLeft)}</p>
+              <p>• 已用时间: {formatTime(potatoElapsedTime)}</p>
               <p>• 运行中: {isPotatoRunning ? '是' : '否'}</p>
               <p>• 当前活动: {getCurrentTaskName(currentPotatoTaskId)}</p>
               <p>• 活动记录: {potatoActivities.length} 条</p>
@@ -432,7 +432,7 @@ const TestPage = () => {
           <p>番茄剩余: {formatTime(pomodoroTimeLeft)}</p>
           <p>番茄总时: {formatTime(currentPomodoroTime)}</p>
           <p>土豆运行: {isPotatoRunning ? '是' : '否'}</p>
-          <p>土豆剩余: {formatTime(potatoTimeLeft)}</p>
+          <p>土豆已用: {formatTime(potatoElapsedTime)}</p>
           <p>休息提醒: {formatTime(restReminderTimeLeft)}</p>
           <p>休息弹窗: {showRestReminderPrompt ? '显示' : '隐藏'}</p>
           <p>连续短休: {restBreakCount} 次</p>
