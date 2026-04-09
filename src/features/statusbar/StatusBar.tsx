@@ -18,8 +18,8 @@ const StatusBar = () => {
   const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
   const currentPomodoroTaskId = useRuntimeStore.use.currentPomodoroTaskId()
   const tasks = useRuntimeStore.use.tasks()
-  const potatoElapsedTime = useRuntimeStore.use.potatoElapsedTime()
-  const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
+  const patataElapsedTime = useRuntimeStore.use.patataElapsedTime()
+  const isPatataRunning = useRuntimeStore.use.isPatataRunning()
   const waterCount = useRuntimeStore.use.waterCount()
   const restReminderTimeLeft = useRuntimeStore.use.restReminderTimeLeft()
   const restReminderTotalTime = useRuntimeStore.use.restReminderTotalTime()
@@ -29,7 +29,7 @@ const StatusBar = () => {
   const totalFocusTime = useRuntimeStore.use.totalFocusTime()
   const restBreakCount = useRuntimeStore.use.restBreakCount()
   const restReminderSkipCount = useRuntimeStore.use.restReminderSkipCount()
-  const dailyPotatoLimit = useSettingsStore.use.dailyPotatoLimit()
+  const dailyPatataLimit = useSettingsStore.use.dailyPatataLimit()
   const dailyWaterGoal = useSettingsStore.use.dailyWaterGoal()
   const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
 
@@ -43,7 +43,7 @@ const StatusBar = () => {
   /** 获取计时类型标签 */
   const getActiveLabel = () => {
     if (showRestReminderPrompt) return '休息提醒'
-    if (isPotatoRunning) return '娱乐'
+    if (isPatataRunning) return '娱乐'
     if (isPomodoroRunning) {
       switch (pomodoroStatus) {
         case PomodoroStatus.Pomodoro:
@@ -55,14 +55,14 @@ const StatusBar = () => {
       }
     }
     if (restReminderEnabled) return '休息提醒'
-    if (!restReminderEnabled && !isPomodoroRunning && !isPotatoRunning) return '休息提醒已关闭'
+    if (!restReminderEnabled && !isPomodoroRunning && !isPatataRunning) return '休息提醒已关闭'
     return ''
   }
 
   /** 获取状态点颜色 */
   const getDotColor = () => {
     if (showRestReminderPrompt) return 'bg-orange-500'
-    if (isPotatoRunning) return 'bg-yellow-500'
+    if (isPatataRunning) return 'bg-yellow-500'
     if (isPomodoroRunning) {
       switch (pomodoroStatus) {
         case PomodoroStatus.Pomodoro:
@@ -80,7 +80,7 @@ const StatusBar = () => {
   /** 判断是否正在运行 */
   const isActive =
     isPomodoroRunning ||
-    isPotatoRunning ||
+    isPatataRunning ||
     (restReminderEnabled && !showRestReminderPrompt && !restReminderPaused)
 
   /** 获取当前计时的已用时间和总时间 */
@@ -91,8 +91,8 @@ const StatusBar = () => {
         total: restReminderTotalTime,
       }
     }
-    if (isPotatoRunning) {
-      return { elapsed: potatoElapsedTime, total: dailyPotatoLimit * 60 }
+    if (isPatataRunning) {
+      return { elapsed: patataElapsedTime, total: dailyPatataLimit * 60 }
     }
     if (isPomodoroRunning) {
       return {
@@ -134,7 +134,7 @@ const StatusBar = () => {
             <span className="font-mono tabular-nums text-white/60">{formatDuration(total)}</span>
             {/* 休息提醒运行时显示百分数 */}
             {!isPomodoroRunning &&
-              !isPotatoRunning &&
+              !isPatataRunning &&
               restReminderEnabled &&
               !showRestReminderPrompt &&
               total > 0 && (
@@ -180,11 +180,11 @@ const StatusBar = () => {
           <span className="text-white/80">专注 {Math.round(totalFocusTime)}分钟</span>
         </div>
         {/* 土豆钟已用 */}
-        {!isPotatoRunning && potatoElapsedTime > 0 && (
+        {!isPatataRunning && patataElapsedTime > 0 && (
           <div className="flex items-center gap-1.5">
             <Gamepad2 className="h-3.5 w-3.5 text-white/60" />
             <span className="text-white/80">
-              娱乐 {Math.floor(potatoElapsedTime / 60)}分钟
+              娱乐 {Math.floor(patataElapsedTime / 60)}分钟
             </span>
           </div>
         )}

@@ -10,32 +10,32 @@ import { TimerButton } from '@/components/TimerButton'
 import { useRuntimeStore } from '@/store/runtimeStore'
 import { useSettingsStore } from '@/store/settingsStore'
 
-const PotatoPage = () => {
-  const potatoElapsedTime = useRuntimeStore.use.potatoElapsedTime()
-  const showPomodoroPotatoConflict = useRuntimeStore.use.showPomodoroPotatoConflict()
-  const resolvePomodoroPotatoConflict = useRuntimeStore.use.resolvePomodoroPotatoConflict()
-  const dailyPotatoLimit = useSettingsStore.use.dailyPotatoLimit()
-  const isOvertime = potatoElapsedTime > dailyPotatoLimit * 60
+const PatataPage = () => {
+  const patataElapsedTime = useRuntimeStore.use.patataElapsedTime()
+  const showPomodoroPatataConflict = useRuntimeStore.use.showPomodoroPatataConflict()
+  const resolvePomodoroPatataConflict = useRuntimeStore.use.resolvePomodoroPatataConflict()
+  const dailyPatataLimit = useSettingsStore.use.dailyPatataLimit()
+  const isOvertime = patataElapsedTime > dailyPatataLimit * 60
   const tasks = useRuntimeStore.use.tasks()
-  const currentPotatoTaskId = useRuntimeStore.use.currentPotatoTaskId()
-  const setCurrentPotatoTask = useRuntimeStore.use.setCurrentPotatoTask()
+  const currentPatataTaskId = useRuntimeStore.use.currentPatataTaskId()
+  const setCurrentPatataTask = useRuntimeStore.use.setCurrentPatataTask()
 
-  const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
-  const startPotato = useRuntimeStore.use.startPotato()
-  const pausePotato = useRuntimeStore.use.pausePotato()
-  const resetPotato = useRuntimeStore.use.resetPotato()
+  const isPatataRunning = useRuntimeStore.use.isPatataRunning()
+  const startPatata = useRuntimeStore.use.startPatata()
+  const pausePatata = useRuntimeStore.use.pausePatata()
+  const resetPatata = useRuntimeStore.use.resetPatata()
   const [showOvertimeWarning, setShowOvertimeWarning] = useState(false)
 
-  const handleStartPotato = () => {
+  const handleStartPatata = () => {
     if (isOvertime) {
       setShowOvertimeWarning(true)
     } else {
-      startPotato()
+      startPatata()
     }
   }
 
   const confirmOvertimeStart = () => {
-    startPotato()
+    startPatata()
     setShowOvertimeWarning(false)
   }
 
@@ -51,14 +51,14 @@ const PotatoPage = () => {
         }`}
         style={{ fontVariantNumeric: 'tabular-nums', textShadow: '0 2px 8px rgba(0,0,0,0.2)' }}
       >
-        {formatDuration(potatoElapsedTime)}
+        {formatDuration(patataElapsedTime)}
       </div>
 
       {/* 中间 */}
       <ItemSelector
-        selectedId={currentPotatoTaskId}
+        selectedId={currentPatataTaskId}
         items={tasks.filter((t) => t.type === 'entertainment')}
-        onSelect={setCurrentPotatoTask}
+        onSelect={setCurrentPatataTask}
         icon={Gamepad2}
         dialogTitle="选择娱乐项目"
         placeholder="选择娱乐项目"
@@ -71,26 +71,26 @@ const PotatoPage = () => {
 
       {/* 按钮 */}
       <div className="flex justify-center gap-3 mt-10">
-        {!isPotatoRunning ? (
+        {!isPatataRunning ? (
           <TimerButton
             icon={Play}
             label="开始"
-            onClick={handleStartPotato}
+            onClick={handleStartPatata}
             variant="dark"
           />
         ) : (
           <TimerButton
             icon={Pause}
             label="暂停"
-            onClick={pausePotato}
+            onClick={pausePatata}
             variant="dark"
           />
         )}
-        {potatoElapsedTime > 0 && (
+        {patataElapsedTime > 0 && (
           <TimerButton
             icon={RotateCcw}
             label="重置"
-            onClick={resetPotato}
+            onClick={resetPatata}
             variant="dark"
           />
         )}
@@ -107,17 +107,17 @@ const PotatoPage = () => {
         confirmClassName="bg-[#FADFA1] text-gray-900 hover:bg-[#e5cc8a] font-medium"
       />
       <ConfirmDialog
-        open={showPomodoroPotatoConflict === 'potato'}
-        onClose={() => resolvePomodoroPotatoConflict('pomodoro')}
+        open={showPomodoroPatataConflict === 'patata'}
+        onClose={() => resolvePomodoroPatataConflict('pomodoro')}
         title="番茄钟正在运行"
         message="当前番茄钟（专注时间）正在进行中，确定要停止它并开始娱乐时间吗？"
         confirmLabel="停止并开始"
         cancelLabel="取消"
-        onConfirm={() => resolvePomodoroPotatoConflict('potato')}
+        onConfirm={() => resolvePomodoroPatataConflict('patata')}
         confirmClassName="bg-[#FADFA1] text-gray-900 hover:bg-[#e5cc8a] font-medium"
       />
     </div>
   )
 }
 
-export default PotatoPage
+export default PatataPage

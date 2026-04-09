@@ -9,7 +9,7 @@ import { ToastContainer } from '@/components/ui/toast'
 
 import { useInitAutoLaunch } from '@/hooks/common/useInitAutoLaunch'
 import { usePomodoroTimer } from '@/hooks/usePomodoroTimer'
-import { usePotatoTimer } from '@/hooks/usePotatoTimer'
+import { usePatataTimer } from '@/hooks/usePatataTimer'
 import { useRestReminder } from '@/hooks/useRestReminder'
 import { useThemeSync } from '@/hooks/useThemeSync'
 import { useTrayActions } from '@/hooks/useTrayActions'
@@ -33,7 +33,7 @@ function App() {
   useThemeSync()
   useRestReminder()
   usePomodoroTimer()
-  usePotatoTimer()
+  usePatataTimer()
   useRestReminderOverlay()
 
   const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
@@ -110,7 +110,7 @@ function App() {
   const activeTab = location.pathname || '/'
   const backgroundColor = useMemo(() => {
 
-    if (activeTab === '/potato') return 'bg-[#FADFA1]'
+    if (activeTab === '/patata') return 'bg-[#FADFA1]'
     if (activeTab === '/blueberry') return 'bg-[#5D1451]'
     if (activeTab !== '/') return 'bg-[#f5f5f7] dark:bg-[#0d0d0d]'
     switch (pomodoroStatus) {

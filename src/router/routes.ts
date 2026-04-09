@@ -1,6 +1,6 @@
 export const ROUTES = {
   POMODORO: '/',
-  POTATO: '/potato',
+  PATATA: '/patata',
   BLUEBERRY: '/blueberry',
   ACTIVITIES: '/activities',
   STATS: '/stats',

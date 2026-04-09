@@ -6,7 +6,7 @@ import { format } from 'date-fns'
 import { useSettingsStore } from '@/store/settingsStore'
 import { createSelectors } from '@/store/createSelectors'
 
-import type { Task, DailyStats, PotatoActivity } from '@/types'
+import type { Task, DailyStats, PatataActivity } from '@/types'
 import { PomodoroStatus } from '@/types'
 
 /**
@@ -27,13 +27,13 @@ export interface RuntimeState {
   /** 番茄钟休息已用时间（秒，正计时） */
   pomodoroBreakTimeLeft: number
   /** 番茄钟/土豆钟冲突提示 */
-  showPomodoroPotatoConflict: 'pomodoro' | 'potato' | null
+  showPomodoroPatataConflict: 'pomodoro' | 'patata' | null
 
   // ========== 土豆钟运行状态 ==========
   /** 土豆钟是否运行中 */
-  isPotatoRunning: boolean
+  isPatataRunning: boolean
   /** 土豆钟已用时间（秒，正计时） */
-  potatoElapsedTime: number
+  patataElapsedTime: number
 
   // ========== 休息提醒运行状态 ==========
   /** 休息提醒倒计时剩余时间（秒） */
@@ -73,11 +73,11 @@ export interface RuntimeState {
   /** 当前选中的番茄钟任务ID */
   currentPomodoroTaskId: string | null
   /** 当前选中的土豆钟任务ID */
-  currentPotatoTaskId: string | null
+  currentPatataTaskId: string | null
   /** 每日统计记录 */
   dailyStats: DailyStats[]
   /** 土豆钟活动记录 */
-  potatoActivities: PotatoActivity[]
+  patataActivities: PatataActivity[]
 
   // ========== 番茄钟方法 ==========
   /** 开始番茄钟 */
@@ -93,19 +93,19 @@ export interface RuntimeState {
   /** 设置番茄钟状态 */
   setPomodoroStatus: (status: PomodoroStatus) => void
   /** 解决番茄钟/土豆钟冲突 */
-  resolvePomodoroPotatoConflict: (target: 'pomodoro' | 'potato') => void
+  resolvePomodoroPatataConflict: (target: 'pomodoro' | 'patata') => void
 
   // ========== 土豆钟方法 ==========
   /** 开始土豆钟 */
-  startPotato: () => void
+  startPatata: () => void
   /** 暂停土豆钟 */
-  pausePotato: () => void
+  pausePatata: () => void
   /** 重置土豆钟 */
-  resetPotato: () => void
+  resetPatata: () => void
   /** 添加土豆钟活动 */
-  addPotatoActivity: (activity: Omit<PotatoActivity, 'id' | 'createdAt'>) => void
+  addPatataActivity: (activity: Omit<PatataActivity, 'id' | 'createdAt'>) => void
   /** 删除土豆钟活动 */
-  deletePotatoActivity: (id: string) => void
+  deletePatataActivity: (id: string) => void
 
   // ========== 休息提醒方法 ==========
   /** 开始休息提醒倒计时 */
@@ -139,7 +139,7 @@ export interface RuntimeState {
   /** 设置当前番茄钟任务 */
   setCurrentPomodoroTask: (id: string | null) => void
   /** 设置当前土豆钟任务 */
-  setCurrentPotatoTask: (id: string | null) => void
+  setCurrentPatataTask: (id: string | null) => void
   /** 切换子任务完成状态 */
   toggleSubtask: (taskId: string, subtaskId: string) => void
   /** 完成任务 */
@@ -175,11 +175,11 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
         currentPomodoroTime: initialPomodoroTime * 60,
         pomodoroStatus: PomodoroStatus.Pomodoro,
         pomodoroBreakTimeLeft: 0,
-        showPomodoroPotatoConflict: null,
+        showPomodoroPatataConflict: null,
 
         // ========== 土豆钟运行状态 ==========
-        isPotatoRunning: false,
-        potatoElapsedTime: 0,
+        isPatataRunning: false,
+        patataElapsedTime: 0,
 
         // ========== 休息提醒运行状态 ==========
         restReminderTimeLeft: initialRestInterval * 60,
@@ -203,15 +203,15 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
         // ========== 任务管理 ==========
         tasks: [],
         currentPomodoroTaskId: null,
-        currentPotatoTaskId: null,
+        currentPatataTaskId: null,
         dailyStats: [],
-        potatoActivities: [],
+        patataActivities: [],
 
         // ========== 番茄钟方法 ==========
         startPomodoro: () => {
-          const { isPotatoRunning } = get()
-          if (isPotatoRunning) {
-            set({ showPomodoroPotatoConflict: 'pomodoro' })
+          const { isPatataRunning } = get()
+          if (isPatataRunning) {
+            set({ showPomodoroPatataConflict: 'pomodoro' })
           } else {
             set({ isPomodoroRunning: true })
           }
@@ -269,51 +269,51 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
           })
         },
 
-        resolvePomodoroPotatoConflict: (target: 'pomodoro' | 'potato') => {
+        resolvePomodoroPatataConflict: (target: 'pomodoro' | 'patata') => {
           const settings = useSettingsStore.getState()
           const restTotal = settings.restReminderInterval * 60
-          set({ showPomodoroPotatoConflict: null })
+          set({ showPomodoroPatataConflict: null })
           if (target === 'pomodoro') {
-            set({ isPotatoRunning: false, isPomodoroRunning: true, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
+            set({ isPatataRunning: false, isPomodoroRunning: true, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
           } else {
             set({ isPomodoroRunning: false, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
-            get().startPotato()
+            get().startPatata()
           }
         },
 
         // ========== 土豆钟方法 ==========
-        startPotato: () => {
+        startPatata: () => {
           const { isPomodoroRunning } = get()
           if (isPomodoroRunning) {
-            set({ showPomodoroPotatoConflict: 'potato' })
+            set({ showPomodoroPatataConflict: 'patata' })
           } else {
             const settings = useSettingsStore.getState()
-            const { potatoElapsedTime } = get()
+            const { patataElapsedTime } = get()
             const restTotal = settings.restReminderInterval * 60
-            set({ isPotatoRunning: true, potatoElapsedTime, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
+            set({ isPatataRunning: true, patataElapsedTime, restReminderTimeLeft: restTotal, restReminderTotalTime: restTotal })
           }
         },
 
-        pausePotato: () => set({ isPotatoRunning: false }),
+        pausePatata: () => set({ isPatataRunning: false }),
 
-        resetPotato: () => {
-          set({ isPotatoRunning: false, potatoElapsedTime: 0 })
+        resetPatata: () => {
+          set({ isPatataRunning: false, patataElapsedTime: 0 })
         },
 
-        addPotatoActivity: (activity) => {
+        addPatataActivity: (activity) => {
           const newActivity = {
             ...activity,
             id: crypto.randomUUID(),
             createdAt: new Date().toISOString(),
           }
           set((state) => ({
-            potatoActivities: [...state.potatoActivities, newActivity],
+            patataActivities: [...state.patataActivities, newActivity],
           }))
         },
 
-        deletePotatoActivity: (id) => {
+        deletePatataActivity: (id) => {
           set((state) => ({
-            potatoActivities: state.potatoActivities.filter(a => a.id !== id),
+            patataActivities: state.patataActivities.filter(a => a.id !== id),
           }))
         },
 
@@ -432,8 +432,8 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
           set({ currentPomodoroTaskId: id })
         },
 
-        setCurrentPotatoTask: (id) => {
-          set({ currentPotatoTaskId: id })
+        setCurrentPatataTask: (id) => {
+          set({ currentPatataTaskId: id })
         },
 
         toggleSubtask: (taskId, subtaskId) => {
@@ -480,7 +480,7 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
               focusTime: 0,
               waterCount: newWaterCount,
               tasksCompleted: 0,
-              potatoTime: 0
+              patataTime: 0
             }]
 
           set({ waterCount: newWaterCount, dailyStats: newDailyStats })
@@ -539,11 +539,11 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
       partialize: (state) => ({
         tasks: state.tasks,
         currentPomodoroTaskId: state.currentPomodoroTaskId,
-        currentPotatoTaskId: state.currentPotatoTaskId,
+        currentPatataTaskId: state.currentPatataTaskId,
         dailyStats: state.dailyStats,
-        potatoActivities: state.potatoActivities,
-        potatoElapsedTime: state.potatoElapsedTime,
-        isPotatoRunning: state.isPotatoRunning,
+        patataActivities: state.patataActivities,
+        patataElapsedTime: state.patataElapsedTime,
+        isPatataRunning: state.isPatataRunning,
         completedPomodoros: state.completedPomodoros,
         totalFocusTime: state.totalFocusTime,
         waterCount: state.waterCount,

@@ -112,7 +112,7 @@ export const usePomodoroTimer = () => {
             focusTime: settings.pomodoroTime,
             waterCount,
             tasksCompleted: 0,
-            potatoTime: 0,
+            patataTime: 0,
           }]
         useRuntimeStore.setState({ dailyStats: newDailyStats })
       }

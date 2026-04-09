@@ -18,7 +18,7 @@ const SettingsPage = () => {
   const pomodoroShortBreakTime = useSettingsStore.use.pomodoroShortBreakTime()
   const pomodoroLongBreakTime = useSettingsStore.use.pomodoroLongBreakTime()
   const autoStartEnabled = useSettingsStore.use.autoStartEnabled()
-  const dailyPotatoLimit = useSettingsStore.use.dailyPotatoLimit()
+  const dailyPatataLimit = useSettingsStore.use.dailyPatataLimit()
   const updateSettings = useSettingsStore.use.updateSettings()
   const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
   const restReminderInterval = useSettingsStore.use.restReminderInterval()
@@ -37,9 +37,9 @@ const SettingsPage = () => {
   const walkReminderEnabled = useSettingsStore.use.walkReminderEnabled()
   const walkReminderInterval = useSettingsStore.use.walkReminderInterval()
   const setAutoStartEnabled = useSetAutoLaunch()
-  const resetPotato = useRuntimeStore.use.resetPotato()
+  const resetPatata = useRuntimeStore.use.resetPatata()
   const resetRestReminder = useRuntimeStore.use.resetRestReminder()
-  const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
+  const isPatataRunning = useRuntimeStore.use.isPatataRunning()
   const restReminderTimeLeft = useRuntimeStore.use.restReminderTimeLeft()
 
   const themeOptions: { label: string; value: ThemeMode; icon: any }[] = [
@@ -52,8 +52,8 @@ const SettingsPage = () => {
     updateSettings({ [key]: value })
   }
 
-  const handleResetPotato = () => {
-    resetPotato()
+  const handleResetPatata = () => {
+    resetPatata()
   }
 
   const handleResetRestReminder = () => {
@@ -160,24 +160,24 @@ const SettingsPage = () => {
         <div className="space-y-4">
           <SettingRow label="每日娱乐时间限制" description="每天最多可用于娱乐的时间">
             <NumberInput
-              value={dailyPotatoLimit}
+              value={dailyPatataLimit}
               min={0.1}
               max={240}
               showSeconds
-              onSave={(value) => updateSettings({ dailyPotatoLimit: value })}
+              onSave={(value) => updateSettings({ dailyPatataLimit: value })}
               className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
             />
           </SettingRow>
           <SettingRow label="重置土豆钟" description="将土豆钟计时器重置为初始状态">
             <Button
-              onClick={handleResetPotato}
+              onClick={handleResetPatata}
               variant="outline"
               size="sm"
               className="gap-2"
             >
               <RotateCcw className="w-4 h-4" />
               重置
-              {isPotatoRunning && <span className="ml-1 text-xs opacity-60">(运行中)</span>}
+              {isPatataRunning && <span className="ml-1 text-xs opacity-60">(运行中)</span>}
             </Button>
           </SettingRow>
         </div>

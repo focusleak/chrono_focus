@@ -27,10 +27,10 @@ export interface DailyStats {
   focusTime: number
   waterCount: number
   tasksCompleted: number
-  potatoTime: number
+  patataTime: number
 }
 
-export interface PotatoActivity {
+export interface PatataActivity {
   id: string
   title: string
   duration: number

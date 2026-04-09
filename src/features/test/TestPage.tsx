@@ -12,7 +12,7 @@ const TestPage = () => {
   const setPomodoroStatus = useRuntimeStore.use.setPomodoroStatus()
   const resetRestReminder = useRuntimeStore.use.resetRestReminder()
   const resetPomodoro = useRuntimeStore.use.resetPomodoro()
-  const resetPotato = useRuntimeStore.use.resetPotato()
+  const resetPatata = useRuntimeStore.use.resetPatata()
   const resetDailyStats = useRuntimeStore.use.resetDailyStats()
   const setShowRestReminderPrompt = useRuntimeStore.use.setShowRestReminderPrompt()
   const incrementWater = useRuntimeStore.use.incrementWater()
@@ -22,12 +22,12 @@ const TestPage = () => {
   const resumeTimersAfterOverlay = useRuntimeStore.use.resumeTimersAfterOverlay()
 
   const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
-  const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
+  const isPatataRunning = useRuntimeStore.use.isPatataRunning()
   const showRestReminderPrompt = useRuntimeStore.use.showRestReminderPrompt()
   const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
   const pomodoroTimeLeft = useRuntimeStore.use.pomodoroTimeLeft()
   const currentPomodoroTime = useRuntimeStore.use.currentPomodoroTime()
-  const potatoElapsedTime = useRuntimeStore.use.potatoElapsedTime()
+  const patataElapsedTime = useRuntimeStore.use.patataElapsedTime()
   const restReminderTimeLeft = useRuntimeStore.use.restReminderTimeLeft()
   const restBreakCount = useRuntimeStore.use.restBreakCount()
   const restReminderSkipCount = useRuntimeStore.use.restReminderSkipCount()
@@ -37,10 +37,10 @@ const TestPage = () => {
   const walkReminderCount = useRuntimeStore.use.walkReminderCount()
   const totalFocusTime = useRuntimeStore.use.totalFocusTime()
   const currentPomodoroTaskId = useRuntimeStore.use.currentPomodoroTaskId()
-  const currentPotatoTaskId = useRuntimeStore.use.currentPotatoTaskId()
-  const showPomodoroPotatoConflict = useRuntimeStore.use.showPomodoroPotatoConflict()
+  const currentPatataTaskId = useRuntimeStore.use.currentPatataTaskId()
+  const showPomodoroPatataConflict = useRuntimeStore.use.showPomodoroPatataConflict()
   const tasks = useRuntimeStore.use.tasks()
-  const potatoActivities = useRuntimeStore.use.potatoActivities()
+  const patataActivities = useRuntimeStore.use.patataActivities()
 
   // ========== Settings Store ==========
   const theme = useSettingsStore.use.theme()
@@ -248,10 +248,10 @@ const TestPage = () => {
           <div className="p-4 rounded-xl border border-yellow-200 dark:border-yellow-900 bg-yellow-50 dark:bg-yellow-950/20">
             <h3 className="font-medium text-yellow-900 dark:text-yellow-200 mb-2">🥔 土豆钟</h3>
             <div className="space-y-1 text-sm text-yellow-800 dark:text-yellow-300">
-              <p>• 已用时间: {formatTime(potatoElapsedTime)}</p>
-              <p>• 运行中: {isPotatoRunning ? '是' : '否'}</p>
-              <p>• 当前活动: {getCurrentTaskName(currentPotatoTaskId)}</p>
-              <p>• 活动记录: {potatoActivities.length} 条</p>
+              <p>• 已用时间: {formatTime(patataElapsedTime)}</p>
+              <p>• 运行中: {isPatataRunning ? '是' : '否'}</p>
+              <p>• 当前活动: {getCurrentTaskName(currentPatataTaskId)}</p>
+              <p>• 活动记录: {patataActivities.length} 条</p>
             </div>
           </div>
 
@@ -373,7 +373,7 @@ const TestPage = () => {
       <div>
         <h2 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">土豆钟控制测试</h2>
         <div className="grid grid-cols-2 gap-3">
-          <button onClick={resetPotato} className="px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2c2c2e] font-medium transition-colors">
+          <button onClick={resetPatata} className="px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2c2c2e] font-medium transition-colors">
             重置土豆钟
           </button>
           <button onClick={handleTestConflict} className="px-4 py-3 rounded-xl border border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300 hover:bg-orange-50 dark:hover:bg-orange-950/20 font-medium transition-colors">
@@ -431,8 +431,8 @@ const TestPage = () => {
           <p>番茄运行: {isPomodoroRunning ? '是' : '否'}</p>
           <p>番茄剩余: {formatTime(pomodoroTimeLeft)}</p>
           <p>番茄总时: {formatTime(currentPomodoroTime)}</p>
-          <p>土豆运行: {isPotatoRunning ? '是' : '否'}</p>
-          <p>土豆已用: {formatTime(potatoElapsedTime)}</p>
+          <p>土豆运行: {isPatataRunning ? '是' : '否'}</p>
+          <p>土豆已用: {formatTime(patataElapsedTime)}</p>
           <p>休息提醒: {formatTime(restReminderTimeLeft)}</p>
           <p>休息弹窗: {showRestReminderPrompt ? '显示' : '隐藏'}</p>
           <p>连续短休: {restBreakCount} 次</p>
@@ -442,7 +442,7 @@ const TestPage = () => {
           <p>站立: {standReminderCount} 次</p>
           <p>远眺: {gazeReminderCount} 次</p>
           <p>走动: {walkReminderCount} 次</p>
-          <p>冲突: {showPomodoroPotatoConflict || '无'}</p>
+          <p>冲突: {showPomodoroPatataConflict || '无'}</p>
         </div>
       </div>
 

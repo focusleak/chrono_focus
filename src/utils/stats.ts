@@ -19,7 +19,7 @@ export const createDefaultDailyStats = (date: string): DailyStats => {
     focusTime: 0,
     waterCount: 0,
     tasksCompleted: 0,
-    potatoTime: 0
+    patataTime: 0
   }
 }
 

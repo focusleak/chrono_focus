@@ -20,49 +20,49 @@ import { useRuntimeStore } from '@/store/runtimeStore'
  */
 export const useTrayActions = () => {
   const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
-  const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
+  const isPatataRunning = useRuntimeStore.use.isPatataRunning()
   const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
   const pausePomodoro = useRuntimeStore.use.pausePomodoro()
   const startPomodoro = useRuntimeStore.use.startPomodoro()
   const resetPomodoro = useRuntimeStore.use.resetPomodoro()
-  const pausePotato = useRuntimeStore.use.pausePotato()
-  const startPotato = useRuntimeStore.use.startPotato()
-  const resetPotato = useRuntimeStore.use.resetPotato()
+  const pausePatata = useRuntimeStore.use.pausePatata()
+  const startPatata = useRuntimeStore.use.startPatata()
+  const resetPatata = useRuntimeStore.use.resetPatata()
   const restReminderPaused = useRuntimeStore.use.restReminderPaused()
   const toggleRestReminderPause = useRuntimeStore.use.toggleRestReminderPause()
 
   // 用 ref 存储最新的状态和方法，避免闭包捕获过期值
   const stateRef = useRef({
     isPomodoroRunning,
-    isPotatoRunning,
+    isPatataRunning,
     pomodoroStatus,
     restReminderPaused,
     pausePomodoro,
     startPomodoro,
     resetPomodoro,
-    pausePotato,
-    startPotato,
-    resetPotato,
+    pausePatata,
+    startPatata,
+    resetPatata,
     toggleRestReminderPause,
   })
 
   useEffect(() => {
     stateRef.current = {
       isPomodoroRunning,
-      isPotatoRunning,
+      isPatataRunning,
       pomodoroStatus,
       restReminderPaused,
       pausePomodoro,
       startPomodoro,
       resetPomodoro,
-      pausePotato,
-      startPotato,
-      resetPotato,
+      pausePatata,
+      startPatata,
+      resetPatata,
       toggleRestReminderPause,
     }
-  }, [isPomodoroRunning, isPotatoRunning, pomodoroStatus, restReminderPaused,
+  }, [isPomodoroRunning, isPatataRunning, pomodoroStatus, restReminderPaused,
     pausePomodoro, startPomodoro, resetPomodoro,
-    pausePotato, startPotato, resetPotato,
+    pausePatata, startPatata, resetPatata,
     toggleRestReminderPause])
 
   useEffect(() => {
@@ -86,15 +86,15 @@ export const useTrayActions = () => {
         case 'break-abort':
           s.resetPomodoro()
           break
-        case 'potato-toggle':
-          if (s.isPotatoRunning) {
-            s.pausePotato()
+        case 'patata-toggle':
+          if (s.isPatataRunning) {
+            s.pausePatata()
           } else {
-            s.startPotato()
+            s.startPatata()
           }
           break
-        case 'potato-abort':
-          s.resetPotato()
+        case 'patata-abort':
+          s.resetPatata()
           break
         case 'rest-toggle':
           s.toggleRestReminderPause()

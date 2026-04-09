@@ -12,7 +12,7 @@ import { useSettingsStore } from '@/store/settingsStore'
  */
 export const useRestReminder = () => {
   const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
-  const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
+  const isPatataRunning = useRuntimeStore.use.isPatataRunning()
   const restReminderTimeLeft = useRuntimeStore.use.restReminderTimeLeft()
   const showRestReminderPrompt = useRuntimeStore.use.showRestReminderPrompt()
   const restReminderPaused = useRuntimeStore.use.restReminderPaused()
@@ -25,7 +25,7 @@ export const useRestReminder = () => {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const hasNotifiedRef = useRef(false)
   const prevShowPromptRef = useRef(false)
-  const prevRunningRef = useRef(isPomodoroRunning || isPotatoRunning)
+  const prevRunningRef = useRef(isPomodoroRunning || isPatataRunning)
 
   // 用 ref 存储最新状态
   const tickRef = useRef(tickRestReminder)
@@ -36,7 +36,7 @@ export const useRestReminder = () => {
   }, [tickRestReminder, resetRestReminder])
 
   // 是否应该运行休息提醒倒计时
-  const shouldRun = restReminderEnabled && !isPomodoroRunning && !isPotatoRunning && !showRestReminderPrompt && !restReminderPaused
+  const shouldRun = restReminderEnabled && !isPomodoroRunning && !isPatataRunning && !showRestReminderPrompt && !restReminderPaused
 
   // 主定时器 useEffect
   useEffect(() => {
@@ -85,7 +85,7 @@ export const useRestReminder = () => {
 
   // 监听专注状态变化，重置休息提醒
   useEffect(() => {
-    const nowRunning = isPomodoroRunning || isPotatoRunning
+    const nowRunning = isPomodoroRunning || isPatataRunning
     const wasRunning = prevRunningRef.current
 
     if (nowRunning && !wasRunning) {
@@ -98,5 +98,5 @@ export const useRestReminder = () => {
       hasNotifiedRef.current = false
     }
     prevRunningRef.current = nowRunning
-  }, [isPomodoroRunning, isPotatoRunning])
+  }, [isPomodoroRunning, isPatataRunning])
 }

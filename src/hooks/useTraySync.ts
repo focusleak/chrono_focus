@@ -23,17 +23,17 @@ import { PomodoroStatus } from '@/types'
  */
 export const useTraySync = () => {
   const isPomodoroRunning = useRuntimeStore.use.isPomodoroRunning()
-  const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
+  const isPatataRunning = useRuntimeStore.use.isPatataRunning()
   const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
   const pomodoroTimeLeft = useRuntimeStore.use.pomodoroTimeLeft()
   const currentPomodoroTime = useRuntimeStore.use.currentPomodoroTime()
-  const potatoElapsedTime = useRuntimeStore.use.potatoElapsedTime()
+  const patataElapsedTime = useRuntimeStore.use.patataElapsedTime()
   const showRestReminderPrompt = useRuntimeStore.use.showRestReminderPrompt()
   const restReminderPaused = useRuntimeStore.use.restReminderPaused()
   const restReminderTimeLeft = useRuntimeStore.use.restReminderTimeLeft()
   const restReminderTotalTime = useRuntimeStore.use.restReminderTotalTime()
   const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
-  const dailyPotatoLimit = useSettingsStore.use.dailyPotatoLimit()
+  const dailyPatataLimit = useSettingsStore.use.dailyPatataLimit()
 
   useEffect(() => {
     const updateTray = () => {
@@ -56,15 +56,15 @@ export const useTraySync = () => {
           menuState = 'longBreak'
         }
       }
-      else if (isPotatoRunning) {
-        if (potatoElapsedTime <= dailyPotatoLimit * 60) {
-          const mins = Math.floor(potatoElapsedTime / 60)
+      else if (isPatataRunning) {
+        if (patataElapsedTime <= dailyPatataLimit * 60) {
+          const mins = Math.floor(patataElapsedTime / 60)
           text = `土豆钟-娱乐 ${mins}分钟`
         } else {
-          const mins = Math.floor(potatoElapsedTime / 60)
+          const mins = Math.floor(patataElapsedTime / 60)
           text = `土豆钟-超时 ${mins}分钟`
         }
-        menuState = 'potato'
+        menuState = 'patata'
       } else if (showRestReminderPrompt) {
         text = '强制休息中'
         menuState = 'restReminderPrompt'
@@ -87,5 +87,5 @@ export const useTraySync = () => {
     }
 
     updateTray()
-  }, [isPomodoroRunning, isPotatoRunning, pomodoroStatus, pomodoroTimeLeft, currentPomodoroTime, potatoElapsedTime, restReminderEnabled, restReminderTimeLeft, restReminderTotalTime, showRestReminderPrompt, restReminderPaused, dailyPotatoLimit])
+  }, [isPomodoroRunning, isPatataRunning, pomodoroStatus, pomodoroTimeLeft, currentPomodoroTime, patataElapsedTime, restReminderEnabled, restReminderTimeLeft, restReminderTotalTime, showRestReminderPrompt, restReminderPaused, dailyPatataLimit])
 }

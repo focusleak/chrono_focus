@@ -13,8 +13,8 @@ const TRAY_TEXTS = {
   pomodoro: (mins) => `番茄钟-已专注${mins}分钟`,
   shortBreak: "番茄钟-短休息中",
   longBreak: "番茄钟-长休息中",
-  potato: (mins) => `土豆钟-${mins}分钟`,
-  potatoOvertime: "土豆钟-娱乐中？",
+  patata: (mins) => `土豆钟-${mins}分钟`,
+  patataOvertime: "土豆钟-娱乐中？",
   restReminder: (percent) => `休息提醒-${percent}%`,
   restReminderPaused: (percent) => `${percent}% 休息提醒暂停`,
   restReminderPrompt: "强制休息中",
@@ -73,17 +73,17 @@ const createMenuTemplate = (state) => {
       );
       break;
 
-    case "potato":
+    case "patata":
       template.push(
         {
           label: "暂停土豆钟",
           click: () =>
-            mainWindow?.webContents.send("tray-action", "potato-toggle"),
+            mainWindow?.webContents.send("tray-action", "patata-toggle"),
         },
         {
           label: "放弃",
           click: () =>
-            mainWindow?.webContents.send("tray-action", "potato-abort"),
+            mainWindow?.webContents.send("tray-action", "patata-abort"),
         }
       );
       template.push({ type: "separator" }, startPomodoro);
@@ -131,10 +131,10 @@ const getTrayText = (state, data = {}) => {
       return TRAY_TEXTS.shortBreak;
     case "longBreak":
       return TRAY_TEXTS.longBreak;
-    case "potato":
+    case "patata":
       return data.isOvertime
-        ? TRAY_TEXTS.potatoOvertime
-        : TRAY_TEXTS.potato(data.mins || "0");
+        ? TRAY_TEXTS.patataOvertime
+        : TRAY_TEXTS.patata(data.mins || "0");
     case "restReminder":
       return TRAY_TEXTS.restReminder(data.percent || "0");
     case "restReminderPaused":

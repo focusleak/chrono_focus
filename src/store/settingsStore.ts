@@ -51,7 +51,7 @@ export interface SettingsState {
   /** 走动提醒间隔（分钟） */
   walkReminderInterval: number
   /** 每日娱乐时间限制（分钟） */
-  dailyPotatoLimit: number
+  dailyPatataLimit: number
   /** 是否启用开机自启动 */
   autoStartEnabled: boolean
   /** 主题模式 */
@@ -88,7 +88,7 @@ export const useSettingsStore = createSelectors(create<SettingsState>()(
       gazeReminderInterval: 20,
       walkReminderEnabled: true,
       walkReminderInterval: 60,
-      dailyPotatoLimit: 60,
+      dailyPatataLimit: 60,
       autoStartEnabled: false,
       theme: 'system',
 

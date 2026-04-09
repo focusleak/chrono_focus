@@ -8,7 +8,7 @@ export interface NavItemConfig {
 
 export const NAV_CONFIG: Record<RouteKey, NavItemConfig> = {
   POMODORO: { key: 'POMODORO', label: '番茄钟', position: 'main' },
-  POTATO: { key: 'POTATO', label: '土豆钟', position: 'main' },
+  PATATA: { key: 'PATATA', label: '土豆钟', position: 'main' },
   BLUEBERRY: { key: 'BLUEBERRY', label: '蓝莓钟', position: 'main' },
   ACTIVITIES: { key: 'ACTIVITIES', label: '活动', position: 'secondary' },
   STATS: { key: 'STATS', label: '统计', position: 'secondary' },

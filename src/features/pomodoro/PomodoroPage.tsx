@@ -20,8 +20,8 @@ const PomodoroPage = () => {
 
   const stopPomodoro = useRuntimeStore.use.stopPomodoro()
   const finishEarlyPomodoro = useRuntimeStore.use.finishEarlyPomodoro()
-  const showPomodoroPotatoConflict = useRuntimeStore.use.showPomodoroPotatoConflict()
-  const resolvePomodoroPotatoConflict = useRuntimeStore.use.resolvePomodoroPotatoConflict()
+  const showPomodoroPatataConflict = useRuntimeStore.use.showPomodoroPatataConflict()
+  const resolvePomodoroPatataConflict = useRuntimeStore.use.resolvePomodoroPatataConflict()
 
   const startPomodoro = useRuntimeStore.use.startPomodoro()
   const pausePomodoro = useRuntimeStore.use.pausePomodoro()
@@ -87,13 +87,13 @@ const PomodoroPage = () => {
 
       {/* 弹窗 */}
       <ConfirmDialog
-        open={showPomodoroPotatoConflict === 'pomodoro'}
-        onClose={() => resolvePomodoroPotatoConflict('potato')}
+        open={showPomodoroPatataConflict === 'pomodoro'}
+        onClose={() => resolvePomodoroPatataConflict('patata')}
         title="土豆钟正在运行"
         message="当前土豆钟（娱乐时间）正在进行中，确定要停止它并开始番茄钟吗？"
         confirmLabel="停止并开始"
         cancelLabel="取消"
-        onConfirm={() => resolvePomodoroPotatoConflict('pomodoro')}
+        onConfirm={() => resolvePomodoroPatataConflict('pomodoro')}
         confirmClassName="bg-[#ba4949] text-white hover:bg-[#a83d3d] font-medium"
       />
     </div>

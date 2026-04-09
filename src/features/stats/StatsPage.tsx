@@ -9,7 +9,7 @@ import DailyStatsGrid from './DailyStatsGrid'
 import { StatCard, StatSection } from './StatCard'
 
 
-type StatsCategory = 'overview' | 'focus' | 'potato' | 'water' | 'stand' | 'gaze' | 'walk'
+type StatsCategory = 'overview' | 'focus' | 'patata' | 'water' | 'stand' | 'gaze' | 'walk'
 
 const StatsPage = () => {
   const completedPomodoros = useRuntimeStore.use.completedPomodoros()
@@ -18,11 +18,11 @@ const StatsPage = () => {
   const gazeReminderCount = useRuntimeStore.use.gazeReminderCount()
   const walkReminderCount = useRuntimeStore.use.walkReminderCount()
   const standReminderCount = useRuntimeStore.use.standReminderCount()
-  const potatoActivities = useRuntimeStore.use.potatoActivities()
+  const patataActivities = useRuntimeStore.use.patataActivities()
   const tasks = useRuntimeStore.use.tasks()
   const dailyWaterGoal = useSettingsStore.use.dailyWaterGoal()
   const standReminderInterval = useSettingsStore.use.standReminderInterval()
-  const dailyPotatoLimit = useSettingsStore.use.dailyPotatoLimit()
+  const dailyPatataLimit = useSettingsStore.use.dailyPatataLimit()
 
   const [selectedCategory, setSelectedCategory] = useState<StatsCategory>('overview')
 
@@ -32,7 +32,7 @@ const StatsPage = () => {
   const categories = [
     { id: 'overview' as StatsCategory, label: '总览', icon: TrendingUp, color: 'text-gray-600 dark:text-gray-400' },
     { id: 'focus' as StatsCategory, label: '专注', icon: Target, color: 'text-red-500' },
-    { id: 'potato' as StatsCategory, label: '娱乐', icon: Gamepad2, color: 'text-orange-500' },
+    { id: 'patata' as StatsCategory, label: '娱乐', icon: Gamepad2, color: 'text-orange-500' },
     { id: 'water' as StatsCategory, label: '喝水', icon: Droplets, color: 'text-cyan-500' },
     { id: 'stand' as StatsCategory, label: '站立', icon: Footprints, color: 'text-blue-500' },
     { id: 'gaze' as StatsCategory, label: '远眺', icon: Eye, color: 'text-green-500' },
@@ -86,7 +86,7 @@ const StatsPage = () => {
             </div>
           </StatSection>
         )
-      case 'potato':
+      case 'patata':
         return (
           <StatSection
             icon={Gamepad2}
@@ -101,28 +101,28 @@ const StatsPage = () => {
                 icon={Timer}
                 iconColor="text-orange-500"
                 bgColor="bg-orange-100 dark:bg-orange-900/30"
-                value={potatoActivities.reduce((sum, a) => sum + a.duration, 0)}
+                value={patataActivities.reduce((sum, a) => sum + a.duration, 0)}
                 label="已用时间（分钟）"
               />
               <StatCard
                 icon={Timer}
                 iconColor="text-orange-500"
                 bgColor="bg-orange-100 dark:bg-orange-900/30"
-                value={dailyPotatoLimit}
+                value={dailyPatataLimit}
                 label="每日限制（分钟）"
               />
               <StatCard
                 icon={Timer}
                 iconColor="text-orange-500"
                 bgColor="bg-orange-100 dark:bg-orange-900/30"
-                value={Math.max(0, dailyPotatoLimit - potatoActivities.reduce((sum, a) => sum + a.duration, 0))}
+                value={Math.max(0, dailyPatataLimit - patataActivities.reduce((sum, a) => sum + a.duration, 0))}
                 label="剩余时间（分钟）"
               />
               <StatCard
                 icon={Gamepad2}
                 iconColor="text-orange-500"
                 bgColor="bg-orange-100 dark:bg-orange-900/30"
-                value={potatoActivities.length}
+                value={patataActivities.length}
                 label="娱乐活动数"
               />
             </div>
@@ -317,7 +317,7 @@ const StatsPage = () => {
                 icon={Timer}
                 iconColor="text-orange-500"
                 bgColor="bg-orange-100 dark:bg-orange-900/30"
-                value={potatoActivities.reduce((sum, a) => sum + a.duration, 0)}
+                value={patataActivities.reduce((sum, a) => sum + a.duration, 0)}
                 label="娱乐时间（分钟）"
               />
 

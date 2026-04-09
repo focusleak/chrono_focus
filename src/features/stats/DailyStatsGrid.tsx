@@ -112,7 +112,7 @@ const DailyStatsGrid = ({ title = '每日统计' }: DailyStatsGridProps) => {
   const totalFocusMinutes = stats.reduce((sum, s) => sum + s.focusTime, 0)
   const totalWater = stats.reduce((sum, s) => sum + s.waterCount, 0)
   const totalTasks = stats.reduce((sum, s) => sum + s.tasksCompleted, 0)
-  const totalPotatoTime = stats.reduce((sum, s) => sum + (s.potatoTime || 0), 0)
+  const totalPatataTime = stats.reduce((sum, s) => sum + (s.patataTime || 0), 0)
   const activeDays = stats.filter((s: DailyStats) => s.pomodoros > 0).length
 
   const goToPrevious = () => {
@@ -206,7 +206,7 @@ const DailyStatsGrid = ({ title = '每日统计' }: DailyStatsGridProps) => {
           <div className="text-xs text-gray-600 dark:text-gray-400">完成任务</div>
         </div>
         <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg text-center">
-          <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{totalPotatoTime}m</div>
+          <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{totalPatataTime}m</div>
           <div className="text-xs text-gray-600 dark:text-gray-400">娱乐时间</div>
         </div>
       </div>
