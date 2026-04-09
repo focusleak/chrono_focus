@@ -75,15 +75,6 @@ export const useTrayActions = () => {
           s.startPomodoro()
           break
         case 'pomodoro-toggle':
-          if (s.isPomodoroRunning) {
-            s.pausePomodoro()
-          } else {
-            s.startPomodoro()
-          }
-          break
-        case 'pomodoro-abort':
-          s.resetPomodoro()
-          break
         case 'break-toggle':
           if (s.isPomodoroRunning) {
             s.pausePomodoro()
@@ -91,6 +82,7 @@ export const useTrayActions = () => {
             s.startPomodoro()
           }
           break
+        case 'pomodoro-abort':
         case 'break-abort':
           s.resetPomodoro()
           break

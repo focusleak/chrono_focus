@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { immer } from 'zustand/middleware/immer'
 
 import { createSelectors } from '@/store/createSelectors'
 
@@ -66,7 +67,7 @@ export interface SettingsState {
 
 
 export const useSettingsStore = createSelectors(create<SettingsState>()(
-  persist(
+  immer(persist(
     (set) => ({
       pomodoroTime: 25,
       pomodoroShortBreakTime: 5,
@@ -91,9 +92,10 @@ export const useSettingsStore = createSelectors(create<SettingsState>()(
       autoStartEnabled: false,
       theme: 'system',
 
-
       updateSettings: (settings: Partial<SettingsState>) => {
-        set((state) => ({ ...state, ...settings }))
+        set((state) => {
+          Object.assign(state, settings)
+        })
       },
 
       setAutoStartEnabled: (enabled: boolean) => {
@@ -107,5 +109,5 @@ export const useSettingsStore = createSelectors(create<SettingsState>()(
     {
       name: 'chrono-focus-settings',
     },
-  ),
+  )),
 ))

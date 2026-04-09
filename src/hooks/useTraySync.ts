@@ -26,6 +26,7 @@ export const useTraySync = () => {
   const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
   const pomodoroStatus = useRuntimeStore.use.pomodoroStatus()
   const pomodoroTimeLeft = useRuntimeStore.use.pomodoroTimeLeft()
+  const currentPomodoroTime = useRuntimeStore.use.currentPomodoroTime()
   const potatoElapsedTime = useRuntimeStore.use.potatoElapsedTime()
   const showRestReminderPrompt = useRuntimeStore.use.showRestReminderPrompt()
   const restReminderPaused = useRuntimeStore.use.restReminderPaused()
@@ -43,7 +44,8 @@ export const useTraySync = () => {
 
       if (isPomodoroRunning) {
         if (pomodoroStatus === PomodoroStatus.Pomodoro) {
-          const mins = Math.ceil(pomodoroTimeLeft / 60)
+          const elapsed = Math.max(0, currentPomodoroTime - pomodoroTimeLeft)
+          const mins = Math.ceil(elapsed / 60)
           text = `番茄钟-已专注 ${mins}分钟`
           menuState = 'pomodoro'
         } else if (pomodoroStatus === PomodoroStatus.ShortBreak) {
@@ -53,7 +55,8 @@ export const useTraySync = () => {
           text = '番茄钟-长休息中'
           menuState = 'longBreak'
         }
-      } else if (isPotatoRunning) {
+      }
+      else if (isPotatoRunning) {
         if (potatoElapsedTime <= dailyPotatoLimit * 60) {
           const mins = Math.floor(potatoElapsedTime / 60)
           text = `土豆钟-娱乐 ${mins}分钟`
@@ -84,5 +87,5 @@ export const useTraySync = () => {
     }
 
     updateTray()
-  }, [isPomodoroRunning, isPotatoRunning, pomodoroStatus, pomodoroTimeLeft, potatoElapsedTime, restReminderEnabled, restReminderTimeLeft, restReminderTotalTime, showRestReminderPrompt, restReminderPaused, dailyPotatoLimit])
+  }, [isPomodoroRunning, isPotatoRunning, pomodoroStatus, pomodoroTimeLeft, currentPomodoroTime, potatoElapsedTime, restReminderEnabled, restReminderTimeLeft, restReminderTotalTime, showRestReminderPrompt, restReminderPaused, dailyPotatoLimit])
 }

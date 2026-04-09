@@ -2,7 +2,6 @@ import { Play, Pause, Timer, Gamepad2, Droplets, Clock } from 'lucide-react'
 
 import { formatDuration } from '@/lib/utils'
 
-import type { Task } from '@/types'
 import { PomodoroStatus } from '@/types'
 
 import { useRuntimeStore } from '@/store/runtimeStore'
@@ -34,7 +33,7 @@ const StatusBar = () => {
   const dailyWaterGoal = useSettingsStore.use.dailyWaterGoal()
   const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
 
-  const currentTask = tasks.find((t: Task) => t.id === currentPomodoroTaskId)
+  const currentTask = tasks.find((t) => t.id === currentPomodoroTaskId)
 
   /** 切换暂停/运行 */
   const togglePause = () => {
@@ -144,8 +143,9 @@ const StatusBar = () => {
                 </span>
               )}
             {/* 暂停/继续按钮 */}
-            <div
-              className="flex cursor-pointer items-center transition-opacity hover:opacity-80"
+            <button
+              type="button"
+              className="flex cursor-pointer items-center transition-opacity hover:opacity-80 bg-transparent border-none p-0"
               onClick={togglePause}
               title={restReminderPaused ? '继续' : '暂停'}
             >
@@ -154,7 +154,7 @@ const StatusBar = () => {
               ) : (
                 <Pause className="h-4 w-4 text-white" />
               )}
-            </div>
+            </button>
           </div>
         )}
 

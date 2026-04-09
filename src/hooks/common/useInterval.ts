@@ -12,18 +12,26 @@ export function useInterval(
   enabled: boolean = true,
 ) {
   const savedCallback = useRef(callback)
+  const savedDelay = useRef(delay)
 
-  // 保存最新的 callback
+  // 保存最新的 callback 和 delay
   useEffect(() => {
     savedCallback.current = callback
   }, [callback])
+
+  useEffect(() => {
+    savedDelay.current = delay
+  }, [delay])
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const start = useCallback(() => {
     if (intervalRef.current) return
-    intervalRef.current = setInterval(() => savedCallback.current(), delay)
-  }, [delay])
+    intervalRef.current = setInterval(
+      () => savedCallback.current(),
+      savedDelay.current,
+    )
+  }, [])
 
   const stop = useCallback(() => {
     if (intervalRef.current) {
@@ -41,6 +49,14 @@ export function useInterval(
     }
     return stop
   }, [enabled, start, stop])
+
+  // delay 变化时重建 interval
+  useEffect(() => {
+    if (enabled && intervalRef.current) {
+      stop()
+      start()
+    }
+  }, [delay, enabled, start, stop])
 
   // 组件卸载时清理
   useEffect(() => stop, [stop])

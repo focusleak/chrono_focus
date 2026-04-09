@@ -9,7 +9,7 @@ import { toast } from '@/components/ui/toast'
 
 import { useRuntimeStore } from '@/store/runtimeStore'
 
-import type { Task, SubTask } from '@/types'
+import type { SubTask } from '@/types'
 
 interface TaskDetailModalProps {
   taskId: string | null
@@ -21,7 +21,7 @@ const TaskDetailModal = ({ taskId, onClose }: TaskDetailModalProps) => {
   const toggleSubtask = useRuntimeStore.use.toggleSubtask()
   const completeTask = useRuntimeStore.use.completeTask()
 
-  const task = tasks.find((t: Task) => t.id === taskId)
+  const task = tasks.find((t) => t.id === taskId)
 
   if (!task) return null
 

@@ -10,7 +10,6 @@ import { TimerButton } from '@/components/TimerButton'
 import { useRuntimeStore } from '@/store/runtimeStore'
 import { useSettingsStore } from '@/store/settingsStore'
 
-import type { Task } from '@/types'
 const PotatoPage = () => {
   const potatoElapsedTime = useRuntimeStore.use.potatoElapsedTime()
   const showPomodoroPotatoConflict = useRuntimeStore.use.showPomodoroPotatoConflict()
@@ -58,7 +57,7 @@ const PotatoPage = () => {
       {/* 中间 */}
       <ItemSelector
         selectedId={currentPotatoTaskId}
-        items={tasks.filter((t: Task) => t.type === 'entertainment')}
+        items={tasks.filter((t) => t.type === 'entertainment')}
         onSelect={setCurrentPotatoTask}
         icon={Gamepad2}
         dialogTitle="选择娱乐项目"

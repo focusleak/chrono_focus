@@ -2,6 +2,15 @@
  * 通知工具函数
  */
 
+let audioContext: AudioContext | null = null
+
+const getAudioContext = (): AudioContext => {
+  if (!audioContext || audioContext.state === 'closed') {
+    audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+  }
+  return audioContext
+}
+
 /**
  * 发送通知（Electron 或浏览器原生）
  */
@@ -50,22 +59,26 @@ export const requestNotificationPermission = async () => {
  * 播放提示音
  */
 export const playSound = (type: 'complete' | 'remind' = 'complete') => {
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-  const oscillator = audioContext.createOscillator()
-  const gainNode = audioContext.createGain()
+  try {
+    const ctx = getAudioContext()
+    const oscillator = ctx.createOscillator()
+    const gainNode = ctx.createGain()
 
-  oscillator.connect(gainNode)
-  gainNode.connect(audioContext.destination)
+    oscillator.connect(gainNode)
+    gainNode.connect(ctx.destination)
 
-  if (type === 'complete') {
-    oscillator.frequency.value = 800
-    gainNode.gain.value = 0.3
-  } else {
-    oscillator.frequency.value = 600
-    gainNode.gain.value = 0.2
+    if (type === 'complete') {
+      oscillator.frequency.value = 800
+      gainNode.gain.value = 0.3
+    } else {
+      oscillator.frequency.value = 600
+      gainNode.gain.value = 0.2
+    }
+
+    oscillator.start()
+    gainNode.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5)
+    oscillator.stop(ctx.currentTime + 0.5)
+  } catch (error) {
+    console.error('Failed to play sound:', error)
   }
-
-  oscillator.start()
-  gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5)
-  oscillator.stop(audioContext.currentTime + 0.5)
 }

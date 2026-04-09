@@ -11,7 +11,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useRuntimeStore } from '@/store/runtimeStore'
 
 import { PomodoroStatus } from '@/types'
-import type { Task } from '@/types'
 
 const PomodoroPage = () => {
   const pomodoroTimeLeft = useRuntimeStore.use.pomodoroTimeLeft()
@@ -59,7 +58,7 @@ const PomodoroPage = () => {
         </div> :
         <ItemSelector
           selectedId={currentPomodoroTaskId}
-          items={tasks.filter((t: Task) => t.type === 'task')}
+          items={tasks.filter((t) => t.type === 'task')}
           onSelect={setCurrentPomodoroTask}
           icon={Target}
           dialogTitle="选择任务"

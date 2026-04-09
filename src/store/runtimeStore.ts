@@ -154,6 +154,8 @@ export interface RuntimeState {
   // ========== 统计方法 ==========
   /** 增加喝水计数 */
   incrementWater: () => void
+  /** 减少喝水计数 */
+  decrementWater: () => void
   /** 重置每日统计 */
   resetDailyStats: () => void
   /** 添加每日统计 */
@@ -389,7 +391,7 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
         addPotatoActivity: (activity) => {
           const newActivity = {
             ...activity,
-            id: Date.now().toString(),
+            id: crypto.randomUUID(),
             createdAt: new Date().toISOString(),
           }
           set((state) => ({
@@ -415,7 +417,9 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
           })
         },
 
-        pauseRestReminder: () => { },
+        pauseRestReminder: () => {
+          set({ restReminderPaused: true })
+        },
 
         resetRestReminder: () => {
           const settings = useSettingsStore.getState()
@@ -474,7 +478,7 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
         addTask: (task) => {
           const newTask = {
             ...task,
-            id: Date.now().toString(),
+            id: crypto.randomUUID(),
             createdAt: new Date().toISOString(),
             completedPomodoros: 0,
             isCompleted: false,
@@ -549,6 +553,7 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
         },
 
         // ========== 统计方法 ==========
+        /** 增加喝水计数 */
         incrementWater: () => {
           const { waterCount, dailyStats } = get()
           const newWaterCount = waterCount + 1
@@ -569,11 +574,30 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
           set({ waterCount: newWaterCount, dailyStats: newDailyStats })
         },
 
+        /** 减少喝水计数 */
+        decrementWater: () => {
+          const { waterCount, dailyStats } = get()
+          if (waterCount <= 0) return
+
+          const newWaterCount = waterCount - 1
+          const today = format(new Date(), "yyyy-MM-dd")
+
+          const todayStats = dailyStats.find(s => s.date === today)
+          const newDailyStats = todayStats
+            ? dailyStats.map(s => s.date === today ? { ...s, waterCount: newWaterCount } : s)
+            : dailyStats
+
+          set({ waterCount: newWaterCount, dailyStats: newDailyStats })
+        },
+
         resetDailyStats: () => {
           set({
             waterCount: 0,
             completedPomodoros: 0,
             totalFocusTime: 0,
+            standReminderCount: 0,
+            gazeReminderCount: 0,
+            walkReminderCount: 0,
           })
         },
 

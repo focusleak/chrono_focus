@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import { Input } from '@/components/ui/input'
 
@@ -31,6 +31,11 @@ export const NumberInput = ({
   showSeconds = false
 }: NumberInputProps) => {
   const [inputValue, setInputValue] = useState(String(value))
+
+  // 同步外部 value 变化
+  useEffect(() => {
+    setInputValue(String(value))
+  }, [value])
 
   const handleBlur = () => {
     const num = parseFloat(inputValue)

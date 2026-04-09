@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 import { requestNotificationPermission } from '@/lib/utils'
 
@@ -105,8 +105,9 @@ function App() {
     window.addEventListener('navigate-to-tasks', handleNavigateToTasks)
     return () => window.removeEventListener('navigate-to-tasks', handleNavigateToTasks)
   }, [navigate])
-  
-  const activeTab = window.location.hash.slice(1) || '/'
+
+  const location = useLocation()
+  const activeTab = location.pathname || '/'
   const backgroundColor = useMemo(() => {
 
     if (activeTab === '/potato') return 'bg-[#FADFA1]'

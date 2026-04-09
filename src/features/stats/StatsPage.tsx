@@ -8,7 +8,6 @@ import { useSettingsStore } from '@/store/settingsStore'
 import DailyStatsGrid from './DailyStatsGrid'
 import { StatCard, StatSection } from './StatCard'
 
-import type { Task } from '@/types'
 
 type StatsCategory = 'overview' | 'focus' | 'potato' | 'water' | 'stand' | 'gaze' | 'walk'
 
@@ -27,7 +26,7 @@ const StatsPage = () => {
 
   const [selectedCategory, setSelectedCategory] = useState<StatsCategory>('overview')
 
-  const completedTasks = tasks.filter((t: Task) => t.isCompleted).length
+  const completedTasks = tasks.filter((t) => t.isCompleted).length
   const totalTasks = tasks.length
 
   const categories = [
@@ -40,17 +39,8 @@ const StatsPage = () => {
     { id: 'walk' as StatsCategory, label: '走动', icon: PersonStanding, color: 'text-purple-500' },
   ]
 
-  const incrementWater = () => {
-    const { incrementWater: storeIncrementWater } = useRuntimeStore.getState()
-    storeIncrementWater()
-  }
-
-  const decrementWater = () => {
-    const state = useRuntimeStore.getState()
-    if (state.waterCount > 0) {
-      useRuntimeStore.setState({ waterCount: state.waterCount - 1 })
-    }
-  }
+  const incrementWater = useRuntimeStore.use.incrementWater()
+  const decrementWater = useRuntimeStore.use.decrementWater()
 
   const renderContent = () => {
     switch (selectedCategory) {
