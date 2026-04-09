@@ -1,13 +1,13 @@
 export interface ElectronAPI {
+  // 通知
   showNotification: (title: string, body: string) => Promise<boolean>
   requestNotificationPermission: () => Promise<boolean>
+
+  // 开机自启
   setAutoLaunch: (enabled: boolean) => Promise<{ success: boolean; enabled?: boolean; error?: string }>
   getAutoLaunchStatus: () => Promise<{ success: boolean; enabled?: boolean; error?: string }>
-  showFullscreenOverlay: () => Promise<boolean>
-  closeFullscreenOverlay: () => Promise<boolean>
-  onOverlayClosed: (callback: () => void) => void
 
-  // 休息提醒遮罩
+  // 遮罩管理
   showRestReminderOverlay: (config: {
     isLongBreak: boolean
     timeLeft: number
@@ -16,17 +16,16 @@ export interface ElectronAPI {
     isSkipped?: boolean
     skipCount?: number
   }) => Promise<boolean>
-  // 答题遮罩
   showQuizOverlay: (config: { num1: number; num2: number }) => Promise<boolean>
-  // 关闭遮罩
   closeOverlay: () => Promise<boolean>
-  // 更新托盘文字
+  onOverlayClosed: (callback: () => void) => void
+
+  // 系统托盘
   updateTrayText: (text: string) => Promise<boolean>
-  // 更新托盘菜单
   updateTrayMenu: (state: string) => Promise<boolean>
-  // 监听托盘动作
   onTrayAction: (callback: (action: string) => void) => () => void
-  // 监听遮罩动作事件（从 Electron 遮罩窗口转发）
+
+  // 事件监听
   onOverlayAction: (callback: (action: string) => void) => void
 }
 

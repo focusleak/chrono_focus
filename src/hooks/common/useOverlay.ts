@@ -50,40 +50,8 @@ export function useOverlay() {
   }, [])
 
   const show = useCallback(async () => {
-    if (typeof window === 'undefined' || !window.electronAPI) {
-      setError('electronAPI 不可用')
-      return false
-    }
-
-    try {
-      setError(null)
-      const result = await window.electronAPI.showFullscreenOverlay()
-      setIsOpen(true)
-      setOverlayType('default')
-      return result
-    } catch (err: any) {
-      setError(err?.message || String(err))
-      return false
-    }
-  }, [])
-
-  const hide = useCallback(async () => {
-    if (typeof window === 'undefined' || !window.electronAPI) {
-      setError('electronAPI 不可用')
-      return false
-    }
-
-    try {
-      const result = await window.electronAPI.closeFullscreenOverlay()
-      setIsOpen(false)
-      setOverlayType('default')
-      setError(null)
-      setBrowserOverlayVisible(false)
-      return result
-    } catch (err: any) {
-      setError(err?.message || String(err))
-      return false
-    }
+    setError('show() 仅用于测试，请使用 showRestReminder() 或 showQuiz()')
+    return false
   }, [])
 
   // 显示休息提醒遮罩
@@ -184,6 +152,9 @@ export function useOverlay() {
       return false
     }
   }, [])
+
+  // hide 是 close 的别名
+  const hide = close
 
   return {
     isOpen,

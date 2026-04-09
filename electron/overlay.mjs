@@ -1,11 +1,21 @@
-import { createRequire } from 'node:module'
-const require = createRequire(import.meta.url)
-const { BrowserWindow, screen } = require('electron')
-import path from 'path'
+import { BrowserWindow, screen } from 'electron'
+import path from 'node:path'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+/** Content-Security-Policy：仅允许内联样式和脚本，禁止外部资源 */
+const CSP_HEADER = [
+  "default-src 'none'",
+  "script-src 'unsafe-inline'",
+  "style-src 'unsafe-inline'",
+  "img-src data:",
+  "font-src 'none'",
+  "connect-src 'none'",
+  "frame-src 'none'",
+  "object-src 'none'",
+].join('; ')
 
 let instance = null
 
@@ -41,10 +51,10 @@ export class OverlayManager {
       focusable: true,
       simpleFullscreen: true,
       webPreferences: {
-        preload: path.join(__dirname, 'overlay-preload.mjs'),
+        preload: path.join(__dirname, 'overlay-preload.cjs'),
         contextIsolation: true,
         nodeIntegration: false,
-        sandbox: false,
+        sandbox: true,
       },
     })
 
@@ -57,6 +67,27 @@ export class OverlayManager {
 
     const html = this.buildHTML(config)
     this.overlayWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html))
+
+    // 设置 CSP 头，限制外部资源加载
+    this.overlayWindow.webContents.on('did-finish-load', () => {
+      this.overlayWindow.webContents.executeJavaScript(`
+        const meta = document.createElement('meta')
+        meta.httpEquiv = 'Content-Security-Policy'
+        meta.content = "${CSP_HEADER}"
+        document.head.appendChild(meta)
+      `)
+    })
+
+    // 窗口关闭前清理定时器，防止泄漏
+    this.overlayWindow.on('close', () => {
+      if (this.overlayWindow) {
+        this.overlayWindow.webContents.executeJavaScript(`
+          const intervals = window.__intervals || []
+          intervals.forEach(id => clearInterval(id))
+        `).catch(() => {})
+      }
+    })
+
     this.overlayWindow.show()
 
     this.onClosedCallback = config.onClosed
@@ -75,6 +106,10 @@ export class OverlayManager {
       const html = this.buildHTML({ content })
       this.overlayWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html))
     }
+  }
+
+  setMainWindow(window) {
+    this.mainWindow = window
   }
 
   close() {

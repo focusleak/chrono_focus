@@ -1,0 +1,27 @@
+import { ROUTES, type RouteKey } from './routes'
+
+export interface NavItemConfig {
+  key: RouteKey
+  label: string
+  position: 'main' | 'secondary'
+}
+
+export const NAV_CONFIG: Record<RouteKey, NavItemConfig> = {
+  POMODORO: { key: 'POMODORO', label: '番茄钟', position: 'main' },
+  POTATO: { key: 'POTATO', label: '土豆钟', position: 'main' },
+  BLUEBERRY: { key: 'BLUEBERRY', label: '黑莓钟', position: 'main' },
+  ACTIVITIES: { key: 'ACTIVITIES', label: '活动', position: 'secondary' },
+  STATS: { key: 'STATS', label: '统计', position: 'secondary' },
+  SETTINGS: { key: 'SETTINGS', label: '设置', position: 'secondary' },
+  TEST: { key: 'TEST', label: '测试', position: 'secondary' },
+}
+
+export const MAIN_NAV: NavItemConfig[] = Object.values(NAV_CONFIG).filter(
+  (item) => item.position === 'main'
+)
+
+export const SECONDARY_NAV: NavItemConfig[] = Object.values(NAV_CONFIG).filter(
+  (item) => item.position === 'secondary'
+)
+
+export const getPath = (key: RouteKey): string => ROUTES[key]

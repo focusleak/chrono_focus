@@ -1,3 +1,4 @@
+import { forwardRef } from 'react'
 import type { LucideIcon } from 'lucide-react'
 
 interface TimerButtonProps {
@@ -12,14 +13,18 @@ const variantStyles = {
   dark: 'border-gray-900/30 text-gray-900 hover:bg-gray-900/10',
 }
 
-export const TimerButton = ({ icon: Icon, label, onClick, variant = 'light' }: TimerButtonProps) => {
-  const baseStyle = 'px-10 h-11 text-base font-medium rounded-xl border backdrop-blur-sm transition-all duration-200 flex items-center'
-  const variantStyle = variantStyles[variant]
+export const TimerButton = forwardRef<HTMLButtonElement, TimerButtonProps>(
+  ({ icon: Icon, label, onClick, variant = 'light' }, ref) => {
+    const baseStyle = 'px-10 h-11 text-base font-medium rounded-xl border backdrop-blur-sm transition-all duration-200 flex items-center'
+    const variantStyle = variantStyles[variant]
 
-  return (
-    <button onClick={onClick} className={`${baseStyle} ${variantStyle}`}>
-      <Icon className="w-4 h-4 mr-2" />
-      {label}
-    </button>
-  )
-}
+    return (
+      <button ref={ref} onClick={onClick} className={`${baseStyle} ${variantStyle}`}>
+        <Icon className="w-4 h-4 mr-2" />
+        {label}
+      </button>
+    )
+  }
+)
+
+TimerButton.displayName = 'TimerButton'

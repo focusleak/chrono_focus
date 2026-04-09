@@ -1,4 +1,15 @@
 // 遮罩窗口 HTML 内容生成
+
+/** HTML 转义，防止 XSS 注入 */
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+}
+
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60)
   const s = seconds % 60
@@ -156,19 +167,22 @@ export const createRestReminderHTML = (config) => {
           <line x1="14" x2="14" y1="2" y2="4"/>
         </svg>
       </div>
-      <h2>${isLongBreak ? "长休息提醒" : "休息提醒"}</h2>
-      <p class="subtitle">${isLongBreak ? "已经连续短休多次，本次为长休息" : "你已经工作了一段时间，记得休息一下哦"}</p>
-      ${isSkipped ? `<p class="skip-hint">已跳过 ${skipCount} 次</p>` : ""}
+      <h2>${escapeHtml(isLongBreak ? "长休息提醒" : "休息提醒")}</h2>
+      <p class="subtitle">${escapeHtml(isLongBreak ? "已经连续短休多次，本次为长休息" : "你已经工作了一段时间，记得休息一下哦")}</p>
+      ${isSkipped ? `<p class="skip-hint">已跳过 ${escapeHtml(skipCount)} 次</p>` : ""}
       <div class="timer" id="timerDisplay">${formatTime(timeLeft)}</div>
       <div class="progress-bar">
-        <div class="progress-fill" id="progressFill" style="width: ${progress}%"></div>
+        <div class="progress-fill" id="progressFill" style="width: ${Number(progress) || 0}%"></div>
       </div>
       <p class="progress-text">倒计时结束后自动关闭</p>
       <button class="btn-skip" id="skipBtn">跳过</button>
     </div>
     <script>
-      let currentTime = ${timeLeft};
-      const totalDuration = ${breakDuration};
+      // 注册定时器到全局数组，便于清理
+      window.__intervals = window.__intervals || []
+
+      let currentTime = ${Number(timeLeft) || 0};
+      const totalDuration = ${Number(breakDuration) || 0};
 
       const timerEl = document.getElementById('timerDisplay');
       const progressEl = document.getElementById('progressFill');
@@ -199,6 +213,8 @@ export const createRestReminderHTML = (config) => {
           }
         }
       }, 1000);
+
+      window.__intervals.push(interval);
 
       document.getElementById('skipBtn').addEventListener('click', (e) => {
         e.preventDefault();
@@ -340,7 +356,7 @@ export const createQuizHTML = (config) => {
         <span class="icon">×</span>
       </div>
       <h2>请回答</h2>
-      <div class="question">${num1} × ${num2} = ?</div>
+      <div class="question">${escapeHtml(num1)} × ${escapeHtml(num2)} = ?</div>
       <input type="number" class="answer-input" id="answerInput" placeholder="输入答案后按回车提交" />
       <div id="resultArea"></div>
       <button class="btn-blue" id="submitBtn">提交答案</button>
