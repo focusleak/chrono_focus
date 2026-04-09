@@ -44,18 +44,6 @@ export interface RuntimeState {
   restReminderSkipCount: number
   /** 休息提醒是否被手动暂停 */
   restReminderPaused: boolean
-
-  // ========== 乘法答题状态 ==========
-  /** 题目数字1 */
-  quizNum1: number
-  /** 题目数字2 */
-  quizNum2: number
-  /** 用户答案 */
-  userAnswer: number | null
-  /** 是否显示乘法题目 */
-  showQuiz: boolean
-  /** 答题结果 */
-  quizResult: 'correct' | 'wrong' | null
   /** 连续短休息次数 */
   restBreakCount: number
 
@@ -130,12 +118,6 @@ export interface RuntimeState {
   tickRestReminder: () => void
   /** 设置是否显示休息提醒提示 */
   setShowRestReminderPrompt: (show: boolean) => void
-  /** 生成乘法题目 */
-  generateQuiz: () => void
-  /** 检查答题答案 */
-  checkQuizAnswer: (answer: string) => boolean
-  /** 关闭答题和休息提醒 */
-  closeQuizAndRestReminder: () => void
   /** 下一次休息 */
   nextRestBreak: () => void
   /** 跳过休息提醒 */
@@ -205,13 +187,6 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
         restReminderSkipped: false,
         restReminderSkipCount: 0,
         restReminderPaused: false,
-
-        // ========== 乘法答题状态 ==========
-        quizNum1: 0,
-        quizNum2: 0,
-        userAnswer: null,
-        showQuiz: false,
-        quizResult: null,
         restBreakCount: 0,
 
         // ========== 提醒计数 ==========
@@ -460,44 +435,10 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
           set({ showRestReminderPrompt: show })
         },
 
-        generateQuiz: () => {
-          const num1 = Math.floor(Math.random() * 90) + 10
-          const num2 = Math.floor(Math.random() * 90) + 10
-          set({
-            showQuiz: true,
-            quizNum1: num1,
-            quizNum2: num2,
-            userAnswer: null,
-            quizResult: null,
-          })
-        },
-
-        checkQuizAnswer: (answer: string) => {
-          const { quizNum1, quizNum2 } = get()
-          const correct = quizNum1 * quizNum2
-          const userNum = parseInt(answer, 10)
-          const isCorrect = userNum === correct
-          set({
-            userAnswer: userNum,
-            quizResult: isCorrect ? 'correct' : 'wrong',
-          })
-          return isCorrect
-        },
-
         nextRestBreak: () => {
           const { restBreakCount } = get()
           const newCount = restBreakCount >= 3 ? 0 : restBreakCount + 1
           set({ restBreakCount: newCount })
-        },
-
-        closeQuizAndRestReminder: () => {
-          set({
-            showQuiz: false,
-            showRestReminderPrompt: false,
-            quizResult: null,
-            userAnswer: null,
-          })
-          get().resetRestReminder()
         },
 
         skipRestReminder: () => {

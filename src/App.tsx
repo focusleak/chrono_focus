@@ -1,12 +1,12 @@
 import { useEffect, useMemo } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { requestNotificationPermission } from '@/lib/utils'
 
 import FullScreenOverlay from '@/components/FullScreenOverlay'
 import RestReminderOverlay from '@/components/RestReminderOverlay'
-import StatusBar from '@/components/StatusBar'
-import { NavItem } from '@/components/common/NavItem'
+import StatusBar from '@/features/statusbar/StatusBar'
+import Sidebar from '@/features/sidebar/Sidebar'
 import { ToastContainer } from '@/components/ui/toast'
 
 import { useInitAutoLaunch } from '@/hooks/common/useInitAutoLaunch'
@@ -23,17 +23,10 @@ import { useRuntimeStore } from '@/store/runtimeStore'
 
 import { PomodoroStatus } from '@/types'
 
-import {
-  MAIN_NAV,
-  SECONDARY_NAV,
-  getActiveTab,
-  routeMap,
-  AppRoutes,
-} from '@/router'
+import { AppRoutes } from '@/router'
 
 function App() {
   const navigate = useNavigate()
-  const location = useLocation()
 
   useTrayActions()
   useTraySync()
@@ -106,26 +99,19 @@ function App() {
     isWorking,
   )
 
-  const activeTab = getActiveTab(location.pathname)
-  const isDev = import.meta.env.DEV
-
-  const handleNav = (tab: string) => {
-    const key = tab.toUpperCase() as keyof typeof routeMap
-    const path = routeMap[key]
-    if (path) navigate(path)
-  }
-
   useEffect(() => {
     requestNotificationPermission()
     const handleNavigateToTasks = () => navigate('/activities')
     window.addEventListener('navigate-to-tasks', handleNavigateToTasks)
     return () => window.removeEventListener('navigate-to-tasks', handleNavigateToTasks)
   }, [navigate])
-
+  
+  const activeTab = window.location.hash.slice(1) || '/'
   const backgroundColor = useMemo(() => {
-    if (activeTab === 'potato') return 'bg-[#FADFA1]'
-    if (activeTab === 'blueberry') return 'bg-[#2D1B69]'
-    if (activeTab !== 'pomodoro') return 'bg-[#f5f5f7] dark:bg-[#0d0d0d]'
+
+    if (activeTab === '/potato') return 'bg-[#FADFA1]'
+    if (activeTab === '/blueberry') return 'bg-[#2D1B69]'
+    if (activeTab !== '/') return 'bg-[#f5f5f7] dark:bg-[#0d0d0d]'
     switch (pomodoroStatus) {
       case PomodoroStatus.Pomodoro: return 'bg-[#ba4949]'
       case PomodoroStatus.ShortBreak: return 'bg-[#38858a]'
@@ -140,33 +126,7 @@ function App() {
         <div className="h-8 w-full shrink-0 absolute left-0 top-0 z-1" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties} />
 
         <div className="flex flex-1 min-h-0">
-          <div className="w-56 bg-white/20 backdrop-blur-xl  shadow-lg flex flex-col pt-10">
-            <nav className="flex-1 px-3 space-y-0.5">
-              {MAIN_NAV.map((item) => (
-                item.key === 'TEST' && !isDev ? null : (
-                  <NavItem
-                    key={item.key}
-                    label={item.label}
-                    isActive={activeTab === item.key.toLowerCase()}
-                    onClick={() => handleNav(item.key.toLowerCase())}
-                  />
-                )
-              ))}
-            </nav>
-
-            <nav className="px-3 space-y-0.5">
-              {SECONDARY_NAV.map((item) => (
-                item.key === 'TEST' && !isDev ? null : (
-                  <NavItem
-                    key={item.key}
-                    label={item.label}
-                    isActive={activeTab === item.key.toLowerCase()}
-                    onClick={() => handleNav(item.key.toLowerCase())}
-                  />
-                )
-              ))}
-            </nav>
-          </div>
+          <Sidebar />
 
           <div className="flex-1 overflow-y-auto">
             <div className="max-w-4xl mx-auto py-8">

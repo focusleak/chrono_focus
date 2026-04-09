@@ -1,4 +1,4 @@
-import { Sun, Moon, Monitor, Play, Palette, Clock, Gamepad2, Droplets, Footprints, StretchHorizontal, Eye, PersonStanding } from 'lucide-react'
+import { Sun, Moon, Monitor, Play, Palette, Clock, Gamepad2, Droplets, Footprints, StretchHorizontal, Eye, PersonStanding, RotateCcw } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
@@ -7,6 +7,7 @@ import { NumberInput } from '@/components/common/NumberInput'
 import { ReminderSettings } from '@/components/common/ReminderSettings'
 
 import { useSettingsStore } from '@/store/settingsStore'
+import { useRuntimeStore } from '@/store/runtimeStore'
 import type { ThemeMode, SettingsState } from '@/store/settingsStore'
 import { useSetAutoLaunch } from '@/hooks/common/useInitAutoLaunch'
 
@@ -37,6 +38,10 @@ const SettingsPage = () => {
   const walkReminderInterval = useSettingsStore.use.walkReminderInterval()
   const updateSettings = useSettingsStore.use.updateSettings()
   const setAutoStartEnabled = useSetAutoLaunch()
+  const resetPotato = useRuntimeStore.use.resetPotato()
+  const resetRestReminder = useRuntimeStore.use.resetRestReminder()
+  const isPotatoRunning = useRuntimeStore.use.isPotatoRunning()
+  const restReminderTimeLeft = useRuntimeStore.use.restReminderTimeLeft()
 
   const themeOptions: { label: string; value: ThemeMode; icon: any }[] = [
     { label: '浅色', value: 'light', icon: Sun },
@@ -46,6 +51,14 @@ const SettingsPage = () => {
 
   const handleChange = <K extends keyof SettingsState>(key: K, value: SettingsState[K]) => {
     updateSettings({ [key]: value })
+  }
+
+  const handleResetPotato = () => {
+    resetPotato()
+  }
+
+  const handleResetRestReminder = () => {
+    resetRestReminder()
   }
 
   return (
@@ -145,16 +158,30 @@ const SettingsPage = () => {
           <Gamepad2 className="w-4 h-4" />
           土豆钟
         </h3>
-        <SettingRow label="每日娱乐时间限制" description="每天最多可用于娱乐的时间">
-          <NumberInput
-            value={dailyPotatoLimit}
-            min={0.1}
-            max={240}
-            showSeconds
-            onSave={setDailyPotatoLimit}
-            className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
-          />
-        </SettingRow>
+        <div className="space-y-4">
+          <SettingRow label="每日娱乐时间限制" description="每天最多可用于娱乐的时间">
+            <NumberInput
+              value={dailyPotatoLimit}
+              min={0.1}
+              max={240}
+              showSeconds
+              onSave={setDailyPotatoLimit}
+              className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
+            />
+          </SettingRow>
+          <SettingRow label="重置土豆钟" description="将土豆钟计时器重置为初始状态">
+            <Button
+              onClick={handleResetPotato}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <RotateCcw className="w-4 h-4" />
+              重置
+              {isPotatoRunning && <span className="ml-1 text-xs opacity-60">(运行中)</span>}
+            </Button>
+          </SettingRow>
+        </div>
       </div>
 
       {/* 休息提醒 */}
@@ -209,6 +236,18 @@ const SettingsPage = () => {
                   onSave={(v) => handleChange('restReminderSkipInterval', v)}
                   className="w-20 h-9 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-[#3a3a3c]"
                 />
+              </SettingRow>
+              <SettingRow label="重置休息提醒" description="将休息提醒倒计时重置为初始状态">
+                <Button
+                  onClick={handleResetRestReminder}
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  重置
+                  {restReminderTimeLeft > 0 && <span className="ml-1 text-xs opacity-60">(倒计时中)</span>}
+                </Button>
               </SettingRow>
             </>
           )}
