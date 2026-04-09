@@ -27,7 +27,7 @@ const Sidebar = () => {
   }
 
   return (
-    <div className="w-56 bg-white/20 backdrop-blur-xl shadow-lg flex flex-col pt-10">
+    <div className="w-56 bg-white/20 backdrop-blur-xl shadow-lg flex flex-col pt-10 pb-2">
       <nav className="flex-1 px-3 space-y-0.5">
         {MAIN_NAV.map((item) => (
           item.key === 'TEST' && !isDev ? null : (
