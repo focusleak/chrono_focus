@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { sendNotification } from '@/lib/utils'
 
+import { useElectronInterval } from './common/useElectronInterval'
+
 import { useRuntimeStore } from '@/store/runtimeStore'
 import { useSettingsStore } from '@/store/settingsStore'
 
@@ -22,7 +24,6 @@ export const useRestReminder = () => {
   const restReminderEnabled = useSettingsStore.use.restReminderEnabled()
   const restReminderNotification = useSettingsStore.use.restReminderNotification()
 
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const hasNotifiedRef = useRef(false)
   const prevShowPromptRef = useRef(false)
   const prevRunningRef = useRef(isPomodoroRunning || isPatataRunning)
@@ -38,29 +39,14 @@ export const useRestReminder = () => {
   // 是否应该运行休息提醒倒计时
   const shouldRun = restReminderEnabled && !isPomodoroRunning && !isPatataRunning && !showRestReminderPrompt && !restReminderPaused
 
-  // 主定时器 useEffect
-  useEffect(() => {
-    if (shouldRun) {
-      // 每次开始运行时，确保通知标记为 false
-      hasNotifiedRef.current = false
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
-      intervalRef.current = setInterval(() => {
-        tickRef.current()
-      }, 1000)
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-        intervalRef.current = null
-      }
-    }
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
-    }
-  }, [shouldRun])
+  // 主定时器：使用 Electron 定时器
+  useElectronInterval(
+    () => {
+      tickRef.current()
+    },
+    1000,
+    shouldRun
+  )
 
   // 当倒计时到 0 时显示全屏弹窗
   useEffect(() => {

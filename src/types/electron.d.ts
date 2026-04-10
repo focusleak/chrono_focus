@@ -18,6 +18,15 @@ export interface ElectronAPI {
     close: () => Promise<void>
     onAction: (callback: (action: string) => void) => () => void
   }
+
+  // Electron 定时器
+  electronTimer: {
+    create: (id: string, delay: number) => Promise<boolean>
+    stop: (id: string) => Promise<boolean>
+    stopAll: () => Promise<boolean>
+    onTick: (callback: (id: string, elapsed?: number) => void) => () => void
+    onWakeUp: (callback: (id: string) => void) => () => void
+  }
 }
 
 declare global {

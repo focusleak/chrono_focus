@@ -43,4 +43,52 @@ contextBridge.exposeInMainWorld('electronAPI', {
       return () => ipcRenderer.removeListener('fullscreen-overlay:action', handler)
     },
   },
+
+  // Electron 定时器
+  electronTimer: {
+    // 创建定时器
+    create: (id, delay) => {
+      console.log('[Preload] Creating timer', { id, delay });
+      return ipcRenderer.invoke('electron-timer:create', { id, delay });
+    },
+
+    // 停止定时器
+    stop: (id) => {
+      console.log('[Preload] Stopping timer', { id });
+      return ipcRenderer.invoke('electron-timer:stop', id);
+    },
+
+    // 停止所有定时器
+    stopAll: () => {
+      console.log('[Preload] Stopping all timers');
+      return ipcRenderer.invoke('electron-timer:stopAll');
+    },
+
+    // 监听定时器触发事件 (支持新的对象格式 { id, elapsed })
+    onTick: (callback) => {
+      console.log('[Preload] Setting up onTick listener');
+      const handler = (_event, data) => {
+        // 兼容旧格式(纯字符串 ID)和新格式(对象)
+        const id = typeof data === 'object' ? data.id : data
+        const elapsed = typeof data === 'object' ? data.elapsed : undefined
+        console.log('[Preload] Received tick', { id, elapsed, data });
+        callback(id, elapsed)
+      }
+      ipcRenderer.on('electron-timer:tick', handler)
+      return () => {
+        console.log('[Preload] Removing onTick listener');
+        ipcRenderer.removeListener('electron-timer:tick', handler)
+      }
+    },
+
+    // 监听唤醒事件
+    onWakeUp: (callback) => {
+      const handler = (_event, id) => {
+        console.log('[Preload] Received wakeup', { id });
+        callback(id)
+      }
+      ipcRenderer.on('electron-timer:wakeup', handler)
+      return () => ipcRenderer.removeListener('electron-timer:wakeup', handler)
+    },
+  },
 })

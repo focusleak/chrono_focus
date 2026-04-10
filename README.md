@@ -105,7 +105,7 @@ chrono-focus/
 │   │   └── AppRoutes.tsx      # 路由组件渲染
 │   ├── features/              # 功能模块（按业务划分）
 │   │   ├── pomodoro/          # 番茄钟（计时器、控制、任务选择）
-│   │   ├── potato/            # 土豆钟（娱乐计时器、娱乐项目选择）
+│   │   ├── patata/            # 土豆钟（娱乐计时器、娱乐项目选择）
 │   │   ├── blueberry/         # 黑莓钟（预留功能，占位页面）
 │   │   ├── activities/        # 活动管理（任务 CRUD、拖拽排序、筛选）
 │   │   ├── settings/          # 设置页面（所有配置项）
@@ -123,7 +123,7 @@ chrono-focus/
 │   │   └── createSelectors.ts # Zustand selectors 自动生成工具
 │   ├── hooks/
 │   │   ├── usePomodoroTimer.ts    # 番茄钟计时逻辑
-│   │   ├── usePotatoTimer.ts      # 土豆钟计时逻辑
+│   │   ├── usePatataTimer.ts      # 土豆钟计时逻辑
 │   │   ├── useRestReminder.ts     # 休息提醒倒计时
 │   │   ├── useThemeSync.ts        # 主题同步
 │   │   ├── useTrayActions.ts      # 托盘动作监听
@@ -194,7 +194,7 @@ chrono-focus/
 | 路由 | 路径 | 说明 |
 |------|------|------|
 | `POMODORO` | `/` | 番茄钟（首页） |
-| `POTATO` | `/potato` | 土豆钟 |
+| `PATATA` | `/patata` | 土豆钟 |
 | `BLUEBERRY` | `/blueberry` | 黑莓钟（占位） |
 | `ACTIVITIES` | `/activities` | 活动管理 |
 | `STATS` | `/stats` | 统计面板 |
