@@ -1,15 +1,17 @@
 import { useEffect, useRef } from 'react'
 import { useRuntimeStore } from '@/store/runtimeStore'
+import { createTrayActionStrategy } from '@/utils/platform-strategies'
 
 /**
  * 系统托盘动作监听 Hook
- * 
+ *
  * 监听来自系统托盘的交互动作（点击、暂停、重置等）
  * 并执行对应的番茄钟/土豆钟/休息提醒操作
  * 使用 ref 避免闭包捕获过期状态值
- * 
+ * 使用策略模式自动适配 Electron/浏览器环境
+ *
  * @returns void
- * 
+ *
  * @example
  * ```tsx
  * function App() {
@@ -66,7 +68,7 @@ export const useTrayActions = () => {
     toggleRestReminderPause])
 
   useEffect(() => {
-    if (!window.electronAPI?.onTrayAction) return
+    const strategy = createTrayActionStrategy()
 
     const handler = (action: string) => {
       const s = stateRef.current
@@ -102,7 +104,7 @@ export const useTrayActions = () => {
       }
     }
 
-    const cleanup = window.electronAPI.onTrayAction(handler)
+    const cleanup = strategy.onAction(handler)
 
     return () => {
       cleanup()

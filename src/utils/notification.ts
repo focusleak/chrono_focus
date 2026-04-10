@@ -1,6 +1,9 @@
 /**
  * 通知工具函数
+ * 使用策略模式自动适配 Electron 和浏览器环境
  */
+
+import { createNotificationStrategy } from './platform-strategies'
 
 let audioContext: AudioContext | null = null
 
@@ -12,43 +15,25 @@ const getAudioContext = (): AudioContext => {
 }
 
 /**
- * 发送通知（Electron 或浏览器原生）
+ * 发送通知（自动选择 Electron 或浏览器原生通知）
  */
 export const sendNotification = async (title: string, body: string) => {
   try {
-    if (window.electronAPI) {
-      await window.electronAPI.showNotification(title, body)
-    } else {
-      if (Notification.permission === 'granted') {
-        new Notification(title, { body })
-        playSound('remind')
-      } else if (Notification.permission !== 'denied') {
-        const permission = await Notification.requestPermission()
-        if (permission === 'granted') {
-          new Notification(title, { body })
-        }
-      }
-    }
+    const strategy = createNotificationStrategy()
+    await strategy.show(title, body)
+    playSound('remind')
   } catch (error) {
     console.error('Failed to send notification:', error)
   }
 }
 
 /**
- * 请求通知权限
+ * 请求通知权限（自动选择 Electron 或浏览器原生 API）
  */
 export const requestNotificationPermission = async () => {
   try {
-    if (window.electronAPI) {
-      return await window.electronAPI.requestNotificationPermission()
-    } else {
-      if (Notification.permission === 'granted') return true
-      if (Notification.permission !== 'denied') {
-        const permission = await Notification.requestPermission()
-        return permission === 'granted'
-      }
-      return false
-    }
+    const strategy = createNotificationStrategy()
+    return await strategy.requestPermission()
   } catch (error) {
     console.error('Failed to request notification permission:', error)
     return false

@@ -1,4 +1,4 @@
-import { useElectronInterval } from './useElectronInterval'
+import { useInterval } from './useInterval'
 
 import { sendNotification } from '@/lib/utils'
 
@@ -17,7 +17,7 @@ export const useReminder = (
   body: string,
   condition: boolean = true,
 ) => {
-  useElectronInterval(
+  useInterval(
     () => {
       sendNotification(title, body)
       // playSound('remind')

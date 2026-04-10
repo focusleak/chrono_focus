@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from 'react'
 import { format } from 'date-fns'
 import { sendNotification } from '@/lib/utils'
 
-import { useElectronInterval } from './common/useElectronInterval'
+import { useInterval } from './common/useInterval'
 
 import { useRuntimeStore } from '@/store/runtimeStore'
 import { useSettingsStore } from '@/store/settingsStore'
@@ -67,7 +67,7 @@ export const usePomodoroTimer = () => {
 
   // 主定时器：每秒执行一次倒计时
   // 当休息提醒弹窗显示时暂停计时
-  useElectronInterval(tickPomodoro, 1000, isPomodoroRunning && !showRestReminderPrompt)
+  useInterval(tickPomodoro, 1000, isPomodoroRunning && !showRestReminderPrompt)
 
   // 监听倒计时结束事件，发送完成通知 + 更新任务/统计
   const prevTimeLeftRef = useRef(pomodoroTimeLeft)

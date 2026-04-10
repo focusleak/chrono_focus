@@ -2,17 +2,19 @@ import { useEffect } from 'react'
 
 import { useRuntimeStore } from '@/store/runtimeStore'
 import { useSettingsStore } from '@/store/settingsStore'
+import { createTraySyncStrategy } from '@/utils/platform-strategies'
 
 import { PomodoroStatus } from '@/types'
 
 /**
  * 系统托盘状态同步 Hook
- * 
+ *
  * 将应用当前运行状态同步到系统托盘的显示文字和菜单
  * 包括番茄钟/土豆钟进度、休息提醒状态等
- * 
+ * 使用策略模式自动适配 Electron/浏览器环境
+ *
  * @returns void
- * 
+ *
  * @example
  * ```tsx
  * function App() {
@@ -37,7 +39,7 @@ export const useTraySync = () => {
 
   useEffect(() => {
     const updateTray = () => {
-      if (!window.electronAPI?.updateTrayText) return
+      const strategy = createTraySyncStrategy()
 
       let text = '⏸️ 空闲'
       let menuState = 'idle'
@@ -82,8 +84,7 @@ export const useTraySync = () => {
         }
       }
 
-      window.electronAPI.updateTrayText(text)
-      window.electronAPI.updateTrayMenu(menuState)
+      strategy.update(text, menuState)
     }
 
     updateTray()

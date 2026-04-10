@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { sendNotification } from '@/lib/utils'
 
-import { useElectronInterval } from './common/useElectronInterval'
+import { useInterval } from './common/useInterval'
 
 import { useRuntimeStore } from '@/store/runtimeStore'
 import { useSettingsStore } from '@/store/settingsStore'
@@ -39,8 +39,8 @@ export const useRestReminder = () => {
   // 是否应该运行休息提醒倒计时
   const shouldRun = restReminderEnabled && !isPomodoroRunning && !isPatataRunning && !showRestReminderPrompt && !restReminderPaused
 
-  // 主定时器：使用 Electron 定时器
-  useElectronInterval(
+  // 主定时器：使用统一定时器
+  useInterval(
     () => {
       tickRef.current()
     },

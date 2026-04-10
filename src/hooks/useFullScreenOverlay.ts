@@ -1,12 +1,16 @@
 /**
- * useFullScreenOverlay - 通用 Electron 全屏遮罩 Hook
+ * useFullScreenOverlay - 通用全屏遮罩 Hook
  *
- * 仅支持 Electron 模式
+ * 使用策略模式自动适配 Electron 和浏览器环境
+ * - Electron 模式：使用原生全屏遮罩
+ * - 浏览器模式：降级为 no-op（不显示）
+ *
  * 提供统一的接口来显示自定义内容的全屏遮罩
  * 自动处理 'closed' 动作
  */
 
 import { useEffect } from 'react'
+import { createFullScreenOverlayStrategy } from '@/utils/platform-strategies'
 
 interface FullScreenConfig {
   /** HTML 内容 */
@@ -27,13 +31,9 @@ interface UseFullScreenOverlayReturn {
 export function useFullScreenOverlay(): UseFullScreenOverlayReturn {
   /** 显示全屏遮罩 */
   const show = async (config: FullScreenConfig) => {
-    if (typeof window === 'undefined' || !window.electronAPI?.fullscreenOverlay) {
-      console.warn('FullScreenOverlay: Electron API 不可用')
-      return
-    }
-
     try {
-      await window.electronAPI.fullscreenOverlay.show(config)
+      const strategy = createFullScreenOverlayStrategy()
+      await strategy.show(config)
     } catch (error) {
       console.error('FullScreenOverlay: 显示遮罩失败', error)
     }
@@ -41,12 +41,9 @@ export function useFullScreenOverlay(): UseFullScreenOverlayReturn {
 
   /** 关闭遮罩 */
   const close = async () => {
-    if (typeof window === 'undefined' || !window.electronAPI?.fullscreenOverlay) {
-      return
-    }
-
     try {
-      await window.electronAPI.fullscreenOverlay.close()
+      const strategy = createFullScreenOverlayStrategy()
+      await strategy.close()
     } catch (error) {
       console.error('FullScreenOverlay: 关闭遮罩失败', error)
     }
@@ -54,11 +51,8 @@ export function useFullScreenOverlay(): UseFullScreenOverlayReturn {
 
   /** 监听遮罩动作 */
   const onAction = (callback: (action: string) => void) => {
-    if (typeof window === 'undefined' || !window.electronAPI?.fullscreenOverlay) {
-      return () => {}
-    }
-
-    return window.electronAPI.fullscreenOverlay.onAction(callback)
+    const strategy = createFullScreenOverlayStrategy()
+    return strategy.onAction(callback)
   }
 
   // 自动处理 'closed' 动作

@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { format } from 'date-fns'
 import { sendNotification } from '@/lib/utils'
 
-import { useElectronInterval } from './common/useElectronInterval'
+import { useInterval } from './common/useInterval'
 
 import { useRuntimeStore } from '@/store/runtimeStore'
 import { useSettingsStore } from '@/store/settingsStore'
@@ -56,5 +56,5 @@ export const usePatataTimer = () => {
 
   // 每秒执行一次计时
   // 当休息提醒弹窗显示时暂停计时
-  useElectronInterval(tickPatata, 1000, isPatataRunning && !showRestReminderPrompt)
+  useInterval(tickPatata, 1000, isPatataRunning && !showRestReminderPrompt)
 }
