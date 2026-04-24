@@ -6,6 +6,7 @@ import AutoLaunch from "auto-launch";
 import { initTray } from "./tray.mjs";
 import { createFullScreenOverlayManager } from "./fullscreen-overlay.mjs";
 import { createFullScreenHTML } from "./fullscreen-overlay-content.mjs";
+import { createTimer, stopTimer, stopAllTimers, handleAppWakeUp } from "./timer.mjs";
 
 // ========== 常量 ==========
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -17,61 +18,6 @@ const ICON_PATH = path.join(__dirname, "../build/icon.png");
 let mainWindow = null;
 let fullscreenOverlayManager = null;
 let isQuitting = false;
-
-// ========== 定时器管理 ==========
-const timers = new Map();
-
-function createTimer(id, delay) {
-  console.log('[Electron Timer] Creating timer', { id, delay });
-  
-  if (timers.has(id)) {
-    console.log('[Electron Timer] Timer already exists, stopping first', { id });
-    stopTimer(id);
-  }
-
-  // 记录创建时间戳,用于后台唤醒后的时间补偿
-  const startTime = Date.now();
-  const timerId = setInterval(() => {
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      // 发送定时器 ID 和实际经过的时间
-      const elapsed = Date.now() - startTime;
-      console.log('[Electron Timer] Sending tick', { id, elapsed });
-      mainWindow.webContents.send('electron-timer:tick', { id, elapsed });
-    } else {
-      console.log('[Electron Timer] Cannot send tick - mainWindow destroyed or null', { id });
-    }
-  }, delay);
-
-  timers.set(id, { timerId, delay, startTime });
-  console.log('[Electron Timer] Timer created successfully', { id, delay });
-  return true;
-}
-
-function stopTimer(id) {
-  console.log('[Electron Timer] Stopping timer', { id });
-  if (timers.has(id)) {
-    clearInterval(timers.get(id).timerId);
-    timers.delete(id);
-    console.log('[Electron Timer] Timer stopped', { id });
-    return true;
-  }
-  console.log('[Electron Timer] Timer not found', { id });
-  return false;
-}
-
-function stopAllTimers() {
-  timers.forEach((_, id) => stopTimer(id));
-}
-
-// 处理应用唤醒后的时间同步
-function handleAppWakeUp() {
-  timers.forEach((timer, id) => {
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      // 发送唤醒事件,让渲染进程可以同步状态
-      mainWindow.webContents.send('electron-timer:wakeup', id);
-    }
-  });
-}
 
 // ========== 开机自启 ==========
 const autoLauncher = new AutoLaunch({
@@ -113,12 +59,12 @@ app.on("before-quit", () => {
 
 // 监听应用唤醒事件
 app.on("wake-event", () => {
-  handleAppWakeUp();
+  handleAppWakeUp(mainWindow);
 });
 
 // macOS 特定的激活事件
 app.on("activate", () => {
-  handleAppWakeUp();
+  handleAppWakeUp(mainWindow);
 });
 
 // ========== 窗口管理 ==========
@@ -262,7 +208,7 @@ function registerIpcHandlers() {
   // 创建定时器
   ipcMain.handle("electron-timer:create", async (_event, { id, delay }) => {
     console.log('[Electron IPC] Received create timer request', { id, delay });
-    const result = createTimer(id, delay);
+    const result = createTimer(id, delay, mainWindow);
     console.log('[Electron IPC] Sending create timer response', { id, result });
     return result;
   });

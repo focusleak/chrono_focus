@@ -342,9 +342,11 @@ export const useRuntimeStore = createSelectors(create<RuntimeState>()(
         tickRestReminder: () => {
           set((state) => {
             if (state.restReminderTimeLeft > 0) {
-              return { restReminderTimeLeft: state.restReminderTimeLeft - 1 }
+              state.restReminderTimeLeft -= 1
+            } else {
+              state.showRestReminderPrompt = true
+              state.restReminderTimeLeft = 0
             }
-            return { showRestReminderPrompt: true, restReminderTimeLeft: 0 }
           })
         },
 

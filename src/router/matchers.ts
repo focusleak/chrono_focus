@@ -7,6 +7,13 @@ export const routeMap: Record<RouteKey, string> = {
   BLUEBERRY: ROUTES.BLUEBERRY,
   ACTIVITIES: ROUTES.ACTIVITIES,
   STATS: ROUTES.STATS,
+  GOALS: ROUTES.GOALS,
+  TASKS: ROUTES.TASKS,
+  REVIEWS: ROUTES.REVIEWS,
+  RESOURCES: ROUTES.RESOURCES,
+  PDCA: ROUTES.PDCA,
+  ANALYTICS: ROUTES.ANALYTICS,
+  NOTIFICATIONS: ROUTES.NOTIFICATIONS,
   SETTINGS: ROUTES.SETTINGS,
   TEST: ROUTES.TEST,
 }
@@ -17,6 +24,13 @@ export const getActiveTab = (pathname: string): string => {
   if (pathname.startsWith(ROUTES.PATATA)) return 'patata'
   if (pathname.startsWith(ROUTES.BLUEBERRY)) return 'blueberry'
   if (pathname.startsWith(ROUTES.STATS)) return 'stats'
+  if (pathname.startsWith(ROUTES.GOALS)) return 'goals'
+  if (pathname.startsWith(ROUTES.TASKS)) return 'tasks'
+  if (pathname.startsWith(ROUTES.REVIEWS)) return 'reviews'
+  if (pathname.startsWith(ROUTES.RESOURCES)) return 'resources'
+  if (pathname.startsWith(ROUTES.PDCA)) return 'pdca'
+  if (pathname.startsWith(ROUTES.ANALYTICS)) return 'analytics'
+  if (pathname.startsWith(ROUTES.NOTIFICATIONS)) return 'notifications'
   if (pathname.startsWith(ROUTES.ACTIVITIES)) return 'activities'
   if (pathname.startsWith(ROUTES.TEST)) return 'test'
   return 'pomodoro'

@@ -64,9 +64,9 @@ export function useRestReminderOverlay() {
     const skipInfo = restReminderSkipped ? `<p style="font-size: 12px; color: #fbbf24; margin-bottom: 24px; font-weight: 500;">已跳过 ${restReminderSkipCount || 0} 次</p>` : ''
 
     return `
-      <div style="text-align: center; max-width: 448px; padding: 40px; background: rgba(255,255,255,0.95); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
-        <div style="width: 64px; height: 64px; border-radius: 50%; background: #fed7aa; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div style="text-align: center; max-width: 448px; padding: 48px 40px; ; ">
+        <div style="width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, #f97316, #fb923c); display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; box-shadow: 0 8px 24px rgba(249, 115, 22, 0.3);">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
             <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
             <line x1="6" x2="6" y1="2" y2="4"/>
@@ -74,14 +74,14 @@ export function useRestReminderOverlay() {
             <line x1="14" x2="14" y1="2" y2="4"/>
           </svg>
         </div>
-        <h2 style="font-size: 20px; font-weight: 600; color: #111827; margin-bottom: 8px;">${isLongBreak ? '长休息提醒' : '休息提醒'}</h2>
-        <p style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">${isLongBreak ? '已经连续短休多次，本次为长休息' : '你已经工作了一段时间，记得休息一下哦'}</p>
+        <h2 style="font-size: 24px; font-weight: 600; color: #ffffff; margin-bottom: 12px; letter-spacing: 0.5px;">${isLongBreak ? '长休息提醒' : '休息提醒'}</h2>
+        <p style="font-size: 15px; color: #a1a1aa; margin-bottom: 12px; line-height: 1.6;">${isLongBreak ? '已经连续短休多次，本次为长休息' : '你已经工作了一段时间，记得休息一下哦'}</p>
         ${skipInfo}
-        <div id="timerDisplay" style="font-size: 48px; font-weight: 600; font-family: monospace; color: #111827; margin-bottom: 8px; font-variant-numeric: tabular-nums;">
+        <div id="timerDisplay" style="font-size: 56px; font-weight: 700; font-family: 'SF Mono', 'Consolas', monospace; color: #f97316; margin-bottom: 12px; font-variant-numeric: tabular-nums; text-shadow: 0 0 20px rgba(249, 115, 22, 0.4);">
           ${formatTime(initialTimeLeft)}
         </div>
-        <p style="font-size: 12px; color: #9ca3af; margin-bottom: 32px;">倒计时结束后自动关闭</p>
-        <button id="skipBtn" style="width: 100%; padding: 12px 16px; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: #f3f4f6; color: #374151;">
+        <p style="font-size: 12px; color: #71717a; margin-bottom: 36px;">倒计时结束后自动关闭</p>
+        <button id="skipBtn" style="width: 100%; padding: 10px 20px; border-radius: 12px; font-size: 15px; font-weight: 500; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.1); background: transparent; color: #e4e4e7;">
           跳过
         </button>
       </div>
@@ -245,6 +245,7 @@ export function useRestReminderOverlay() {
 
       show({
         content: restOverlayContent,
+        backgroundColor: 'rgba(0,0,0,0.8)',
       })
     }
   }, [showRestReminderPrompt, showQuiz, restOverlayContent, show])

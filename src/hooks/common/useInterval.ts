@@ -48,14 +48,16 @@ class ElectronTimerStrategy implements TimerStrategy {
   private callbackRef: (() => void) | null = null
   private listenerCleanup: (() => void) | null = null
   private running = false
+  private isStarting = false // 防止并发 start
 
   constructor() {
     this.timerId = `timer_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
   }
 
   start(callback: () => void, delay: number): void {
-    if (this.running || !window.electronAPI?.electronTimer) return
+    if (this.running || this.isStarting || !window.electronAPI?.electronTimer) return
 
+    this.isStarting = true
     this.callbackRef = callback
 
     // 设置监听器
@@ -70,6 +72,7 @@ class ElectronTimerStrategy implements TimerStrategy {
       .create(this.timerId, delay)
       .then(() => {
         this.running = true
+        this.isStarting = false
       })
       .catch((err) => {
         console.error('[ElectronTimer] Failed to start:', err)
@@ -78,12 +81,12 @@ class ElectronTimerStrategy implements TimerStrategy {
   }
 
   stop(): void {
-    if (!this.running) return
+    if (!this.running && !this.isStarting) return
     this.cleanup()
   }
 
   isRunning(): boolean {
-    return this.running
+    return this.running || this.isStarting
   }
 
   private cleanup(): void {
@@ -98,6 +101,7 @@ class ElectronTimerStrategy implements TimerStrategy {
 
     this.callbackRef = null
     this.running = false
+    this.isStarting = false
   }
 }
 
